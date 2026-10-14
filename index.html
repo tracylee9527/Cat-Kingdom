@@ -1,0 +1,1329 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Capy Trail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=DM+Mono:wght@400;500&family=Mali:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: phone-shaped app column on graph paper. Top resource bar, scrolling content, five-tab bottom nav (hidden during a run). */
+:root{
+  --paper:#e6eddb; --grid:#d2dcc3; --card:#f8faf1; --sunk:#edf2e3; --ink:#253020; --muted:#5a6851; --shadow:#253020;
+  --sky:#d9eae4; --hill:#c4d6ae; --hill2:#a9c393; --ground:#b5c897; --trail:#d9cfa8;
+  --capy:#a46f3c; --capy-dk:#6b4524; --yuzu:#e5821a; --leaf:#3f8a3c; --water:#3d8c92;
+  --good:#2b8543; --bad:#c23d2b; --onyuzu:#2a1805; --gold:#b98a12;
+  --ch1:#8fb06a; --ch2:#9b8bb8; --ch3:#6fa9b5; --ch4:#d39a52; --ch5:#7f8fc7; --ch6:#c27766;
+  --f-display:"Bagel Fat One","Arial Rounded MT Bold",system-ui,sans-serif;
+  --f-body:"Mali","Comic Sans MS",system-ui,sans-serif;
+  --f-num:"DM Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#131a15; --grid:#1d2820; --card:#1b231d; --sunk:#162019; --ink:#e3ebd5; --muted:#9aa98e; --shadow:#000;
+  --sky:#17232a; --hill:#24342a; --hill2:#2c4231; --ground:#2b3b2a; --trail:#46412d;
+  --capy:#bb8452; --capy-dk:#7c5332; --yuzu:#f29a36; --leaf:#5aad55; --water:#5aaeb3;
+  --good:#5fc077; --bad:#ef6c57; --onyuzu:#2a1805; --gold:#e2b544;
+  --ch1:#4f6e3a; --ch2:#5b4f78; --ch3:#3c6a74; --ch4:#86602f; --ch5:#46528a; --ch6:#7d4639; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --paper:#131a15; --grid:#1d2820; --card:#1b231d; --sunk:#162019; --ink:#e3ebd5; --muted:#9aa98e; --shadow:#000;
+  --sky:#17232a; --hill:#24342a; --hill2:#2c4231; --ground:#2b3b2a; --trail:#46412d;
+  --capy:#bb8452; --capy-dk:#7c5332; --yuzu:#f29a36; --leaf:#5aad55; --water:#5aaeb3;
+  --good:#5fc077; --bad:#ef6c57; --onyuzu:#2a1805; --gold:#e2b544;
+  --ch1:#4f6e3a; --ch2:#5b4f78; --ch3:#3c6a74; --ch4:#86602f; --ch5:#46528a; --ch6:#7d4639; color-scheme:dark }
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  background-color:var(--paper); color:var(--ink); font-family:var(--f-body); font-size:15px; line-height:1.5;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:22px 22px;
+}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--water);outline-offset:2px}
+.app{max-width:500px;margin:0 auto;height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto}
+.topbar{padding-inline:16px;padding-block:10px 6px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.brand{font-family:var(--f-display);font-size:24px;line-height:1;letter-spacing:.4px}
+.brand span{color:var(--yuzu)}
+.res{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.pill{font-family:var(--f-num);font-size:12.5px;font-variant-numeric:tabular-nums;padding:3px 10px;border:2px solid var(--ink);border-radius:999px;background:var(--card);display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.coin{width:12px;height:12px;border-radius:50%;background:var(--gold);border:1.5px solid var(--ink);display:inline-block}
+.main{overflow-y:auto;padding-inline:16px;padding-block:6px 24px;display:grid;grid-auto-rows:max-content;gap:12px;align-content:start;min-width:0}
+.nav[hidden]{display:none}
+.nav{display:grid;grid-template-columns:repeat(5,1fr);border-top:2px solid var(--ink);background:var(--card);padding-bottom:env(safe-area-inset-bottom,0px)}
+.nav button{background:none;border:0;padding:7px 0 6px;display:grid;justify-items:center;gap:1px;font-size:11px;font-weight:700;color:var(--muted);cursor:pointer}
+.nav svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round;stroke-linecap:round;padding:3px;border-radius:9px}
+.nav button[aria-current="page"]{color:var(--ink)}
+.nav button[aria-current="page"] svg{background:var(--yuzu);color:var(--onyuzu)}
+.nav .center svg{width:34px;height:34px;margin-top:-14px;background:var(--card);border:2px solid var(--ink);border-radius:50%;padding:5px}
+.nav .center[aria-current="page"] svg{background:var(--yuzu)}
+
+/* generic */
+.card{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:16px;box-shadow:3px 3px 0 var(--shadow);display:grid;gap:12px;min-width:0}
+.card h2{font-family:var(--f-display);font-weight:400;font-size:21px;line-height:1.15;margin:0;text-wrap:balance}
+.card h3{margin:0;font-size:15px}
+.card p{margin:0}
+.muted{color:var(--muted)}
+.note{font-size:12px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:space-between;align-items:center}
+.chip{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;padding:2px 9px;border-radius:999px;background:var(--ink);color:var(--card)}
+.chip.ghost{background:transparent;color:var(--muted);border:1.5px solid var(--muted)}
+.chip.boss{background:var(--bad);color:var(--card)}
+.btn{border:2px solid var(--ink);background:var(--card);border-radius:10px;padding:.6em 1em;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 var(--shadow);transition:transform .08s,box-shadow .08s;text-align:left}
+.btn:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--shadow)}
+.btn:active:not(:disabled){transform:translate(2px,2px);box-shadow:0 0 0 var(--shadow)}
+.btn:disabled{cursor:default;opacity:.55}
+.btn.primary{background:var(--yuzu);color:var(--onyuzu);text-align:center}
+.btn.big{font-family:var(--f-display);font-weight:400;font-size:22px;padding:.45em 1em;letter-spacing:.5px}
+.btn.small{padding:.3em .75em;font-size:13px}
+.btn.ghost{box-shadow:none;border-style:dashed}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.grow{flex:1}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.bar{flex:1;height:14px;border:2px solid var(--ink);border-radius:9px;background:var(--sunk);overflow:hidden;min-width:60px}
+.bar>i{display:block;height:100%;background:var(--bad);transition:width .25s}
+.bar.enemy>i{background:var(--muted)}
+.bar.good>i{background:var(--leaf)}
+
+/* scene */
+.scene{position:relative;border:2px solid var(--ink);border-radius:14px;overflow:hidden;background:var(--sky);box-shadow:3px 3px 0 var(--shadow)}
+.scene svg{display:block;width:100%;height:auto}
+.scene.walking .trail-dash{animation:march .45s linear infinite}
+.scene.walking .capy-body{animation:bob .3s ease-in-out infinite alternate}
+.idle .capy-body{animation:breathe 2.4s ease-in-out infinite}
+@keyframes march{to{transform:translateX(-24px)}}
+@keyframes bob{to{transform:translateY(-3px)}}
+@keyframes breathe{50%{transform:translateY(-1.5px)}}
+.lunge{animation:lunge .25s ease-out}
+.recoil{animation:recoil .25s ease-out}
+.enemy-lunge{animation:elunge .25s ease-out}
+@keyframes lunge{50%{transform:translateX(18px)}}
+@keyframes recoil{50%{transform:translateX(-14px)}}
+@keyframes elunge{50%{transform:translateX(-18px)}}
+.float{position:absolute;font-family:var(--f-num);font-weight:500;font-size:15px;pointer-events:none;animation:rise .85s ease-out forwards;color:var(--ink);text-shadow:0 1px 0 var(--card)}
+.float.hurt{color:var(--bad)} .float.crit{color:var(--yuzu);font-size:20px;font-family:var(--f-display)} .float.heal{color:var(--good)} .float.zap{color:var(--water)}
+@keyframes rise{from{transform:translate(-50%,0);opacity:1}to{transform:translate(-50%,-36px);opacity:0}}
+
+/* adventure home */
+.chapter{gap:10px}
+.chap-top{display:flex;align-items:center;gap:8px}
+.chap-top .grow{text-align:center;min-width:0}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.1em;font-weight:700;color:var(--muted)}
+.chap-name{font-family:var(--f-display);font-size:26px;line-height:1.05;text-wrap:balance}
+.arrow{width:38px;height:38px;border-radius:50%;padding:0;text-align:center;flex:none}
+.topics{display:flex;flex-wrap:wrap;gap:5px;justify-content:center}
+.tag{font-size:12px;padding:1px 8px;border-radius:6px;background:var(--sunk);border:1px solid var(--grid)}
+.progress-line{display:flex;align-items:center;gap:10px;font-size:13px}
+.statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.st{background:var(--sunk);border-radius:10px;padding:6px 8px;display:grid;gap:0;text-align:center;min-width:0}
+.st b{font-family:var(--f-num);font-size:16px;font-weight:500;font-variant-numeric:tabular-nums}
+.st span{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.locked{opacity:.6}
+
+/* lists (gear/talents/shop) */
+.list{display:grid;gap:10px}
+.item{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:12px;box-shadow:3px 3px 0 var(--shadow)}
+.ico{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;border:2px solid var(--ink);background:var(--sunk)}
+.ico svg{width:28px;height:28px;fill:none;stroke:var(--ink);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.item h3{margin:0;font-size:15px;line-height:1.2}
+.item p{margin:0;font-size:12.5px;color:var(--muted)}
+.rar{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.r0{color:var(--muted)} .r1{color:var(--leaf)} .r2{color:var(--water)} .r3{color:var(--ch2)} .r4{color:var(--yuzu)}
+.cost{display:inline-flex;align-items:center;gap:5px;font-family:var(--f-num);font-size:13px}
+.sectitle{font-family:var(--f-display);font-size:20px;margin:4px 0 -2px}
+
+/* library */
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+.tabs button{flex:none;border:2px solid var(--ink);background:var(--card);border-radius:999px;padding:3px 12px;font-size:13px;font-weight:700;cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--ink);color:var(--card)}
+.mastery{display:grid;gap:8px}
+.mrow{display:grid;grid-template-columns:minmax(0,1fr) 90px auto;gap:10px;align-items:center}
+.mrow .lab{font-weight:700;font-size:14px;line-height:1.2}
+.mrow .lab small{display:block;font-weight:400;color:var(--muted);font-family:var(--f-num);font-size:11.5px}
+.ref{display:grid;gap:10px}
+.ref dl{margin:0;display:grid;gap:8px}
+.ref dt{font-weight:700}
+.ref dd{margin:0;color:var(--muted);font-size:13.5px}
+.ref .grp{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--yuzu);font-weight:700;margin-top:6px}
+.formula{font-family:var(--f-num);font-size:13.5px;background:var(--sunk);border-radius:8px;padding:6px 10px;color:var(--ink);display:block;margin-top:3px;overflow-x:auto}
+
+/* run */
+.hud{display:grid;gap:7px}
+.hud-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.hud-ch{font-family:var(--f-display);font-size:19px;line-height:1.1}
+.daychip{font-family:var(--f-num);font-size:13px;color:var(--muted);white-space:nowrap}
+.daychip b{color:var(--ink);font-size:16px}
+.pips{display:flex;gap:3px;align-items:center}
+.pip{flex:1;height:8px;border-radius:4px;background:var(--grid);border:1.5px solid var(--muted);opacity:.7}
+.pip.done{background:var(--leaf);border-color:var(--leaf);opacity:1}
+.pip.now{background:var(--yuzu);border-color:var(--ink);opacity:1}
+.pip.boss{flex:0 0 12px;height:12px;border-radius:2px;transform:rotate(45deg)}
+.hp{display:flex;align-items:center;gap:10px}
+.stats{display:flex;flex-wrap:wrap;gap:5px}
+.stat{font-family:var(--f-num);font-size:11.5px;padding:2px 8px;border:1.5px solid var(--ink);border-radius:999px;background:var(--card);font-variant-numeric:tabular-nums}
+.stat em{font-style:normal;color:var(--muted);margin-right:4px;text-transform:uppercase;letter-spacing:.06em;font-size:10px}
+.stat.insight{border-color:var(--yuzu)}
+.skillrow{display:flex;flex-wrap:wrap;gap:5px}
+.sk{font-size:11.5px;padding:1px 8px;border-radius:6px;background:var(--sunk);border:1px solid var(--grid)}
+
+/* problem card */
+.dia{width:100%;max-width:330px;height:auto;display:block;margin:0 auto}
+.dia .shape{fill:var(--sunk);stroke:var(--ink);stroke-width:2.2;stroke-linejoin:round}
+.dia .fillacc{fill:var(--yuzu);opacity:.25;stroke:none}
+.dia .ln{stroke:var(--ink);stroke-width:2.2;fill:none;stroke-linecap:round}
+.dia .thin{stroke:var(--ink);stroke-width:1.4;fill:none}
+.dia .dash{stroke-dasharray:5 4}
+.dia .gl{stroke:var(--muted);stroke-width:.6;opacity:.4}
+.dia .ax{stroke:var(--muted);stroke-width:1.2}
+.dia .dot{fill:var(--ink)}
+.dia text{font-family:var(--f-num);font-size:12.5px;fill:var(--ink);dominant-baseline:central}
+.dia .vl{font-family:var(--f-body);font-weight:700;font-size:13px}
+.dia .q{fill:var(--yuzu);font-weight:500;font-size:14px}
+.dia .sm{font-size:10px;fill:var(--muted)}
+.qtext{font-size:16px;font-weight:600;text-wrap:pretty}
+.defq{display:block;font-weight:400;font-style:italic;margin-top:6px;padding:8px 12px;background:var(--sunk);border-radius:8px}
+.given{font-size:14px;display:grid;gap:2px}
+.given b{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-right:6px}
+.proof{width:100%;border-collapse:collapse;font-size:13px}
+.proof-wrap{overflow-x:auto}
+.proof th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:4px 6px;border-bottom:2px solid var(--ink)}
+.proof td{padding:5px 6px;border-bottom:1px solid var(--grid);vertical-align:top}
+.proof td:first-child{font-family:var(--f-num);color:var(--muted);width:1.6em}
+.proof tr.blank td{background:var(--sunk)}
+.proof .qm{font-family:var(--f-display);color:var(--yuzu);font-size:16px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.opts.one{grid-template-columns:1fr}
+.opt{display:flex;align-items:center;gap:10px;font-weight:600;font-size:14.5px;min-width:0}
+.opt .k{font-family:var(--f-num);font-size:11px;width:20px;height:20px;border-radius:5px;display:grid;place-items:center;border:1.5px solid var(--muted);color:var(--muted);flex:none}
+.opt .t{min-width:0;overflow-wrap:anywhere}
+.opt.mono .t{font-family:var(--f-num);font-weight:500;font-size:15px}
+.opt.right{background:var(--good);color:var(--card);border-color:var(--good);opacity:1}
+.opt.wrong{background:var(--bad);color:var(--card);border-color:var(--bad);opacity:1}
+.opt.right .k,.opt.wrong .k{border-color:var(--card);color:var(--card)}
+.opt.gone{visibility:hidden}
+.feedback{border-radius:10px;padding:10px 12px;border:2px dashed var(--muted);display:grid;gap:10px}
+.feedback.ok{border-color:var(--good)} .feedback.no{border-color:var(--bad)}
+.feedback b.v{font-family:var(--f-display);font-weight:400;font-size:18px}
+.feedback.ok b.v{color:var(--good)} .feedback.no b.v{color:var(--bad)}
+.choices{display:grid;gap:8px}
+.choice{display:grid;gap:2px}
+.choice strong{font-size:15px}
+.choice span{font-weight:400;font-size:13px;color:var(--muted)}
+.choice .lv{font-family:var(--f-num);font-size:11px;color:var(--yuzu)}
+.estats{font-family:var(--f-num);font-size:12.5px;color:var(--muted)}
+.log{font-size:13px;min-height:5.6em;display:grid;gap:1px;align-content:start;color:var(--muted)}
+.log div:last-child{color:var(--ink)}
+.tbl{display:grid;grid-template-columns:auto auto;gap:4px 16px;font-family:var(--f-num);font-size:13px;justify-content:start}
+.tbl span:nth-child(odd){color:var(--muted)}
+.confirm{display:grid;gap:8px;padding:10px;border:2px dashed var(--bad);border-radius:10px}
+@media (max-width:400px){.opts{grid-template-columns:1fr}.statgrid{grid-template-columns:repeat(2,1fr)}.mrow{grid-template-columns:minmax(0,1fr) 60px auto}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="app">
+  <header class="topbar" id="topbar"></header>
+  <main class="main" id="main"></main>
+  <nav class="nav" id="nav" aria-label="Menu"></nav>
+</div>
+
+<script>
+/* ================= utilities ================= */
+const $=s=>document.querySelector(s);
+const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const chance=p=>Math.random()<p;
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b]}return a};
+const neg=s=>String(s).replace(/-/g,'−');
+const cap=s=>s[0].toUpperCase()+s.slice(1);
+const DEG=Math.PI/180, sinD=d=>Math.sin(d*DEG), cosD=d=>Math.cos(d*DEG), tanD=d=>Math.tan(d*DEG);
+const asinD=v=>Math.asin(v)/DEG, acosD=v=>Math.acos(v)/DEG, atanD=v=>Math.atan(v)/DEG;
+const fI=v=>neg(Math.round(v));
+const fD=v=>Math.round(v)+'°';
+const f1=v=>neg((Math.round(v*10)/10).toFixed(1));
+const fNice=v=>{const r=Math.round(v*10)/10;return neg(Number.isInteger(r)?String(r):r.toFixed(1))};
+const u=(fmt,unit)=>v=>fmt(v)+unit;
+function frac(n,d){if(d<0){n=-n;d=-d}const g=gcd(n,d)||1;n/=g;d/=g;return neg(d===1?String(n):`${n}/${d}`)}
+function piF(n,d){if(d<0){n=-n;d=-d}const g=gcd(n,d)||1;n/=g;d/=g;const top=n===1?'π':n===-1?'−π':neg(n)+'π';return d===1?top:top+'/'+d}
+function simpRoot(n){let k=1,m=n;for(let i=Math.floor(Math.sqrt(n));i>1;i--){if(n%(i*i)===0){k=i;m=n/(i*i);break}}return[k,m]}
+function rad(c,n){if(n===0)return'0';const[k,m]=simpRoot(n);const K=c*k;if(m===1)return String(K);return(K===1?'':K)+'√'+m}
+function pt(x,y){return neg(`(${x}, ${y})`)}
+function expr(a,b){const ax=a===1?'x':a===-1?'−x':neg(a)+'x';if(b===0)return ax;return `${ax} ${b<0?'−':'+'} ${Math.abs(b)}`}
+function uniq(ans,cands,n=4){const out=[ans],seen=new Set([ans]);for(const c of cands){if(out.length>=n)break;if(c==null)continue;const s=String(c);if(!s||/NaN|Infinity|undefined/.test(s))continue;if(!seen.has(s)){seen.add(s);out.push(s)}}return out}
+function numOpts(ans,cands,fmt,o={}){
+  const pos=o.pos!==false;const A=fmt(ans);
+  const out=uniq(A,cands.filter(v=>Number.isFinite(v)&&(!pos||v>0)).map(fmt));
+  const st=o.step||Math.max(Math.abs(ans)*0.11,0.4);let k=1;
+  while(out.length<4&&k<60){const v=ans+(k%2?1:-1)*Math.ceil(k/2)*st;if(!pos||v>0){const s=fmt(v);if(!out.includes(s))out.push(s)}k++}
+  return shuffle(out);
+}
+function strOpts(ans,cands){return shuffle(uniq(ans,cands))}
+
+/* ================= drawing helpers ================= */
+const add=(a,b)=>[a[0]+b[0],a[1]+b[1]], sub=(a,b)=>[a[0]-b[0],a[1]-b[1]], mul=(a,k)=>[a[0]*k,a[1]*k];
+const vlen=a=>Math.hypot(a[0],a[1]), nrm=a=>{const l=vlen(a)||1;return[a[0]/l,a[1]/l]};
+const mid=(a,b)=>[(a[0]+b[0])/2,(a[1]+b[1])/2];
+const cent=P=>[P.reduce((s,p)=>s+p[0],0)/P.length,P.reduce((s,p)=>s+p[1],0)/P.length];
+const F=n=>(+n).toFixed(1);
+const W=(inner,vb='0 0 260 172')=>`<svg class="dia" viewBox="${vb}" role="img" aria-label="Problem diagram">${inner}</svg>`;
+const isQ=s=>s==='?'||s==='x'||s==='θ';
+const T=(p,s,a='middle',cls)=>`<text x="${F(p[0])}" y="${F(p[1])}" text-anchor="${a}" class="${cls||(isQ(String(s))?'q':'')}">${s}</text>`;
+const seg=(a,b,cls='ln')=>`<line x1="${F(a[0])}" y1="${F(a[1])}" x2="${F(b[0])}" y2="${F(b[1])}" class="${cls}"/>`;
+const dot=(p,r=3.2)=>`<circle cx="${F(p[0])}" cy="${F(p[1])}" r="${r}" class="dot"/>`;
+const poly=(P,cls='shape')=>`<polygon points="${P.map(p=>F(p[0])+','+F(p[1])).join(' ')}" class="${cls}"/>`;
+function fit(pts,[bx,by,bw,bh]){
+  const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);
+  const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  const s=Math.min(bw/((x1-x0)||1),bh/((y1-y0)||1));
+  const ox=bx+(bw-(x1-x0)*s)/2,oy=by+(bh-(y1-y0)*s)/2;
+  return pts.map(p=>[ox+(p[0]-x0)*s,oy+(y1-p[1])*s]);
+}
+function ticks(a,b,n){const m=mid(a,b),d=nrm(sub(b,a)),pn=[-d[1],d[0]];let s='';for(let i=0;i<n;i++){const c=add(m,mul(d,(i-(n-1)/2)*4.5));s+=seg(add(c,mul(pn,5)),sub(c,mul(pn,5)),'thin')}return s}
+function arcs(V,P1,P2,n=1,r=14){const u1=nrm(sub(P1,V)),u2=nrm(sub(P2,V));const cr=u1[0]*u2[1]-u1[1]*u2[0];const sw=cr>0?1:0;let s='';for(let i=0;i<n;i++){const rr=r+i*4.5,a=add(V,mul(u1,rr)),b=add(V,mul(u2,rr));s+=`<path d="M${F(a[0])},${F(a[1])} A${rr},${rr} 0 0 ${sw} ${F(b[0])},${F(b[1])}" class="thin"/>`}return s}
+function rmark(V,P1,P2,s=10){const u1=nrm(sub(P1,V)),u2=nrm(sub(P2,V));const a=add(V,mul(u1,s)),b=add(a,mul(u2,s)),c=add(V,mul(u2,s));return `<path d="M${F(a[0])},${F(a[1])} L${F(b[0])},${F(b[1])} L${F(c[0])},${F(c[1])}" class="thin"/>`}
+function angPos(V,P1,P2,d=26){const b=nrm(add(nrm(sub(P1,V)),nrm(sub(P2,V))));return add(V,mul(b,d))}
+function sideLab(a,b,c,s,d=10){const m=mid(a,b);let dir=nrm(sub(m,c));const an=dir[0]>.45?'start':dir[0]<-.45?'end':'middle';return T(add(m,mul(dir,d)),s,an)}
+/* triangle: P screen pts; o.v vertex labels, o.s side labels (side i opposite vertex i), o.a angle labels, o.right index */
+function triDraw(P,o={}){
+  const c=cent(P);let s=poly(P);
+  if(o.right!=null)s+=rmark(P[o.right],P[(o.right+1)%3],P[(o.right+2)%3]);
+  for(let i=0;i<3;i++){
+    const A=P[i],B=P[(i+1)%3],C=P[(i+2)%3];
+    if(o.a&&o.a[i]!=null&&o.a[i]!==''){
+      const u1=nrm(sub(B,A)),u2=nrm(sub(C,A));const ang=Math.acos(Math.max(-1,Math.min(1,u1[0]*u2[0]+u1[1]*u2[1])))/DEG;
+      if(i!==o.right)s+=arcs(A,B,C,1,12);
+      s+=T(angPos(A,B,C,ang<35?40:ang<60?30:24),o.a[i]);
+    }
+    if(o.s&&o.s[i]!=null&&o.s[i]!=='')s+=sideLab(B,C,c,o.s[i]);
+    if(o.v)s+=T(add(A,mul(nrm(sub(A,c)),11)),o.v[i],'middle','vl');
+  }
+  return s;
+}
+function triFromAngles(A,B){const C=180-A-B;const c=1,b=sinD(B)/sinD(C);return[[0,0],[c,0],[b*cosD(A),b*sinD(A)]]}
+const cpt=(c,r,deg)=>[c[0]+r*cosD(deg),c[1]-r*sinD(deg)];
+const NTS=T([250,164],'not to scale','end','sm');
+
+/* ================= content banks ================= */
+const SEC={DEF:'Definitions',PRF:'Proofs',ANG:'Angles & Triangles',SIM:'Similarity',CRD:'Coordinates',TRG:'Trigonometry',CIR:'Circles',MEA:'Measurement'};
+const TERMS=[
+ ['Median','a segment from a vertex of a triangle to the midpoint of the opposite side','tri'],
+ ['Altitude','a segment from a vertex of a triangle perpendicular to the line containing the opposite side','tri'],
+ ['Perpendicular bisector','a line perpendicular to a segment at its midpoint','tri'],
+ ['Angle bisector','a ray that divides an angle into two congruent angles','tri'],
+ ['Midsegment','a segment joining the midpoints of two sides of a triangle','tri'],
+ ['Centroid','the point where the three medians of a triangle meet','ctr'],
+ ['Incenter','the point where the three angle bisectors of a triangle meet','ctr'],
+ ['Circumcenter','the point where the three perpendicular bisectors of a triangle meet','ctr'],
+ ['Orthocenter','the point where the three altitudes of a triangle meet','ctr'],
+ ['Complementary angles','two angles whose measures add to 90°','ang'],
+ ['Supplementary angles','two angles whose measures add to 180°','ang'],
+ ['Linear pair','two adjacent angles whose non-common sides are opposite rays','ang'],
+ ['Vertical angles','two nonadjacent angles formed by two intersecting lines','ang'],
+ ['Adjacent angles','two coplanar angles that share a vertex and a side but no interior points','ang'],
+ ['Skew lines','lines that do not intersect and are not coplanar','line'],
+ ['Parallel lines','coplanar lines that never intersect','line'],
+ ['Transversal','a line that intersects two or more coplanar lines at different points','line'],
+ ['Perpendicular lines','lines that intersect to form right angles','line'],
+ ['Chord','a segment whose endpoints both lie on a circle','cir'],
+ ['Secant','a line that intersects a circle at exactly two points','cir'],
+ ['Tangent','a line in the plane of a circle that meets the circle at exactly one point','cir'],
+ ['Inscribed angle','an angle whose vertex is on a circle and whose sides contain chords','cir'],
+ ['Central angle','an angle whose vertex is the center of a circle','cir'],
+ ['Rhombus','a parallelogram with four congruent sides','quad'],
+ ['Rectangle','a parallelogram with four right angles','quad'],
+ ['Trapezoid','a quadrilateral with exactly one pair of parallel sides','quad'],
+ ['Kite','a quadrilateral with two pairs of consecutive congruent sides and no congruent opposite sides','quad'],
+ ['Parallelogram','a quadrilateral with both pairs of opposite sides parallel','quad'],
+ ['Converse','the statement formed by swapping the hypothesis and the conclusion','logic'],
+ ['Inverse','the statement formed by negating both the hypothesis and the conclusion','logic'],
+ ['Contrapositive','the statement formed by swapping and negating the hypothesis and the conclusion','logic'],
+ ['Biconditional','a statement that joins a conditional and its converse with “if and only if”','logic'],
+ ['Isometry','a transformation that preserves length and angle measure','tr'],
+ ['Dilation','a transformation that enlarges or reduces a figure by a scale factor from a center point','tr'],
+ ['Rotation','a transformation that turns every point through a fixed angle about a center','tr'],
+ ['Reflection','a transformation that flips a figure across a line','tr'],
+ ['Translation','a transformation that slides every point the same distance in the same direction','tr'],
+ ['Angle of elevation','the angle from the horizontal up to a line of sight','trig'],
+ ['Angle of depression','the angle from the horizontal down to a line of sight','trig'],
+ ['Sine','in a right triangle, the ratio of the leg opposite an angle to the hypotenuse','trig'],
+ ['Cosine','in a right triangle, the ratio of the leg adjacent to an angle to the hypotenuse','trig'],
+ ['Tangent ratio','in a right triangle, the ratio of the leg opposite an angle to the leg adjacent to it','trig'],
+];
+const GRP={tri:'Segments in triangles',ctr:'Points of concurrency',ang:'Angle pairs',line:'Lines',cir:'Circles',quad:'Quadrilaterals',logic:'Logic',tr:'Transformations',trig:'Trigonometry'};
+const ASN=[
+ ['A square is ___ a rhombus.','Always','A square is a parallelogram with four congruent sides.'],
+ ['A rhombus is ___ a square.','Sometimes','Only when its angles are right angles.'],
+ ['A trapezoid is ___ a parallelogram.','Never','A trapezoid has exactly one pair of parallel sides.'],
+ ['The diagonals of a rectangle are ___ congruent.','Always','Rectangle diagonals are always congruent.'],
+ ['The diagonals of a rhombus are ___ perpendicular.','Always','Rhombus diagonals are perpendicular bisectors of each other.'],
+ ['The diagonals of a parallelogram are ___ perpendicular.','Sometimes','Only when the parallelogram is a rhombus.'],
+ ['Vertical angles are ___ supplementary.','Sometimes','Only when both are 90°.'],
+ ['Two acute angles are ___ supplementary.','Never','Two angles under 90° add to less than 180°.'],
+ ['An equilateral triangle is ___ isosceles.','Always','It has at least two congruent sides.'],
+ ['An isosceles triangle is ___ equilateral.','Sometimes','Only when the third side matches too.'],
+ ['The circumcenter of a triangle ___ lies inside the triangle.','Sometimes','Inside for acute, on the hypotenuse for right, outside for obtuse triangles.'],
+ ['The centroid of a triangle ___ lies inside the triangle.','Always','Medians stay inside the triangle, so their meeting point does too.'],
+ ['The orthocenter of an obtuse triangle ___ lies inside the triangle.','Never','Two altitudes fall outside, so they meet outside.'],
+ ['A right triangle ___ has an obtuse angle.','Never','The other two angles must add to 90°.'],
+ ['Two lines that do not intersect are ___ parallel.','Sometimes','In space they could be skew.'],
+ ['The orthocenter of a right triangle is ___ at the right-angle vertex.','Always','The two legs are altitudes and meet there.'],
+ ['A tangent is ___ perpendicular to the radius at the point of tangency.','Always','This is the tangent–radius theorem.'],
+ ['An inscribed angle that intercepts a semicircle is ___ a right angle.','Always','It is half of a 180° arc.'],
+ ['Similar triangles are ___ congruent.','Sometimes','Only when the scale factor is 1.'],
+ ['A dilation is ___ an isometry.','Sometimes','Only when the scale factor is 1 or −1.'],
+ ['For an acute angle θ, sin θ is ___ greater than 1.','Never','The opposite leg is always shorter than the hypotenuse.'],
+ ['For an acute angle θ, tan θ is ___ greater than 1.','Sometimes','tan θ > 1 when θ > 45°.'],
+ ['A kite ___ has perpendicular diagonals.','Always','The long diagonal is the perpendicular bisector of the short one.'],
+ ['Opposite angles of a quadrilateral inscribed in a circle are ___ supplementary.','Always','Together they intercept the whole 360° circle.'],
+];
+const CONDS=[
+ {p:'a figure is a square',q:'it is a rectangle',qs:'a figure is a rectangle',ps:'it is a square',np:'a figure is not a square',nq:'it is not a rectangle',nqs:'a figure is not a rectangle',nps:'it is not a square'},
+ {p:'two angles are vertical angles',q:'they are congruent',qs:'two angles are congruent',ps:'they are vertical angles',np:'two angles are not vertical angles',nq:'they are not congruent',nqs:'two angles are not congruent',nps:'they are not vertical angles'},
+ {p:'a triangle is equilateral',q:'it is isosceles',qs:'a triangle is isosceles',ps:'it is equilateral',np:'a triangle is not equilateral',nq:'it is not isosceles',nqs:'a triangle is not isosceles',nps:'it is not equilateral'},
+ {p:'an angle is inscribed in a semicircle',q:'it is a right angle',qs:'an angle is a right angle',ps:'it is inscribed in a semicircle',np:'an angle is not inscribed in a semicircle',nq:'it is not a right angle',nqs:'an angle is not a right angle',nps:'it is not inscribed in a semicircle'},
+ {p:'two lines are parallel',q:'they never intersect',qs:'two lines never intersect',ps:'they are parallel',np:'two lines are not parallel',nq:'they intersect',nqs:'two lines intersect',nps:'they are not parallel'},
+ {p:'a quadrilateral is a rhombus',q:'its diagonals are perpendicular',qs:'a quadrilateral has perpendicular diagonals',ps:'it is a rhombus',np:'a quadrilateral is not a rhombus',nq:'its diagonals are not perpendicular',nqs:'a quadrilateral does not have perpendicular diagonals',nps:'it is not a rhombus'},
+];
+const REASONS={
+ 'Given':['other','Information stated in the problem.'],
+ 'CPCTC':['other','Corresponding parts of congruent triangles are congruent.'],
+ 'Reflexive property':['prop','Any segment or angle is congruent to itself.'],
+ 'Symmetric property':['prop','If a = b, then b = a.'],
+ 'Transitive property':['prop','If a = b and b = c, then a = c.'],
+ 'Substitution property':['prop','A quantity may be replaced by an equal quantity.'],
+ 'Addition property of equality':['prop','Adding the same amount to both sides keeps an equation true.'],
+ 'Subtraction property of equality':['prop','Subtracting the same amount from both sides keeps an equation true.'],
+ 'Division property of equality':['prop','Dividing both sides by the same nonzero number keeps an equation true.'],
+ 'Distributive property':['prop','a(b + c) = ab + ac.'],
+ 'Definition of midpoint':['def','A midpoint divides a segment into two congruent segments.'],
+ 'Definition of angle bisector':['def','An angle bisector divides an angle into two congruent angles.'],
+ 'Definition of perpendicular lines':['def','Perpendicular lines meet to form right angles.'],
+ 'Definition of right triangle':['def','A right triangle has one right angle.'],
+ 'Definition of parallelogram':['def','Both pairs of opposite sides are parallel.'],
+ 'Definition of linear pair':['def','Adjacent angles whose outer sides are opposite rays.'],
+ 'Definition of congruent angles':['def','Angles are congruent exactly when their measures are equal.'],
+ 'Vertical angles are congruent':['ang','Angles opposite each other at an intersection are congruent.'],
+ 'Linear pair postulate':['ang','The angles of a linear pair are supplementary.'],
+ 'Corresponding angles postulate':['ang','Parallel lines cut by a transversal make congruent corresponding angles.'],
+ 'Alternate interior angles theorem':['ang','Parallel lines cut by a transversal make congruent alternate interior angles.'],
+ 'Same-side interior angles theorem':['ang','Parallel lines cut by a transversal make supplementary same-side interior angles.'],
+ 'All right angles are congruent':['ang','Every right angle measures 90°.'],
+ 'SSS':['tri','Three pairs of congruent sides.'],
+ 'SAS':['tri','Two pairs of sides and the included angle.'],
+ 'ASA':['tri','Two pairs of angles and the included side.'],
+ 'AAS':['tri','Two pairs of angles and a non-included side.'],
+ 'HL':['tri','Congruent hypotenuses and one pair of legs in right triangles.'],
+ 'AA similarity':['tri','Two pairs of congruent angles make triangles similar.'],
+};
+const EQUIV={'Substitution property':['Transitive property'],'Transitive property':['Substitution property'],'Linear pair postulate':['Same-side interior angles theorem']};
+
+/* proof figures (screen coords) */
+function figPts(pts,segs,extra=''){
+  let s='';for(const [a,b] of segs)s+=seg(pts[a],pts[b]);
+  s+=extra;for(const k in pts){const p=pts[k];s+=T([p[0]+(p[2]||0),p[1]+(p[3]||0)],k,'middle','vl')}
+  return W(s);
+}
+const FIG={
+  kite1:()=>{const P={B:[130,22,0,-12],A:[40,148,-10,6],C:[220,148,10,6],D:[130,148,0,13]};return figPts(P,[['A','B'],['B','C'],['C','A'],['B','D']],ticks(P.A,P.B,1)+ticks(P.C,P.B,1)+arcs(P.B,P.A,P.D,1,20)+arcs(P.B,P.D,P.C,1,24))},
+  perp:()=>{const P={B:[130,22,0,-12],A:[40,148,-10,6],C:[220,148,10,6],D:[130,148,0,13]};return figPts(P,[['A','B'],['B','C'],['C','A'],['B','D']],rmark(P.D,P.C,P.B)+ticks(P.A,P.D,1)+ticks(P.D,P.C,1))},
+  iso:(t)=>{const P={A:[130,22,0,-12],B:[40,148,-10,6],C:[220,148,10,6],D:[130,148,0,13]};return figPts(P,[['A','B'],['A','C'],['B','C'],['A','D']],t==='bis'?arcs(P.A,P.B,P.D,1,22)+arcs(P.A,P.D,P.C,1,26):ticks(P.A,P.B,1)+ticks(P.A,P.C,1)+ticks(P.B,P.D,2)+ticks(P.D,P.C,2))},
+  bowM:()=>{const P={A:[40,30,-10,-4],B:[220,150,10,4],C:[40,150,-10,4],D:[220,30,10,-4],M:[130,90,0,-15]};return figPts(P,[['A','B'],['C','D'],['A','C'],['B','D']])},
+  bowC:()=>{const P={A:[40,30,-10,-4],D:[220,150,10,4],B:[40,150,-10,4],E:[220,30,10,-4],C:[130,90,0,-15]};return figPts(P,[['A','D'],['B','E'],['A','B'],['D','E']])},
+  trap:()=>{const P={A:[30,145,-8,8],B:[170,145,8,8],C:[230,35,8,-8],D:[90,35,-8,-8]};return figPts(P,[['A','B'],['B','C'],['C','D'],['D','A'],['A','C']])},
+  para:()=>{const P={A:[30,145,-8,8],B:[90,35,-8,-8],C:[230,35,8,-8],D:[170,145,8,8]};return figPts(P,[['A','B'],['B','C'],['C','D'],['D','A'],['A','C']])},
+  kiteR:()=>{const P={A:[50,90,-12,0],B:[90,20.7,-6,-12],C:[210,90,12,0],D:[90,159.3,-6,12]};return figPts(P,[['A','B'],['B','C'],['C','D'],['D','A'],['A','C']],rmark(P.B,P.A,P.C)+rmark(P.D,P.A,P.C))},
+  sim:()=>{const P={A:[130,22,0,-12],B:[30,150,-10,6],C:[230,150,10,6],D:[80,86,-12,0],E:[180,86,12,0]};return figPts(P,[['A','B'],['A','C'],['B','C'],['D','E']])},
+  vert:()=>W(seg([30,40],[230,140])+seg([30,140],[230,40])+T([84,90],'1','middle','vl')+T([130,62],'2','middle','vl')+T([176,90],'3','middle','vl')),
+};
+const PROOFS=[
+ {fig:'kite1',given:'AB ≅ CB; BD bisects ∠ABC',prove:'△ABD ≅ △CBD',rows:[['AB ≅ CB','Given'],['BD bisects ∠ABC','Given'],['∠ABD ≅ ∠CBD','Definition of angle bisector'],['BD ≅ BD','Reflexive property'],['△ABD ≅ △CBD','SAS']]},
+ {fig:'bowM',given:'M is the midpoint of AB and of CD',prove:'△AMC ≅ △BMD',rows:[['M is the midpoint of AB and CD','Given'],['AM ≅ BM','Definition of midpoint'],['CM ≅ DM','Definition of midpoint'],['∠AMC ≅ ∠BMD','Vertical angles are congruent'],['△AMC ≅ △BMD','SAS']]},
+ {fig:'trap',given:'AB ∥ DC; AB ≅ DC',prove:'△ABC ≅ △CDA',rows:[['AB ∥ DC','Given'],['AB ≅ DC','Given'],['∠BAC ≅ ∠DCA','Alternate interior angles theorem'],['AC ≅ AC','Reflexive property'],['△ABC ≅ △CDA','SAS']]},
+ {fig:'perp',given:'BD ⟂ AC; D is the midpoint of AC',prove:'AB ≅ CB',rows:[['BD ⟂ AC','Given'],['D is the midpoint of AC','Given'],['∠BDA and ∠BDC are right angles','Definition of perpendicular lines'],['∠BDA ≅ ∠BDC','All right angles are congruent'],['AD ≅ CD','Definition of midpoint'],['BD ≅ BD','Reflexive property'],['△ABD ≅ △CBD','SAS'],['AB ≅ CB','CPCTC']]},
+ {fig:'vert',given:'∠1 and ∠3 are vertical angles',prove:'∠1 ≅ ∠3',rows:[['∠1 and ∠3 are vertical angles','Given'],['∠1 and ∠2 form a linear pair','Definition of linear pair'],['m∠1 + m∠2 = 180°','Linear pair postulate'],['m∠2 + m∠3 = 180°','Linear pair postulate'],['m∠1 + m∠2 = m∠2 + m∠3','Substitution property'],['m∠1 = m∠3','Subtraction property of equality'],['∠1 ≅ ∠3','Definition of congruent angles']]},
+ {fig:'kiteR',given:'∠ABC and ∠ADC are right angles; AB ≅ AD',prove:'△ABC ≅ △ADC',rows:[['∠ABC and ∠ADC are right angles','Given'],['AB ≅ AD','Given'],['△ABC and △ADC are right triangles','Definition of right triangle'],['AC ≅ AC','Reflexive property'],['△ABC ≅ △ADC','HL']]},
+ {fig:'sim',given:'DE ∥ BC',prove:'△ADE ∼ △ABC',rows:[['DE ∥ BC','Given'],['∠ADE ≅ ∠ABC','Corresponding angles postulate'],['∠A ≅ ∠A','Reflexive property'],['△ADE ∼ △ABC','AA similarity']]},
+ {fig:'bowC',given:'C is the midpoint of AD; AB ∥ DE',prove:'△ABC ≅ △DEC',rows:[['C is the midpoint of AD','Given'],['AB ∥ DE','Given'],['AC ≅ DC','Definition of midpoint'],['∠A ≅ ∠D','Alternate interior angles theorem'],['∠ACB ≅ ∠DCE','Vertical angles are congruent'],['△ABC ≅ △DEC','ASA']]},
+ {fig:'para',given:'ABCD is a parallelogram',prove:'AB ≅ CD',rows:[['ABCD is a parallelogram','Given'],['AB ∥ CD and BC ∥ AD','Definition of parallelogram'],['∠BAC ≅ ∠DCA','Alternate interior angles theorem'],['∠BCA ≅ ∠DAC','Alternate interior angles theorem'],['AC ≅ AC','Reflexive property'],['△ABC ≅ △CDA','ASA'],['AB ≅ CD','CPCTC']]},
+ {fig:'isoBis',given:'∠B ≅ ∠C; AD bisects ∠BAC',prove:'AB ≅ AC',rows:[['∠B ≅ ∠C','Given'],['AD bisects ∠BAC','Given'],['∠BAD ≅ ∠CAD','Definition of angle bisector'],['AD ≅ AD','Reflexive property'],['△ABD ≅ △ACD','AAS'],['AB ≅ AC','CPCTC']]},
+ {fig:'isoMid',given:'AB ≅ AC; D is the midpoint of BC',prove:'∠BAD ≅ ∠CAD',rows:[['AB ≅ AC','Given'],['D is the midpoint of BC','Given'],['BD ≅ CD','Definition of midpoint'],['AD ≅ AD','Reflexive property'],['△ABD ≅ △ACD','SSS'],['∠BAD ≅ ∠CAD','CPCTC']]},
+ {alg:1},{alg:2},
+];
+function algProof(kind){
+  if(kind===1){const a=R(2,5),b=R(1,6),d=R(1,9),x=-a*b-d;
+    return{fig:null,given:`${a}(x − ${b}) = ${a+1}x + ${d}`,prove:neg(`x = ${x}`),rows:[[`${a}(x − ${b}) = ${a+1}x + ${d}`,'Given'],[`${a}x − ${a*b} = ${a+1}x + ${d}`,'Distributive property'],[`−${a*b} = x + ${d}`,'Subtraction property of equality'],[neg(`${x} = x`),'Subtraction property of equality'],[neg(`x = ${x}`),'Symmetric property']]}}
+  const c=R(2,4),a=c+R(1,3),x=R(2,9),b=R(1,9),d=(a-c)*x-b;if(d<=0)return algProof(2);
+  return{fig:null,given:`${a}x − ${b} = ${c}x + ${d}`,prove:`x = ${x}`,rows:[[`${a}x − ${b} = ${c}x + ${d}`,'Given'],[`${a-c===1?'':a-c}x − ${b} = ${d}`,'Subtraction property of equality'],[`${a-c===1?'':a-c}x = ${d+b}`,'Addition property of equality'],[`x = ${x}`,(a-c===1?'Symmetric property':'Division property of equality')]].filter((r,i)=>!(a-c===1&&i===3))};
+}
+
+/* ================= problem generators ================= */
+/* each returns {sec, topic, q, svg?, proof?, ans, opts, explain} */
+function gDef(){
+  const t=pick(TERMS);const pool=[...shuffle(TERMS.filter(x=>x[2]===t[2]&&x!==t)),...shuffle(TERMS.filter(x=>x[2]!==t[2]))];
+  if(chance(.55))return{sec:SEC.DEF,topic:GRP[t[2]],q:`Which term matches this definition?<span class="defq">${cap(t[1])}.</span>`,ans:t[0],opts:strOpts(t[0],pool.map(x=>x[0])),explain:`<b>${t[0]}</b>: ${t[1]}.`};
+  return{sec:SEC.DEF,topic:GRP[t[2]],q:`Which is the definition of <b>${t[0].toLowerCase()}</b>?`,ans:cap(t[1]),opts:strOpts(cap(t[1]),pool.map(x=>cap(x[1]))),explain:`<b>${t[0]}</b>: ${t[1]}.`};
+}
+function gAlways(){const [s,a,e]=pick(ASN);return{sec:SEC.DEF,topic:'Always, sometimes, never',q:`Fill in the blank: ${s.replace('___','<b>___</b>')}`,ans:a,opts:['Always','Sometimes','Never'],keep:true,explain:`<b>${a}.</b> ${e}`}}
+function gLogic(){
+  const c=pick(CONDS);const orig=`If ${c.p}, then ${c.q}.`,conv=`If ${c.qs}, then ${c.ps}.`,inv=`If ${c.np}, then ${c.nq}.`,contra=`If ${c.nqs}, then ${c.nps}.`;
+  const kind=pick(['converse','inverse','contrapositive','equivalent']);
+  const ans={converse:conv,inverse:inv,contrapositive:contra,equivalent:contra}[kind];
+  const q=kind==='equivalent'?`Which statement is logically equivalent to: <i>“${orig}”</i>`:`What is the <b>${kind}</b> of: <i>“${orig}”</i>`;
+  const ex={converse:'The converse swaps the hypothesis and conclusion.',inverse:'The inverse negates both parts without swapping.',contrapositive:'The contrapositive swaps and negates both parts.',equivalent:'Only the contrapositive always has the same truth value as the original.'}[kind];
+  return{sec:SEC.DEF,topic:'Conditional statements',q,ans,opts:strOpts(ans,[orig,conv,inv,contra]),explain:ex};
+}
+function gCongr(){
+  const cases=['SSS','SAS','ASA','AAS','HL','SSA','AAA'];const k=pick(cases);
+  const right=k==='HL';const M=right?[[0,0],[4.6,0],[0,3.2]]:[[0,0],[5,0],[1.7,3.1]];
+  const mk={SSS:{s:[[0,3],[1,2],[2,1]],a:[]},SAS:{s:[[1,2],[2,1]],a:[[0,1]]},ASA:{s:[[2,1]],a:[[0,1],[1,2]]},AAS:{s:[[0,1]],a:[[0,1],[1,2]]},HL:{s:[[0,2],[1,1]],a:[]},SSA:{s:[[0,2],[1,1]],a:[[0,1]]},AAA:{s:[],a:[[0,1],[1,2],[2,3]]}}[k];
+  const P1=fit(M,[16,30,104,110]),P2=fit(M.map(p=>[-p[0],p[1]]),[140,30,104,110]);
+  let s='';
+  for(const [P,L] of [[P1,['A','B','C']],[P2,['D','E','F']]]){
+    s+=poly(P);if(right)s+=rmark(P[0],P[1],P[2]);
+    for(const [i,n] of mk.s)s+=ticks(P[(i+1)%3],P[(i+2)%3],n);
+    for(const [i,n] of mk.a)s+=arcs(P[i],P[(i+1)%3],P[(i+2)%3],n,13);
+    const c=cent(P);for(let i=0;i<3;i++)s+=T(add(P[i],mul(nrm(sub(P[i],c)),11)),L[i],'middle','vl');
+  }
+  const ans=k==='SSA'||k==='AAA'?'Not enough information':k;
+  const ex={SSS:'All three pairs of sides are marked congruent.',SAS:'Two pairs of sides and the angle between them are marked.',ASA:'Two pairs of angles and the side between them are marked.',AAS:'Two pairs of angles and a side that is not between them are marked.',HL:'Both are right triangles with congruent hypotenuses and one pair of congruent legs.',SSA:'Two sides and a non-included angle (SSA) do not guarantee congruence.',AAA:'Three pairs of angles only prove the triangles similar, not congruent.'}[k];
+  return{sec:SEC.PRF,topic:'Congruence shortcuts',q:'Which postulate or theorem proves △ABC ≅ △DEF, if any?',svg:W(s),ans,opts:strOpts(ans,shuffle(['SSS','SAS','ASA','AAS','HL','Not enough information'])),explain:ex};
+}
+function gProof(lvl=1){
+  let P=pick(PROOFS);if(P.alg)P=algProof(P.alg);
+  const fig=P.fig==null?'':P.fig==='isoBis'?FIG.iso('bis'):P.fig==='isoMid'?FIG.iso('mid'):FIG[P.fig]();
+  const idxs=P.rows.map((r,i)=>i).filter(i=>P.rows[i][1]!=='Given'||chance(.1));
+  const bi=pick(idxs);const correct=P.rows[bi][1];
+  const cat=REASONS[correct][0];const excl=new Set([correct,...(EQUIV[correct]||[])]);
+  const same=shuffle(Object.keys(REASONS).filter(r=>REASONS[r][0]===cat&&!excl.has(r)));
+  const other=shuffle(Object.keys(REASONS).filter(r=>REASONS[r][0]!==cat&&!excl.has(r)&&r!=='Given'));
+  const opts=strOpts(correct,[...same.slice(0,2),...other,...same.slice(2)]);
+  const tbl=`<div class="proof-wrap"><table class="proof"><thead><tr><th></th><th>Statement</th><th>Reason</th></tr></thead><tbody>${P.rows.map((r,i)=>`<tr class="${i===bi?'blank':''}"><td>${i+1}</td><td>${r[0]}</td><td>${i===bi?'<span class="qm">?</span>':r[1]}</td></tr>`).join('')}</tbody></table></div>`;
+  return{sec:SEC.PRF,topic:'Two-column proof',q:`What is the reason for step ${bi+1}?`,svg:fig,proof:`<div class="given"><div><b>Given</b>${P.given}</div><div><b>Prove</b>${P.prove}</div></div>`+tbl,ans:correct,opts,explain:`<b>${correct}.</b> ${REASONS[correct][1]}`};
+}
+/* angles & triangles */
+function gVertAlg(){
+  const x=R(6,22);let a=R(2,7),c=R(2,7);while(c===a)c=R(2,7);const V=R(35,145);const b=V-a*x,d=V-c*x;
+  const kind=pick(['x','ang','adj']);
+  const s=seg([30,40],[230,140])+seg([30,140],[230,40])+T([76,90],`(${expr(a,b)})°`,'end')+T([184,90],`(${expr(c,d)})°`,'start')+(kind==='adj'?T([130,58],'?'):'')+NTS;
+  const q=kind==='x'?'Two lines intersect. Find x.':kind==='ang'?'Two lines intersect. Find the measure of one of the marked angles.':'Two lines intersect. Find the angle marked ?';
+  const ans=kind==='x'?x:kind==='ang'?V:180-V;const fmt=kind==='x'?fI:fD;
+  return{sec:SEC.ANG,topic:'Vertical angles',q,svg:W(s),ans:fmt(ans),opts:numOpts(ans,kind==='x'?[(180-b-d)/(a+c),(d-b)/(a+c),x+2]:kind==='ang'?[180-V,x,V+a]:[V,90-V/2,360-V],fmt,{step:kind==='x'?1:5}),
+    explain:`Vertical angles are congruent: ${expr(a,b)} = ${expr(c,d)} → x = ${x}. Each marked angle is ${V}°${kind==='adj'?`, and the angle next to it is 180 − ${V} = ${180-V}°`:''}.`};
+}
+function gParAlg(){
+  const P1=[155.2,50],P2=[116.2,115];const off={UR:[30,-14,'start'],UL:[-12,-20,'end'],LL:[-30,14,'end'],LR:[12,20,'start']};const acute={UR:1,LL:1,UL:0,LR:0};
+  const rel=pick(['alt','corr','co']);let r1,r2;
+  if(rel==='alt')[r1,r2]=pick([['LL','UR'],['LR','UL']]);else if(rel==='corr'){r1=pick(['UR','UL','LL','LR']);r2=r1}else[r1,r2]=pick([['LL','UL'],['LR','UR']]);
+  const A=R(40,80),val=r=>acute[r]?A:180-A;const v1=val(r1),v2=val(r2);
+  const x=R(5,20);let a=R(2,6),c=R(2,6);if(rel!=='co')while(c===a)c=R(2,6);const b=v1-a*x,d=v2-c*x;
+  const lab=(P,r,s)=>T([P[0]+off[r][0],P[1]+off[r][1]],s,off[r][2]);
+  const s=seg([12,50],[248,50])+seg([12,115],[248,115])+seg([178,12],[94,152])+`<path d="M30,45 L37,50 L30,55 M30,110 L37,115 L30,120" class="thin"/>`+lab(P1,r1,`(${expr(a,b)})°`)+lab(P2,r2,`(${expr(c,d)})°`)+NTS;
+  const name={alt:'Alternate interior angles are congruent',corr:'Corresponding angles are congruent',co:'Same-side interior angles are supplementary'}[rel];
+  return{sec:SEC.ANG,topic:'Parallel lines',q:'The horizontal lines are parallel. Find x.',svg:W(s),ans:fI(x),opts:numOpts(x,rel==='co'?[(d-b)/(a-c),(90-b-d)/(a+c)]:[(180-b-d)/(a+c),(90-b-d)/(a+c)],fI,{step:1}),
+    explain:`${name}: ${rel==='co'?`(${expr(a,b)}) + (${expr(c,d)}) = 180`:`${expr(a,b)} = ${expr(c,d)}`}, so x = ${x}.`};
+}
+const PN={5:'pentagon',6:'hexagon',8:'octagon',9:'nonagon',10:'decagon',12:'dodecagon',15:'15-gon',18:'18-gon',20:'20-gon',24:'24-gon',30:'30-gon',36:'36-gon'};
+function gPolyExt(){
+  const n=pick([5,6,8,9,10,12,15,18,20,24,30,36]);const k=pick(['ext','int','sum']);
+  if(k==='ext')return{sec:SEC.ANG,topic:'Polygon angles',q:`Each exterior angle of a regular polygon measures ${360/n}°. How many sides does it have?`,ans:fI(n),opts:numOpts(n,[180/(360/n),n+2,n-2,360/n],fI,{step:1}),explain:`Exterior angles of any polygon sum to 360°. 360 ÷ ${360/n} = ${n} sides.`};
+  if(k==='int'){const I=180*(n-2)/n;return{sec:SEC.ANG,topic:'Polygon angles',q:`Each interior angle of a regular polygon measures ${I}°. How many sides does it have?`,ans:fI(n),opts:numOpts(n,[360/I,n+1,n-1,n+2],fI,{step:1}),explain:`Each exterior angle is 180 − ${I} = ${180-I}°. 360 ÷ ${180-I} = ${n}.`}}
+  const S=180*(n-2);return{sec:SEC.ANG,topic:'Polygon angles',q:`The interior angles of a convex polygon sum to ${S}°. How many sides does it have?`,ans:fI(n),opts:numOpts(n,[S/180,n-1,n+1,S/360],fI,{step:1}),explain:`(n − 2) × 180 = ${S} → n − 2 = ${n-2} → n = ${n}.`};
+}
+function gTriExt(){
+  const x=R(6,16),r1=R(30,70),r2=R(30,70);const a1=R(1,4),a2=R(1,4);let a3=R(2,7);while(a3===a1+a2)a3=R(2,7);
+  const b1=r1-a1*x,b2=r2-a2*x,b3=r1+r2-a3*x;const B=[40,140],C=[170,140],E=[244,140],A=[105,36];
+  const k=pick(['x','ext','int']);
+  let s=poly([A,B,C])+seg(C,E)+T(angPos(A,B,C,30),`(${expr(a1,b1)})°`)+T(add(angPos(B,A,C,34),[14,0]),`(${expr(a2,b2)})°`,'start')+T(add(angPos(C,A,E,22),[4,-6]),`(${expr(a3,b3)})°`,'start')+(k==='int'?T(angPos(C,A,B,24),'?'):'')+NTS;
+  s+=T([A[0],A[1]-12],'A','middle','vl')+T([B[0]-10,B[1]+6],'B','middle','vl')+T([C[0],C[1]+14],'C','middle','vl');
+  const ext=r1+r2;const ans=k==='x'?x:k==='ext'?ext:180-ext;const fmt=k==='x'?fI:fD;
+  return{sec:SEC.ANG,topic:'Exterior angle theorem',q:k==='x'?'Find x.':k==='ext'?'Find the measure of the exterior angle at C.':'Find m∠BCA (marked ?).',svg:W(s),
+    ans:fmt(ans),opts:numOpts(ans,k==='x'?[(180-b1-b2-b3)/(a1+a2+a3),x+1,x-2]:k==='ext'?[180-ext,r1,r2]:[ext,180-r1,r1],fmt,{step:k==='x'?1:5}),
+    explain:`An exterior angle equals the sum of the two remote interior angles: (${expr(a1,b1)}) + (${expr(a2,b2)}) = ${expr(a3,b3)} → x = ${x}. The exterior angle is ${ext}°${k==='int'?`, so m∠BCA = 180 − ${ext} = ${180-ext}°`:''}.`};
+}
+function gIsoAlg(){
+  const V=R(32,78),x=R(4,15);let a=R(2,6),c=R(2,6);while(c===a)c=R(2,6);const b=V-a*x,d=V-c*x;
+  const A=[130,22],B=[40,148],C=[220,148];
+  const s=poly([A,B,C])+ticks(A,B,1)+ticks(A,C,1)+T(add(angPos(B,A,C,36),[6,0]),`(${expr(a,b)})°`,'start')+T(add(angPos(C,A,B,36),[-6,0]),`(${expr(c,d)})°`,'end')+T(angPos(A,B,C,30),'?')+T([130,10],'A','middle','vl')+T([28,154],'B','middle','vl')+T([232,154],'C','middle','vl')+NTS;
+  const ans=180-2*V;
+  return{sec:SEC.ANG,topic:'Isosceles triangles',q:'AB ≅ AC. Find m∠A.',svg:W(s),ans:fD(ans),opts:numOpts(ans,[V,180-V,90-V/2,x],fD,{step:4}),explain:`Base angles of an isosceles triangle are congruent: ${expr(a,b)} = ${expr(c,d)} → x = ${x}, so each base angle is ${V}°. m∠A = 180 − 2(${V}) = ${ans}°.`};
+}
+function gTriIneq(){
+  const a=R(4,15);let b=R(4,15);while(Math.abs(a-b)<3)b=R(4,15);const lo=Math.abs(a-b),hi=a+b;const ok=R(lo+1,hi-1);
+  return{sec:SEC.ANG,topic:'Triangle inequality',q:`Two sides of a triangle measure ${a} and ${b}. Which could be the length of the third side?`,ans:String(ok),opts:strOpts(String(ok),[String(hi),String(lo),String(hi+R(1,4)),String(Math.max(1,lo-R(1,2)))]),
+    explain:`The third side must be between ${b>a?b:a} − ${b>a?a:b} = ${lo} and ${a} + ${b} = ${hi}, not including the endpoints. Only ${ok} fits.`};
+}
+function gMidseg(){
+  const x=R(3,12),a1=R(1,4);let b1=R(-5,9);if(a1*x+b1<3)b1=R(3,9);const DE=a1*x+b1,BC=2*DE;let a2=R(1,7);while(a2===2*a1)a2=R(1,7);const b2=BC-a2*x;
+  const A=[120,22],B=[30,150],C=[230,150],D=mid(A,B),E=mid(A,C);
+  const s=poly([A,B,C])+seg(D,E)+ticks(A,D,1)+ticks(D,B,1)+ticks(A,E,2)+ticks(E,C,2)+T([125,D[1]-11],expr(a1,b1))+T([130,163],expr(a2,b2))+T([A[0],A[1]-12],'A','middle','vl')+T([B[0]-10,B[1]],'B','middle','vl')+T([C[0]+10,C[1]],'C','middle','vl')+T([D[0]-10,D[1]],'D','middle','vl')+T([E[0]+10,E[1]],'E','middle','vl');
+  return{sec:SEC.ANG,topic:'Midsegment theorem',q:'D and E are midpoints. Find BC.',svg:W(s),ans:fI(BC),opts:numOpts(BC,[DE,x,BC/2+a2,(b2-b1)/(a1-a2)],fI,{step:2}),
+    explain:`A midsegment is half the third side: ${expr(a2,b2)} = 2(${expr(a1,b1)}) → x = ${x}. BC = ${BC}.`};
+}
+function gCentroid(){
+  const x=R(2,9),c=R(1,3),d=R(1,6),GM=c*x+d,AG=2*GM;let a=R(1,6);while(a===2*c)a=R(1,6);const b=AG-a*x;
+  const A=[110,20],B=[30,150],C=[230,150],M=mid(B,C),G=cent([A,B,C]);
+  const s=poly([A,B,C])+seg(A,M,'thin dash')+seg(B,mid(A,C),'thin dash')+seg(C,mid(A,B),'thin dash')+dot(G)+ticks(B,M,1)+ticks(M,C,1)+T(add(mid(A,G),[-8,0]),expr(a,b),'end')+T(add(mid(G,M),[8,0]),expr(c,d),'start')+T([A[0],A[1]-11],'A','middle','vl')+T([G[0]+12,G[1]-6],'G','middle','vl')+T([M[0],M[1]+13],'M','middle','vl');
+  const k=pick(['AM','x']);const ans=k==='AM'?3*GM:x;
+  return{sec:SEC.ANG,topic:'Centroid',q:`G is the centroid of the triangle. ${k==='AM'?'Find AM.':'Find x.'}`,svg:W(s),ans:fI(ans),opts:numOpts(ans,k==='AM'?[AG,GM,2*AG,GM+AG/2]:[(b-d)/(c-a),x+1,(b-2*d)/(2*c-a+1)],fI,{step:k==='AM'?3:1}),
+    explain:`The centroid is 2/3 of the way along a median, so AG = 2·GM: ${expr(a,b)} = 2(${expr(c,d)}) → x = ${x}. GM = ${GM}, AG = ${AG}, AM = ${3*GM}.`};
+}
+function gLargest(){
+  let s3;do{s3=[R(5,20),R(5,20),R(5,20)]}while(new Set(s3).size<3||s3[0]+s3[1]<=s3[2]||s3[0]+s3[2]<=s3[1]||s3[1]+s3[2]<=s3[0]);
+  const [a,b,c]=s3;const big=pick([true,false]);const idx=s3.indexOf(big?Math.max(...s3):Math.min(...s3));const ans='∠'+'ABC'[idx];
+  const P=[[95,28],[30,148],[228,148]];
+  return{sec:SEC.ANG,topic:'Side–angle relationships',q:`Which angle of △ABC is the ${big?'largest':'smallest'}?`,svg:W(triDraw(P,{v:['A','B','C'],s:[a,b,c]})+NTS),ans,opts:['∠A','∠B','∠C'],keep:true,
+    explain:`The ${big?'largest':'smallest'} angle is opposite the ${big?'longest':'shortest'} side (${s3[idx]}), which is ${ans}.`};
+}
+/* similarity */
+function gSideSplit(){
+  const a=R(2,8),b=R(2,8),m=R(2,4),c=a*m,x=b*m;const t=a/(a+b);
+  const A=[120,22],B=[30,150],C=[230,150],D=add(A,mul(sub(B,A),t)),E=add(A,mul(sub(C,A),t));
+  const s=poly([A,B,C])+seg(D,E)+sideLab(A,D,[130,100],a)+sideLab(D,B,[130,100],b)+sideLab(A,E,[110,100],c)+sideLab(E,C,[110,100],'x')+T([A[0],A[1]-11],'A','middle','vl')+T([D[0]+8,D[1]+12],'D','middle','vl')+T([E[0]-8,E[1]+12],'E','middle','vl')+T([B[0]-6,B[1]+12],'B','middle','vl')+T([C[0]+6,C[1]+12],'C','middle','vl')+NTS;
+  return{sec:SEC.SIM,topic:'Side-splitter theorem',q:'DE ∥ BC. Find x.',svg:W(s),ans:fNice(x),opts:numOpts(x,[a*c/b,b+c-a,c*(a+b)/a,c],fNice,{step:2}),explain:`A line parallel to one side splits the other two proportionally: ${a}/${b} = ${c}/x → x = ${b}·${c}/${a} = ${x}.`};
+}
+const GEO=[[4,9],[2,8],[3,12],[4,16],[9,16],[5,20],[1,9],[8,18],[3,27],[1,16],[2,18],[6,24]];
+function gGeoMean(){
+  const [p,q]=pick(GEO);const k=pick(['h','leg']);const pts=fit([[0,0],[p+q,0],[p,Math.sqrt(p*q)]],[24,22,212,118]);const D=[pts[2][0],pts[0][1]];
+  let s=poly(pts)+seg(pts[2],D,'thin')+rmark(D,pts[1],pts[2],8)+rmark(pts[2],pts[0],pts[1],9)+T([(pts[0][0]+D[0])/2,D[1]+12],p)+T([(D[0]+pts[1][0])/2,D[1]+12],q);
+  s+=T([pts[0][0]-8,pts[0][1]+4],'A','middle','vl')+T([pts[1][0]+8,pts[1][1]+4],'B','middle','vl')+T([pts[2][0],pts[2][1]-11],'C','middle','vl')+T([D[0],D[1]+24],'D','middle','sm');
+  if(k==='h'){s+=T([D[0]+6,(D[1]+pts[2][1])/2],'x','start');const h=Math.sqrt(p*q);
+    return{sec:SEC.SIM,topic:'Geometric mean',q:'CD is the altitude to the hypotenuse of right △ABC. Find x.',svg:W(s),ans:String(h),opts:strOpts(String(h),[fNice((p+q)/2),rad(1,p*p+q*q),String(Math.abs(q-p)),rad(1,p*(p+q)),String(p*q/2)]),explain:`The altitude is the geometric mean of the two hypotenuse segments: x² = ${p}·${q} = ${p*q}, so x = ${h}.`}}
+  s+=sideLab(pts[0],pts[2],cent(pts),'x');const L=rad(1,p*(p+q));
+  return{sec:SEC.SIM,topic:'Geometric mean',q:'CD is the altitude to the hypotenuse of right △ABC. Find AC (x) in simplest radical form.',svg:W(s),ans:L,opts:strOpts(L,[rad(1,q*(p+q)),rad(1,p*q),rad(1,p*p+q*q),rad(2,p*(p+q)),String(p+q)]),
+    explain:`A leg is the geometric mean of the hypotenuse and the segment next to it: x² = ${p}·${p+q} = ${p*(p+q)}, so x = ${L}.`};
+}
+function gSpecial(){
+  const t=pick(['30a','30b','30c','45a','45b']);
+  if(t[0]==='4'){const P=fit([[0,0],[1,1],[1,0]],[60,20,140,128]);
+    if(t==='45a'){const s=R(3,12);const ans=rad(s,2);return{sec:SEC.SIM,topic:'45-45-90 triangles',q:'Find the hypotenuse in simplest radical form.',svg:W(triDraw(P,{s:[s,'',' x'.trim()],a:['45°','',''],right:2})),ans,opts:strOpts(ans,[rad(s,3),String(2*s),`${s}√2/2`,rad(2*s,2)]),explain:`In a 45-45-90 triangle the hypotenuse is leg·√2 = ${ans}.`}}
+    const h=2*R(2,8);const ans=rad(h/2,2);return{sec:SEC.SIM,topic:'45-45-90 triangles',q:'Find the length of each leg in simplest radical form.',svg:W(triDraw(P,{s:['x','',h],a:['45°','',''],right:2})),ans,opts:strOpts(ans,[rad(h,2),String(h/2),rad(h/2,3),rad(2*h,2)]),explain:`Leg = hypotenuse ÷ √2 = ${h}/√2 = ${h}√2/2 = ${ans}.`};}
+  const P=fit([[0,0],[Math.sqrt(3),1],[Math.sqrt(3),0]],[40,26,180,118]);
+  if(t==='30a'){const s=R(3,12);const long=chance(.5);const ans=long?rad(s,3):String(2*s);
+    return{sec:SEC.SIM,topic:'30-60-90 triangles',q:`Find ${long?'the longer leg':'the hypotenuse'} (x)${long?' in simplest radical form':''}.`,svg:W(triDraw(P,{s:[s,long?'x':'',long?'':'x'],a:['30°','60°',''],right:2})),ans,opts:strOpts(ans,[rad(s,3),String(2*s),rad(s,2),rad(2*s,3),`${s}√3/2`]),
+      explain:`In a 30-60-90 triangle with short leg s: long leg = s√3, hypotenuse = 2s. Here s = ${s}.`}}
+  if(t==='30b'){const m=R(2,9),h=2*m;const long=chance(.6);const ans=long?rad(m,3):String(m);
+    return{sec:SEC.SIM,topic:'30-60-90 triangles',q:`The hypotenuse is ${h}. Find ${long?'the longer leg':'the shorter leg'} (x).`,svg:W(triDraw(P,{s:[long?'':'x',long?'x':'',h],a:['30°','60°',''],right:2})),ans,opts:strOpts(ans,[rad(m,3),String(m),rad(m,2),rad(h,3),String(h*2)]),
+      explain:`Short leg = hypotenuse ÷ 2 = ${m}. Long leg = ${m}√3 = ${rad(m,3)}.`}}
+  const m=R(2,7),L=3*m;const hy=chance(.5);const ans=hy?rad(2*m,3):rad(m,3);
+  return{sec:SEC.SIM,topic:'30-60-90 triangles',q:`The longer leg is ${L}. Find ${hy?'the hypotenuse':'the shorter leg'} (x) in simplest radical form.`,svg:W(triDraw(P,{s:[hy?'':'x',L,hy?'x':''],a:['30°','60°',''],right:2})),ans,opts:strOpts(ans,[rad(m,3),rad(2*m,3),String(m),rad(L,3),String(2*L)]),
+    explain:`Short leg = ${L}/√3 = ${L}√3/3 = ${rad(m,3)}. Hypotenuse = 2 × short leg = ${rad(2*m,3)}.`};
+}
+function gRatio(){
+  const a=R(2,5);let b=R(2,7);while(b===a)b=R(2,7);const k=pick(['area','perim','side']);
+  if(k==='area'){const A=a*a*R(2,6),ans=A*b*b/(a*a);return{sec:SEC.SIM,topic:'Similar figures',q:`Two similar polygons have corresponding sides ${a} cm and ${b} cm. The first has area ${A} cm². Find the area of the second.`,ans:fNice(ans)+' cm²',opts:numOpts(ans,[A*b/a,A*b*b*b/(a*a*a),A+b-a,A*b],u(fNice,' cm²'),{step:4}),explain:`Areas scale by the square of the scale factor: ${A} × (${b}/${a})² = ${fNice(ans)} cm².`}}
+  if(k==='perim'){const Pm=a*R(4,10),ans=Pm*b/a;return{sec:SEC.SIM,topic:'Similar figures',q:`Two similar triangles have areas ${a*a} in² and ${b*b} in². The first has perimeter ${Pm} in. Find the perimeter of the second.`,ans:fNice(ans)+' in',opts:numOpts(ans,[Pm*b*b/(a*a),Pm+b*b-a*a,Pm*a/b],u(fNice,' in'),{step:3}),explain:`Area ratio ${a*a}:${b*b} means scale factor ${a}:${b}. Perimeter scales linearly: ${Pm} × ${b}/${a} = ${fNice(ans)} in.`}}
+  return{sec:SEC.SIM,topic:'Similar figures',q:`Two similar prisms have volumes ${a**3} m³ and ${b**3} m³. What is the ratio of their surface areas?`,ans:`${a*a} : ${b*b}`,opts:strOpts(`${a*a} : ${b*b}`,[`${a} : ${b}`,`${a**3} : ${b**3}`,`${2*a} : ${2*b+1}`,`${a*a} : ${b*b*b}`]),explain:`Volume ratio ${a**3}:${b**3} means scale factor ${a}:${b}, so surface areas are in ratio ${a*a}:${b*b}.`};
+}
+function gSimScale(){
+  const a=R(2,6),b=R(3,8),k=R(2,4),p=R(1,3),x=R(2,9),q=b*k-p*x;
+  const s=poly([[22,140],[82,140],[22,96]])+poly([[122,150],[230,150],[122,71]])+T([52,152],a)+T([14,118],b,'end')+T([176,162],a*k)+T([114,111],expr(p,q),'end')+T([30,90],'△ABC','start','sm')+T([126,64],'△DEF','start','sm');
+  return{sec:SEC.SIM,topic:'Similar triangles',q:'△ABC ∼ △DEF. Find x.',svg:W(s),ans:fI(x),opts:numOpts(x,[(b-q)/p,(b*k+q)/p,(a*k-q)/p,x+2],fI,{step:1}),explain:`Scale factor = ${a*k}/${a} = ${k}. So ${expr(p,q)} = ${b}·${k} = ${b*k} → x = ${x}.`};
+}
+/* coordinates */
+function grid(range=8,box=[60,6,160,160]){const [bx,by,bw]=box,uu=bw/(2*range),cx=bx+bw/2,cy=by+bw/2;let s='';for(let i=-range;i<=range;i++){s+=seg([cx+i*uu,by],[cx+i*uu,by+bw],'gl')+seg([bx,cy+i*uu],[bx+bw,cy+i*uu],'gl')}s+=seg([bx,cy],[bx+bw,cy],'ax')+seg([cx,by],[cx,by+bw],'ax');return{s,P:(x,y)=>[cx+x*uu,cy-y*uu]}}
+function gPerp(){
+  let A,B;do{A=R(-6,6);B=R(-6,6)}while(!A||!B||Math.abs(A)===Math.abs(B));const C=R(-12,12);const par=chance(.3);
+  const eq=neg(`${A===1?'':A===-1?'-':A}x ${B<0?'−':'+'} ${Math.abs(B)===1?'':Math.abs(B)}y = ${C}`);
+  const ans=par?frac(-A,B):frac(B,A);
+  return{sec:SEC.CRD,topic:par?'Parallel slopes':'Perpendicular slopes',q:`What is the slope of a line ${par?'parallel':'perpendicular'} to <span class="num">${eq}</span>?`,ans,opts:strOpts(ans,[frac(B,A),frac(-A,B),frac(A,B),frac(-B,A)]),
+    explain:`Solve for y: slope = −A/B = ${frac(-A,B)}. ${par?'Parallel lines share that slope.':`A perpendicular slope is the negative reciprocal: ${frac(B,A)}.`}`};
+}
+function gEndpoint(){
+  let A,M,Bp;do{A=[R(-7,7),R(-7,7)];M=[R(-5,5),R(-5,5)];Bp=[2*M[0]-A[0],2*M[1]-A[1]]}while(Math.abs(Bp[0])>9||Math.abs(Bp[1])>9||(A[0]===M[0]&&A[1]===M[1]));
+  const g=grid(9);const s=g.s+dot(g.P(...A))+dot(g.P(...M))+T(add(g.P(...A),[6,-8]),'A','start','vl')+T(add(g.P(...M),[6,-8]),'M','start','vl');
+  const ans=pt(...Bp);
+  return{sec:SEC.CRD,topic:'Midpoint',q:`M${pt(...M)} is the midpoint of AB, and A is ${pt(...A)}. Find B.`,svg:W(s),ans,opts:strOpts(ans,[pt(M[0]-A[0],M[1]-A[1]),pt(2*A[0]-M[0],2*A[1]-M[1]),pt(M[0]+A[0],M[1]+A[1]),pt(Bp[1],Bp[0]),pt(-Bp[0],Bp[1])]),explain:`B = 2M − A = (2·${neg(M[0])} − ${neg(A[0])}, 2·${neg(M[1])} − ${neg(A[1])}) = ${ans}.`};
+}
+const TRF=[['a 90° counterclockwise rotation about the origin',(x,y)=>[-y,x],'(x, y) → (−y, x)'],['a 90° clockwise rotation about the origin',(x,y)=>[y,-x],'(x, y) → (y, −x)'],['a 180° rotation about the origin',(x,y)=>[-x,-y],'(x, y) → (−x, −y)'],['a reflection across the x-axis',(x,y)=>[x,-y],'(x, y) → (x, −y)'],['a reflection across the y-axis',(x,y)=>[-x,y],'(x, y) → (−x, y)'],['a reflection across y = x',(x,y)=>[y,x],'(x, y) → (y, x)'],['a reflection across y = −x',(x,y)=>[-y,-x],'(x, y) → (−y, −x)']];
+function gTransform(lvl=1){
+  let x,y;do{x=R(-7,7);y=R(-7,7)}while(!x||!y||Math.abs(x)===Math.abs(y));
+  const comp=lvl>=1&&chance(.5);const t1=pick(TRF);let t2=pick(TRF);while(t2===t1)t2=pick(TRF);
+  let r=t1[1](x,y);if(comp)r=t2[1](...r);const ans=pt(...r);
+  const g=grid(8);const s=g.s+dot(g.P(x,y))+T(add(g.P(x,y),[6,-8]),'P','start','vl');
+  const c=TRF.map(t=>pt(...(comp?t2[1](...t[1](x,y)):t[1](x,y)))).concat(TRF.map(t=>pt(...t[1](x,y))));
+  return{sec:SEC.CRD,topic:'Transformations',q:`P${pt(x,y)} undergoes ${t1[0]}${comp?`, then ${t2[0]}`:''}. Where does P land?`,svg:W(s),ans,opts:strOpts(ans,shuffle(c)),
+    explain:`${cap(t1[0])}: ${t1[2]} gives ${pt(...t1[1](x,y))}.${comp?` Then ${t2[0]}: ${t2[2]} gives ${ans}.`:''}`};
+}
+function gPartition(){
+  const m=R(1,3);let n=R(1,4);while(n===m)n=R(1,4);const t=m+n;let A,B;do{A=[R(-8,4),R(-8,4)];B=[A[0]+t*R(-3,3),A[1]+t*R(-3,3)]}while(B[0]===A[0]||B[1]===A[1]);
+  const P=(r)=>[A[0]+r*(B[0]-A[0]),A[1]+r*(B[1]-A[1])];const ans=pt(...P(m/t));
+  return{sec:SEC.CRD,topic:'Partitioning a segment',q:`Find the point that divides AB in the ratio ${m} : ${n} from A to B, where A${pt(...A)} and B${pt(...B)}.`,ans,opts:strOpts(ans,[pt(...P(n/t)),pt(...P(.5).map(fNice)),pt(...P(m/n).map(fNice)),pt(...P(m/t).map((v,i)=>i?-v:v))]),
+    explain:`Move ${m}/${t} of the way from A: (${neg(A[0])} + ${m}/${t}·${neg(B[0]-A[0])}, ${neg(A[1])} + ${m}/${t}·${neg(B[1]-A[1])}) = ${ans}.`};
+}
+function gDistRad(){
+  let dx,dy;do{dx=R(1,9);dy=R(1,9)}while(Number.isInteger(Math.sqrt(dx*dx+dy*dy))||simpRoot(dx*dx+dy*dy)[0]===1&&chance(.5));
+  const x1=R(-6,3),y1=R(-6,3),x2=x1+dx*(chance(.5)?1:-1),y2=y1+dy*(chance(.5)?1:-1);const ans=rad(1,dx*dx+dy*dy);
+  return{sec:SEC.CRD,topic:'Distance formula',q:`Find the distance between ${pt(x1,y1)} and ${pt(x2,y2)} in simplest radical form.`,ans,opts:strOpts(ans,[String(dx+dy),rad(1,Math.abs(dx*dx-dy*dy)||2),rad(2,dx*dx+dy*dy),rad(1,dx*dx+dy*dy+2*dx),rad(1,(dx+1)**2+dy*dy)]),
+    explain:`d = √(${dx}² + ${dy}²) = √${dx*dx+dy*dy} = ${ans}.`};
+}
+/* trigonometry */
+function rtFig(th,lab,angLab){const P=fit([[0,0],[cosD(th),sinD(th)],[cosD(th),0]],[44,18,176,124]);return W(triDraw(P,{s:[lab.opp,lab.adj,lab.hyp],a:[angLab,'',''],right:2,v:['A','B','C']}))}
+const TRIGN={opp:'opposite',adj:'adjacent',hyp:'hypotenuse'};
+function gTrigSide(){
+  const th=R(18,72),types=shuffle(['opp','adj','hyp']);const kn=types[0],un=types[1];const k=R(6,40);
+  const sides={};if(kn==='hyp'){sides.hyp=k;sides.opp=k*sinD(th);sides.adj=k*cosD(th)}else if(kn==='opp'){sides.opp=k;sides.hyp=k/sinD(th);sides.adj=k/tanD(th)}else{sides.adj=k;sides.hyp=k/cosD(th);sides.opp=k*tanD(th)}
+  const ans=sides[un];const fn={opp_hyp:'sin',adj_hyp:'cos',opp_adj:'tan'};const key=['opp','adj','hyp'].filter(t=>t===kn||t===un);const f=fn[key.join('_')]||fn[key.reverse().join('_')];
+  const pair=[kn,un].sort((a,b)=>['opp','adj','hyp'].indexOf(a)-['opp','adj','hyp'].indexOf(b));const numer=pair[0];
+  const how=un===numer?`x = ${k}·${f} ${th}°`:`x = ${k} ÷ ${f} ${th}°`;
+  const lab={opp:'',adj:'',hyp:''};lab[kn]=k;lab[un]='x';
+  return{sec:SEC.TRG,topic:'Right-triangle trig',q:'Find x to the nearest tenth.',svg:rtFig(th,lab,th+'°'),ans:f1(ans),opts:numOpts(ans,[k*sinD(th),k*cosD(th),k*tanD(th),k/sinD(th),k/cosD(th),k/tanD(th)],f1,{step:1.3}),
+    explain:`x is ${TRIGN[un]} and ${k} is ${TRIGN[kn]} to the ${th}° angle, so use ${f === 'sin'?'sine':f==='cos'?'cosine':'tangent'}. ${how} ≈ ${f1(ans)}.`};
+}
+function gTrigAngle(){
+  const kind=pick(['oa','oh','ah']);let o,a,h,th;
+  do{if(kind==='oa'){o=R(3,30);a=R(3,30);th=atanD(o/a)}else{h=R(8,40);const l=R(2,h-1);if(kind==='oh'){o=l;th=asinD(o/h)}else{a=l;th=acosD(a/h)}}}while(th<12||th>78);
+  const lab={opp:o||'',adj:a||'',hyp:h||''};const r=kind==='oa'?o/a:kind==='oh'?o/h:a/h;
+  const f=kind==='oa'?'tan':kind==='oh'?'sin':'cos';const fi=f+'⁻¹';
+  const c=[atanD(r),atanD(1/r),90-th,r<=1?asinD(r):NaN,r<=1?acosD(r):NaN];
+  return{sec:SEC.TRG,topic:'Inverse trig',q:'Find θ to the nearest degree.',svg:rtFig(th,lab,'θ'),ans:fD(th),opts:numOpts(th,c,fD,{step:4}),
+    explain:`${f} θ = ${kind==='oa'?`${o}/${a}`:kind==='oh'?`${o}/${h}`:`${a}/${h}`}, so θ = ${fi}(${kind==='oa'?`${o}/${a}`:kind==='oh'?`${o}/${h}`:`${a}/${h}`}) ≈ ${fD(th)}.`};
+}
+function gElev(){
+  const th=R(15,70);const sc=pick(['tree','ladder','light','kite','ramp']);let q,ans,k,ex,svg;
+  const cands=v=>[v*sinD(th),v*cosD(th),v*tanD(th),v/sinD(th),v/cosD(th),v/tanD(th)];
+  if(sc==='tree'){k=R(10,60);ans=k*tanD(th);q=`From ${k} m away from the base of a tree, the angle of elevation to its top is ${th}°. How tall is the tree, to the nearest tenth of a meter?`;ex=`tan ${th}° = h/${k} → h = ${k}·tan ${th}° ≈ ${f1(ans)} m.`;svg=rtFig(th,{opp:'h',adj:k+' m',hyp:''},th+'°')}
+  else if(sc==='ladder'){k=R(8,30);ans=k*sinD(th);q=`A ${k} ft ladder leans against a wall, making a ${th}° angle with the ground. How high up the wall does it reach, to the nearest tenth?`;ex=`sin ${th}° = h/${k} → h = ${k}·sin ${th}° ≈ ${f1(ans)} ft.`;svg=rtFig(th,{opp:'h',adj:'',hyp:k+' ft'},th+'°')}
+  else if(sc==='kite'){k=R(30,120);ans=k*sinD(th);q=`A kite string is ${k} m long and makes a ${th}° angle of elevation with the ground. How high is the kite, to the nearest tenth?`;ex=`sin ${th}° = h/${k} → h ≈ ${f1(ans)} m.`;svg=rtFig(th,{opp:'h',adj:'',hyp:k+' m'},th+'°')}
+  else if(sc==='ramp'){k=R(2,8);ans=k/sinD(th>30?th-20:th);const t2=th>30?th-20:th;q=`A ramp rises ${k} ft at an incline of ${t2}°. How long is the ramp surface, to the nearest tenth?`;ex=`sin ${t2}° = ${k}/L → L = ${k} ÷ sin ${t2}° ≈ ${f1(ans)} ft.`;svg=rtFig(t2,{opp:k+' ft',adj:'',hyp:'L'},t2+'°');return{sec:SEC.TRG,topic:'Angle of elevation',q,svg,ans:f1(ans)+' ft',opts:numOpts(ans,[k*sinD(t2),k/cosD(t2),k/tanD(t2),k*tanD(t2)],u(f1,' ft'),{step:1.5}),explain:ex}}
+  else{k=R(20,90);ans=k/tanD(th);q=`From the top of a ${k} m lighthouse, the angle of depression to a boat is ${th}°. How far is the boat from the base, to the nearest tenth?`;
+    const P=fit([[0,1],[0,0],[1/tanD(th),0]].map(p=>[p[0]*Math.max(1,tanD(th)),p[1]*Math.max(1,tanD(th))]),[44,22,176,118]);const top=P[0],base=P[1],boat=P[2];const hz=[boat[0],top[1]];
+    svg=W(poly([top,base,boat])+rmark(base,top,boat)+seg(top,hz,'thin dash')+arcs(top,hz,boat,1,22)+T(add(top,[34,10]),th+'°','start')+sideLab(top,base,cent([top,base,boat]),k+' m')+sideLab(base,boat,cent([top,base,boat]),'d'));
+    ex=`The angle of depression equals the angle of elevation from the boat (alternate interior angles). tan ${th}° = ${k}/d → d = ${k} ÷ tan ${th}° ≈ ${f1(ans)} m.`}
+  const unit=sc==='ladder'?' ft':' m';
+  return{sec:SEC.TRG,topic:sc==='light'?'Angle of depression':'Angle of elevation',q,svg,ans:f1(ans)+unit,opts:numOpts(ans,cands(k),u(f1,unit),{step:1.7}),explain:ex};
+}
+const EXV=[['0',0],['1',1],['−1',-1],['1/2',.5],['−1/2',-.5],['√2/2',Math.SQRT2/2],['−√2/2',-Math.SQRT2/2],['√3/2',Math.sqrt(3)/2],['−√3/2',-Math.sqrt(3)/2],['√3',Math.sqrt(3)],['−√3',-Math.sqrt(3)],['√3/3',Math.sqrt(3)/3],['−√3/3',-Math.sqrt(3)/3]];
+const exStr=v=>(EXV.find(e=>Math.abs(e[1]-v)<1e-9)||[null])[0];
+function gExact(lvl=0,unit=false){
+  const angs=unit?[0,30,45,60,90,120,135,150,180,210,225,240,270,300,315,330]:[30,45,60];let ang,fn,v;
+  do{ang=pick(angs);fn=pick(['sin','cos','tan']);v=fn==='sin'?sinD(ang):fn==='cos'?cosD(ang):(ang%180===90?NaN:tanD(ang))}while(!Number.isFinite(v)||!exStr(v));
+  const ans=exStr(v);const mag=Math.abs(v);
+  const c=shuffle(EXV.filter(e=>Math.abs(Math.abs(e[1])-mag)<1e-9&&e[0]!==ans).map(e=>e[0])).concat(shuffle(EXV.filter(e=>unit?true:e[1]>0).map(e=>e[0])));
+  const ref=ang%90===0?ang:ang<90?ang:ang<180?180-ang:ang<270?ang-180:360-ang;const quad=ang%90===0?'':ang<90?'I':ang<180?'II':ang<270?'III':'IV';
+  return{sec:SEC.TRG,topic:unit?'Unit circle':'Exact values',q:`Find the exact value of <span class="num">${fn} ${ang}°</span>.`,ans,opts:strOpts(ans,c),
+    explain:unit&&quad?`${ang}° is in quadrant ${quad} with reference angle ${ref}°. ${fn} ${ref}° = ${exStr(Math.abs(v))}, and ${fn} is ${v<0?'negative':'positive'} in quadrant ${quad}, so ${fn} ${ang}° = ${ans}.`:`${fn} ${ang}° = ${ans}${ang===30||ang===60?' (from the 30-60-90 triangle with sides 1, √3, 2)':ang===45?' (from the 45-45-90 triangle with sides 1, 1, √2)':''}.`};
+}
+const TRIPLES=[[3,4,5],[5,12,13],[8,15,17],[7,24,25],[20,21,29],[9,40,41]];
+function gIdentity(lvl=0,quads=false){
+  const [a,b,c]=pick(TRIPLES);const given=pick(['sin','cos']);const want=given==='sin'?pick(['cos','tan']):pick(['sin','tan']);
+  let Q=quads?pick([2,3,4]):1;const sgn={sin:Q<=2?1:-1,cos:Q===1||Q===4?1:-1};sgn.tan=sgn.sin*sgn.cos;
+  const gv=given==='sin'?a:b;const val={sin:[a,c],cos:[b,c],tan:[a,b]};
+  const gs=frac(sgn[given]*gv,c);const ans=frac(sgn[want]*val[want][0],val[want][1]);
+  const c2=[frac(-sgn[want]*val[want][0],val[want][1]),frac(val[want][1],val[want][0]),frac(sgn[want]*(want==='tan'?b:a),want==='tan'?a:c),frac(sgn[want]*b,c),frac(sgn[want]*a,b),frac(b,a)];
+  return{sec:SEC.TRG,topic:'Trig identities',q:`If <span class="num">${given} θ = ${gs}</span> and θ is in quadrant ${['I','II','III','IV'][Q-1]}, find <span class="num">${want} θ</span>.`,ans,opts:strOpts(ans,c2),
+    explain:`Use sin²θ + cos²θ = 1 (a ${a}-${b}-${c} triangle). In quadrant ${['I','II','III','IV'][Q-1]}, sin is ${sgn.sin>0?'+':'−'} and cos is ${sgn.cos>0?'+':'−'}, so ${want} θ = ${ans}.`};
+}
+function gCofunc(){
+  const x=R(4,18),a=R(1,4),c=R(1,4);let A1;do{A1=R(15,75)}while(false);const b=A1-a*x,d=90-A1-c*x;
+  const e1=`${a===1?'':a}x ${b<0?'−':'+'} ${Math.abs(b)}`,e2=`${c===1?'':c}x ${d<0?'−':'+'} ${Math.abs(d)}`;
+  return{sec:SEC.TRG,topic:'Cofunctions',q:`Solve for x: <span class="num">sin(${e1})° = cos(${e2})°</span>`,ans:fI(x),opts:numOpts(x,[(180-b-d)/(a+c),(d-b)/(a-c),(90+b+d)/(a+c),x+3],fI,{step:1}),
+    explain:`sin A = cos B when A + B = 90°: (${e1}) + (${e2}) = 90 → ${a+c}x ${b+d<0?'−':'+'} ${Math.abs(b+d)} = 90 → x = ${x}.`};
+}
+function gRadian(){
+  const deg=pick([15,30,45,60,75,120,135,150,210,225,240,270,300,315,330,105,165]);const toR=chance(.6);
+  if(toR){const ans=piF(deg,180);return{sec:SEC.TRG,topic:'Radians',q:`Convert ${deg}° to radians.`,ans,opts:strOpts(ans,[piF(deg,360),piF(180,deg),piF(deg,90),piF(deg+30,180),piF(360-deg,180)]),explain:`Multiply by π/180: ${deg}·π/180 = ${ans}.`}}
+  const r=piF(deg,180);return{sec:SEC.TRG,topic:'Radians',q:`Convert <span class="num">${r}</span> radians to degrees.`,ans:deg+'°',opts:numOpts(deg,[deg/2,deg*2,180-deg,deg+45],fD,{step:15}),explain:`Multiply by 180/π: ${r} × 180/π = ${deg}°.`};
+}
+function lawFig(A,B,o){const P=fit(triFromAngles(A,B),[40,20,180,128]);return W(triDraw(P,o))}
+function gLawSines(){
+  let A,B;do{A=R(28,95);B=R(28,95)}while(A+B>150||Math.abs(A-B)<6);const a=R(6,30),b=a*sinD(B)/sinD(A);
+  return{sec:SEC.TRG,topic:'Law of Sines',q:'Find b (side AC) to the nearest tenth.',svg:lawFig(A,B,{v:['A','B','C'],a:[A+'°',B+'°',''],s:[a,'x','']}),ans:f1(b),opts:numOpts(b,[a*sinD(A)/sinD(B),a*sinD(B),a*cosD(B)/cosD(A),a*B/A,a*sinD(180-A-B)/sinD(A)],f1,{step:1.4}),
+    explain:`a/sin A = b/sin B → b = ${a}·sin ${B}° / sin ${A}° ≈ ${f1(b)}.`};
+}
+function gLawSinesAngle(){
+  let A,a,b,B;do{A=R(35,85);a=R(10,30);b=R(5,a-2);B=asinD(b*sinD(A)/a)}while(B<12);
+  const C=180-A-B;
+  return{sec:SEC.TRG,topic:'Law of Sines',q:'Find m∠B to the nearest degree.',svg:lawFig(A,B,{v:['A','B','C'],a:[A+'°','θ',''],s:[a,b,'']}),ans:fD(B),opts:numOpts(B,[C,acosD(b*sinD(A)/a),asinD(b/a),A*b/a,180-B],fD,{step:4}),
+    explain:`sin B / ${b} = sin ${A}° / ${a} → sin B = ${b}·sin ${A}° / ${a} ≈ ${(b*sinD(A)/a).toFixed(3)}, so B ≈ ${fD(B)}. (b < a, so B must be acute.)`};
+}
+function gLawCosSide(){
+  const a=R(5,25),b=R(5,25),C=R(25,140);const c=Math.sqrt(a*a+b*b-2*a*b*cosD(C));const A=acosD((b*b+c*c-a*a)/(2*b*c)),B=180-A-C;
+  return{sec:SEC.TRG,topic:'Law of Cosines',q:'Find c (side AB) to the nearest tenth.',svg:lawFig(A,B,{v:['A','B','C'],a:['','',C+'°'],s:[a,b,'x']}),ans:f1(c),opts:numOpts(c,[Math.sqrt(a*a+b*b),Math.sqrt(a*a+b*b+2*a*b*cosD(C)),Math.sqrt(Math.abs(a*a+b*b-a*b*cosD(C))),a*sinD(C)],f1,{step:1.6}),
+    explain:`c² = a² + b² − 2ab·cos C = ${a*a} + ${b*b} − 2(${a})(${b})·cos ${C}° ≈ ${(c*c).toFixed(1)}, so c ≈ ${f1(c)}.`};
+}
+function gLawCosAngle(){
+  let a,b,c;do{a=R(5,20);b=R(5,20);c=R(5,24)}while(a+b<=c+1||a+c<=b+1||b+c<=a+1);
+  const C=acosD((a*a+b*b-c*c)/(2*a*b)),A=acosD((b*b+c*c-a*a)/(2*b*c)),B=180-A-C;
+  return{sec:SEC.TRG,topic:'Law of Cosines',q:'Find m∠C to the nearest degree.',svg:lawFig(A,B,{v:['A','B','C'],a:['','','θ'],s:[a,b,c]}),ans:fD(C),opts:numOpts(C,[A,B,180-C,acosD(Math.min(1,Math.abs(a*a+b*b-c*c)/(a*b)))],fD,{step:5}),
+    explain:`cos C = (a² + b² − c²) / 2ab = (${a*a} + ${b*b} − ${c*c}) / ${2*a*b} ≈ ${((a*a+b*b-c*c)/(2*a*b)).toFixed(3)}, so C ≈ ${fD(C)}.`};
+}
+function gAreaSAS(){
+  const a=R(5,22),b=R(5,22),C=R(25,150);const area=.5*a*b*sinD(C);const c=Math.sqrt(a*a+b*b-2*a*b*cosD(C));const A=acosD((b*b+c*c-a*a)/(2*b*c)),B=180-A-C;
+  return{sec:SEC.TRG,topic:'Area with sine',q:'Find the area of the triangle to the nearest tenth.',svg:lawFig(A,B,{v:['A','B','C'],a:['','',C+'°'],s:[a,b,'']}),ans:f1(area),opts:numOpts(area,[a*b*sinD(C),.5*a*b*Math.abs(cosD(C)),.5*a*b,.5*(a+b)*sinD(C)*4],f1,{step:4}),
+    explain:`Area = ½ab·sin C = ½(${a})(${b})·sin ${C}° ≈ ${f1(area)}.`};
+}
+/* circles */
+const CC=[130,86],CR=62;
+const circ=(c=CC,r=CR)=>`<circle cx="${c[0]}" cy="${c[1]}" r="${r}" class="shape"/>`;
+function gInscribed(){
+  const k=pick(['arc','ang','quad','semi']);
+  if(k==='quad'){const g=R(55,125);const pts=[200,110,25,300].map(d=>cpt(CC,CR,d));const lab=['A','B','C','D'];let s=circ()+poly(pts,'ln');pts.forEach((p,i)=>{s+=T(add(p,mul(nrm(sub(p,CC)),12)),lab[i],'middle','vl')});s+=T(angPos(pts[0],pts[1],pts[3],28),g+'°')+T(angPos(pts[2],pts[1],pts[3],26),'?')+NTS;
+    return{sec:SEC.CIR,topic:'Inscribed quadrilaterals',q:'ABCD is inscribed in the circle. Find m∠C.',svg:W(s),ans:fD(180-g),opts:numOpts(180-g,[g,360-2*g,g/2,90-g/2+90],fD,{step:6}),explain:`Opposite angles of an inscribed quadrilateral are supplementary: 180 − ${g} = ${180-g}°.`}}
+  if(k==='semi'){const g=R(20,70);const A=cpt(CC,CR,180),B=cpt(CC,CR,0),C=cpt(CC,CR,R(55,125));let s=circ()+poly([A,B,C],'ln')+dot(CC)+T(add(A,[-10,0]),'A','middle','vl')+T(add(B,[10,0]),'B','middle','vl')+T(add(C,[0,-11]),'C','middle','vl')+T(angPos(A,B,C,32),g+'°')+T(angPos(B,A,C,30),'?')+NTS;
+    return{sec:SEC.CIR,topic:'Inscribed angles',q:'AB is a diameter. Find m∠B.',svg:W(s),ans:fD(90-g),opts:numOpts(90-g,[g,180-g,2*g,180-2*g],fD,{step:5}),explain:`∠C intercepts a semicircle, so it is 90°. m∠B = 180 − 90 − ${g} = ${90-g}°.`}}
+  const arc=2*R(25,140);const P=cpt(CC,CR,250),A=cpt(CC,CR,25),B=cpt(CC,CR,145);let s=circ()+seg(P,A)+seg(P,B)+dot(P)+dot(A)+dot(B);
+  const am=cpt(CC,CR+14,85);
+  if(k==='arc'){s+=T(am,arc+'°')+T(angPos(P,A,B,30),'?')+NTS;return{sec:SEC.CIR,topic:'Inscribed angles',q:'Find the measure of the inscribed angle.',svg:W(s),ans:fD(arc/2),opts:numOpts(arc/2,[arc,180-arc/2,360-arc,arc/4],fD,{step:5}),explain:`An inscribed angle is half its intercepted arc: ${arc} ÷ 2 = ${arc/2}°.`}}
+  s+=T(am,'?')+T(angPos(P,A,B,30),arc/2+'°')+NTS;return{sec:SEC.CIR,topic:'Inscribed angles',q:'Find the measure of the intercepted arc.',svg:W(s),ans:fD(arc),opts:numOpts(arc,[arc/2,360-arc,180-arc/2,arc*1.5],fD,{step:8}),explain:`The intercepted arc is twice the inscribed angle: 2 × ${arc/2} = ${arc}°.`};
+}
+function gChordAngle(){
+  let x,y;do{x=R(20,140);y=R(20,140)}while((x+y)%2||x+y>300);const A=cpt(CC,CR,150),B=cpt(CC,CR,40),Cp=cpt(CC,CR,330),D=cpt(CC,CR,220);
+  const k=pick(['ang','arc']);const ang=(x+y)/2;
+  let s=circ()+seg(A,Cp)+seg(B,D)+[A,B,Cp,D].map(p=>dot(p)).join('')+T(cpt(CC,CR+14,95),x+'°')+T(cpt(CC,CR+14,275),k==='ang'?y+'°':'?')+T([CC[0]+2,CC[1]-18],k==='ang'?'?':ang+'°')+NTS;
+  if(k==='ang')return{sec:SEC.CIR,topic:'Chord–chord angles',q:'Two chords intersect inside the circle. Find the marked angle.',svg:W(s),ans:fD(ang),opts:numOpts(ang,[x+y,Math.abs(x-y)/2,180-ang,(x+y)/4],fD,{step:5}),explain:`An angle formed by two chords is half the sum of the intercepted arcs: (${x} + ${y}) ÷ 2 = ${ang}°.`};
+  return{sec:SEC.CIR,topic:'Chord–chord angles',q:'Two chords intersect inside the circle. Find the arc marked ?',svg:W(s),ans:fD(y),opts:numOpts(y,[2*ang+x,ang-x/2,2*ang,ang],fD,{step:8}),explain:`${ang} = (${x} + ?) ÷ 2 → ? = 2(${ang}) − ${x} = ${y}°.`};
+}
+function lineCircle(P,dir,c,r){const d=sub(P,c);const b=2*(dir[0]*d[0]+dir[1]*d[1]),cc=d[0]**2+d[1]**2-r*r;const disc=Math.sqrt(b*b-4*cc);return[add(P,mul(dir,(-b-disc)/2)),add(P,mul(dir,(-b+disc)/2))]}
+function gExtAngle(){
+  let far,near;do{far=2*R(55,130);near=2*R(10,50)}while(far-near<30||far+near>340);const k=pick(['ang','far']);const ang=(far-near)/2;
+  const c=[160,86],r=58,P=[24,86];const d1=nrm([1,-.33]),d2=nrm([1,.33]);const [n1,f1p]=lineCircle(P,d1,c,r),[n2,f2p]=lineCircle(P,d2,c,r);
+  let s=circ(c,r)+seg(P,f1p)+seg(P,f2p)+dot(P)+T([P[0]-8,P[1]],'P','end','vl')+T([c[0]+r+12,c[1]],k==='far'?'?':far+'°','start')+T([c[0]-r+12,c[1]],near+'°','start')+T([P[0]+26,P[1]],k==='ang'?'?':ang+'°','start')+NTS;
+  if(k==='ang')return{sec:SEC.CIR,topic:'Secant–secant angles',q:'Two secants meet at P outside the circle. Find m∠P.',svg:W(s),ans:fD(ang),opts:numOpts(ang,[(far+near)/2,far-near,180-far/2,far/2],fD,{step:5}),explain:`An angle outside a circle is half the difference of the intercepted arcs: (${far} − ${near}) ÷ 2 = ${ang}°.`};
+  return{sec:SEC.CIR,topic:'Secant–secant angles',q:'Two secants meet at P outside the circle. Find the far arc marked ?',svg:W(s),ans:fD(far),opts:numOpts(far,[2*ang-near,ang+near,2*ang,2*(ang+near)],fD,{step:10}),explain:`${ang} = (? − ${near}) ÷ 2 → ? = 2(${ang}) + ${near} = ${far}°.`};
+}
+function gChordProd(lvl=1){
+  const A=cpt(CC,CR,160),B=cpt(CC,CR,-20),C=cpt(CC,CR,70),D=cpt(CC,CR,235);const E=(()=>{const d1=sub(B,A),d2=sub(D,C);const t=((C[0]-A[0])*d2[1]-(C[1]-A[1])*d2[0])/(d1[0]*d2[1]-d1[1]*d2[0]);return add(A,mul(d1,t))})();
+  const base=circ()+seg(A,B)+seg(C,D)+[A,B,C,D].map(p=>dot(p)).join('')+dot(E,2.5)+T(add(A,[-10,0]),'A','middle','vl')+T(add(B,[10,0]),'B','middle','vl')+T(add(C,[0,-11]),'C','middle','vl')+T(add(D,[-6,10]),'D','middle','vl');
+  const lab=(p,q,s)=>{const m=mid(p,q),n=nrm(sub(q,p));return T(add(m,mul([n[1],-n[0]],11)),s)};
+  if(lvl>=1&&chance(.5)){for(let tries=0;tries<40;tries++){const x=R(2,8),k=R(1,6),N=x*(x+k);const fs=[];for(let a=2;a*a<=N;a++)if(N%a===0&&a!==x&&N/a!==x+k)fs.push(a);if(!fs.length)continue;const a=pick(fs),b=N/a;
+    const s=base+lab(A,E,a)+lab(E,B,b)+lab(C,E,'x')+lab(E,D,`x + ${k}`)+NTS;
+    return{sec:SEC.CIR,topic:'Intersecting chords',q:'Chords AB and CD intersect. Find x.',svg:W(s),ans:fI(x),opts:numOpts(x,[x+k,(a+b-k)/2,Math.sqrt(N),N/(2*x+k)],fI,{step:1}),explain:`AE·EB = CE·ED: ${a}·${b} = x(x + ${k}) → x² + ${k}x − ${N} = 0 → (x − ${x})(x + ${x+k}) = 0, so x = ${x}.`}}}
+  let a,b,c;do{a=R(2,10);b=R(2,10);const ds=[];for(let i=2;i<=14;i++)if(a*b%i===0&&i!==a&&i!==b)ds.push(i);c=ds.length?pick(ds):0}while(!c);const d=a*b/c;
+  const s=base+lab(A,E,a)+lab(E,B,b)+lab(C,E,c)+lab(E,D,'x')+NTS;
+  return{sec:SEC.CIR,topic:'Intersecting chords',q:'Chords AB and CD intersect. Find x.',svg:W(s),ans:fNice(d),opts:numOpts(d,[a+b-c,a*c/b,b*c/a,c*a*b/100+d+1],fNice,{step:1}),explain:`AE·EB = CE·ED: ${a}·${b} = ${c}·x → x = ${a*b}/${c} = ${fNice(d)}.`};
+}
+const TSP=[[4,9],[3,12],[2,8],[4,16],[5,20],[9,16],[1,9],[8,18],[3,27],[6,24],[4,25],[2,18],[1,16]];
+function gTanSec(){
+  const [e,w]=pick(TSP);const t=Math.sqrt(e*w);const k=pick(['t','in']);
+  const c=[168,80],r=56,P=[22,150];const dC=sub(c,P),dd=vlen(dC),beta=Math.atan2(dC[1],dC[0]),alpha=Math.asin(r/dd),L=Math.sqrt(dd*dd-r*r);
+  const Tp=add(P,mul([Math.cos(beta-alpha),Math.sin(beta-alpha)],L));const [A,B]=lineCircle(P,[Math.cos(beta+.1),Math.sin(beta+.1)],c,r);
+  const lab=(p,q,s,side=1)=>{const m=mid(p,q),n=nrm(sub(q,p));return T(add(m,mul([n[1]*side,-n[0]*side],11)),s)};
+  let s=circ(c,r)+seg(P,Tp)+seg(P,B)+dot(P)+dot(Tp)+dot(A)+dot(B)+rmark(Tp,P,c,7)+T([P[0]-8,P[1]+4],'P','end','vl')+T(add(Tp,[0,-11]),'T','middle','vl')+T(add(A,[-2,14]),'A','middle','vl')+T(add(B,[8,10]),'B','middle','vl');
+  s+=lab(P,Tp,k==='t'?'x':t)+lab(P,A,e,-1)+lab(A,B,k==='in'?'x':w-e,-1)+NTS;
+  if(k==='t')return{sec:SEC.CIR,topic:'Tangent–secant',q:'PT is tangent to the circle. Find x.',svg:W(s),ans:fI(t),opts:numOpts(t,[Math.sqrt(e*(w-e)),w-e,(e+w)/2,Math.sqrt(e*e+(w-e)**2)],fNice,{step:1}).map(v=>v),explain:`Tangent² = outside segment × whole secant: x² = ${e}·${w} = ${e*w}, so x = ${t}.`};
+  return{sec:SEC.CIR,topic:'Tangent–secant',q:'PT is tangent to the circle. Find x (segment AB).',svg:W(s),ans:fI(w-e),opts:numOpts(w-e,[w,t*t/e+e,t-e,t*2-e],fNice,{step:2}),explain:`${t}² = ${e}(${e} + x) → ${t*t} = ${e}(${e} + x) → ${e} + x = ${w} → x = ${w-e}.`};
+}
+function gArc(){
+  const th=pick([30,40,45,60,72,80,90,120,135,150,210,240,270,300]),r=R(2,12);const k=pick(['len','area']);
+  const a0=-20,a1=a0+th;const p0=cpt(CC,CR,a0),p1=cpt(CC,CR,a1);const large=th>180?1:0;
+  let s=circ()+`<path d="M${CC[0]},${CC[1]} L${F(p0[0])},${F(p0[1])} A${CR},${CR} 0 ${large} 0 ${F(p1[0])},${F(p1[1])} Z" class="fillacc"/>`+seg(CC,p0)+seg(CC,p1)+dot(CC)+T(add(mid(CC,p0),[0,10]),r)+T(cpt(CC,22,a0+th/2),th+'°')+NTS;
+  if(k==='len'){const ans=piF(th*r,180);return{sec:SEC.CIR,topic:'Arc length',q:`Find the length of the shaded sector's arc in terms of π.`,svg:W(s),ans,opts:strOpts(ans,[piF(th*r*r,360),piF(th*r,90),piF(th*r,360),piF((360-th)*r,180),piF(th*r*r,180)]),explain:`Arc length = (θ/360)·2πr = (${th}/360)·2π(${r}) = ${ans}.`}}
+  const ans=piF(th*r*r,360);return{sec:SEC.CIR,topic:'Sector area',q:'Find the area of the shaded sector in terms of π.',svg:W(s),ans,opts:strOpts(ans,[piF(th*r,180),piF(th*r*r,180),piF((360-th)*r*r,360),piF(th*r*r,720),piF(th*4*r*r,360)]),explain:`Sector area = (θ/360)·πr² = (${th}/360)·π(${r*r}) = ${ans}.`};
+}
+function gCircleEq(){
+  let h,k;do{h=R(-6,6);k=R(-6,6)}while(!h||!k||h===k);const r=R(2,9);const D=-2*h,E=-2*k,Fc=h*h+k*k-r*r;
+  const term=(v,s)=>v===0?'':`${v<0?'−':'+'} ${Math.abs(v)}${s}`;const eq=`x² + y² ${term(D,'x')} ${term(E,'y')} ${term(Fc,'')} = 0`.replace(/\s+/g,' ');
+  if(chance(.5)){const ans=pt(h,k);return{sec:SEC.CIR,topic:'Equation of a circle',q:`Find the center of the circle <span class="num">${eq}</span>.`,ans,opts:strOpts(ans,[pt(-h,-k),pt(-h,k),pt(h,-k),pt(D,E),pt(k,h)]),explain:`Complete the square: (x ${h<0?'+':'−'} ${Math.abs(h)})² + (y ${k<0?'+':'−'} ${Math.abs(k)})² = ${r*r}. Center ${ans}.`}}
+  return{sec:SEC.CIR,topic:'Equation of a circle',q:`Find the radius of the circle <span class="num">${eq}</span>.`,ans:String(r),opts:strOpts(String(r),[String(r*r),rad(1,Math.abs(Fc))||'1',rad(1,h*h+k*k+Math.abs(Fc)),String(2*r),rad(1,Math.abs(h*h+k*k+Fc))]),
+    explain:`Complete the square: (x ${h<0?'+':'−'} ${Math.abs(h)})² + (y ${k<0?'+':'−'} ${Math.abs(k)})² = ${h*h} + ${k*k} ${Fc<0?'+':'−'} ${Math.abs(Fc)} = ${r*r}, so r = ${r}.`};
+}
+function gTanRad(){
+  const k=pick(['d','t','two']);
+  if(k==='two'){const x=R(3,12);let a=R(2,6),c=R(2,6);while(a===c)c=R(2,6);const L=R(15,45),b=L-a*x,d=L-c*x;const Pp=[30,86],c0=[170,86],rr=48,dd=140,al=Math.asin(rr/dd),Ll=Math.sqrt(dd*dd-rr*rr);const T1=add(Pp,mul([Math.cos(-al),Math.sin(-al)],Ll)),T2=add(Pp,mul([Math.cos(al),Math.sin(al)],Ll));
+    const s=circ(c0,rr)+seg(Pp,T1)+seg(Pp,T2)+dot(Pp)+T([Pp[0]-8,Pp[1]],'P','end','vl')+T(add(mid(Pp,T1),[-4,-12]),expr(a,b))+T(add(mid(Pp,T2),[-4,12]),expr(c,d))+NTS;
+    return{sec:SEC.CIR,topic:'Tangent segments',q:'Both segments from P are tangent to the circle. Find the length of each tangent.',svg:W(s),ans:fI(L),opts:numOpts(L,[x,2*L,L+a,(b+d)/2],fI,{step:3}),explain:`Tangent segments from the same point are congruent: ${expr(a,b)} = ${expr(c,d)} → x = ${x}. Length = ${L}.`}}
+  const tr=pick(TRIPLES),sc=tr[2]<=13?R(1,2):1;const [r,t,d]=tr.map(v=>v*sc);const O=[100,86],rr=50,Tp=cpt(O,rr,70);const dir=nrm(sub(Tp,O));const Pp=add(Tp,mul([dir[1],-dir[0]],rr*t/r));
+  let s=circ(O,rr)+seg(O,Tp)+seg(Tp,Pp)+seg(O,Pp,'thin dash')+dot(O)+dot(Tp)+dot(Pp)+rmark(Tp,O,Pp,8)+T(add(O,[-10,4]),'O','middle','vl')+T(add(Tp,[-4,-11]),'T','middle','vl')+T(add(Pp,[10,0]),'P','start','vl');
+  s+=T(add(mid(O,Tp),[-10,-2]),r,'end')+T(add(mid(Tp,Pp),[4,-10]),k==='t'?'x':t,'start')+T(add(mid(O,Pp),[6,12]),k==='d'?'x':d,'start')+NTS;
+  const ans=k==='d'?d:t;
+  return{sec:SEC.CIR,topic:'Tangent and radius',q:`PT is tangent to circle O at T. Find ${k==='d'?'OP':'PT'} (x).`,svg:W(s),ans:fI(ans),opts:numOpts(ans,k==='d'?[r+t,Math.sqrt(t*t-r*r),t]:[d-r,Math.sqrt(d*d+r*r),r],fNice,{step:2}),explain:`A tangent is perpendicular to the radius at T, so △OTP is right: ${k==='d'?`x² = ${r}² + ${t}² = ${d*d}, x = ${d}`:`x² = ${d}² − ${r}² = ${t*t}, x = ${t}`}.`};
+}
+/* measurement */
+function solidFig(kind){
+  const e=(cx,cy,rx,ry,dash)=>`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" class="${dash?'thin dash':'ln'}" fill="none"/>`;
+  if(kind==='cone')return`<path d="M70,135 L130,25 L190,135" class="ln"/>`+e(130,135,60,14)+seg([130,25],[130,135],'thin dash')+seg([130,135],[190,135],'thin');
+  if(kind==='cyl')return e(130,35,60,14)+seg([70,35],[70,135])+seg([190,35],[190,135])+`<path d="M70,135 A60,14 0 0 0 190,135" class="ln"/><path d="M70,135 A60,14 0 0 1 190,135" class="thin dash"/>`+seg([130,135],[190,135],'thin');
+  if(kind==='sph')return`<circle cx="130" cy="86" r="62" class="ln" fill="none"/>`+e(130,86,62,15,true)+seg([130,86],[192,86],'thin')+dot([130,86]);
+  return`<polygon points="60,135 160,135 200,110 100,110" class="ln" fill="none"/>`+seg([60,135],[130,25])+seg([160,135],[130,25])+seg([200,110],[130,25])+seg([100,110],[130,25],'thin dash')+seg([130,25],[130,122],'thin dash')+dot([130,122],2);
+}
+function gCone(){
+  const k=pick(['vol','slant','lat']);
+  if(k==='slant'){const [r,h,l]=pick([[3,4,5],[6,8,10],[5,12,13],[8,6,10],[9,12,15],[8,15,17],[12,9,15]]);const ans=piF(r*r*h,3);
+    const s=solidFig('cone')+T([160,149],'r = '+r)+T([174,72],'ℓ = '+l,'start');
+    return{sec:SEC.MEA,topic:'Cones',q:'Find the volume of the cone in terms of π.',svg:W(s),ans,opts:strOpts(ans,[piF(r*r*l,3),piF(r*r*h,1),piF(r*l,1),piF(r*r*h*2,3),piF(r*h,3)]),explain:`First find the height: h = √(${l}² − ${r}²) = ${h}. V = ⅓πr²h = ⅓π(${r*r})(${h}) = ${ans}.`}}
+  if(k==='lat'){const [r,h,l]=pick([[3,4,5],[6,8,10],[5,12,13],[8,6,10]]);const ans=piF(r*l,1);const s=solidFig('cone')+T([160,149],'r = '+r)+T([136,82],'h = '+h,'start');
+    return{sec:SEC.MEA,topic:'Cones',q:'Find the lateral surface area of the cone in terms of π.',svg:W(s),ans,opts:strOpts(ans,[piF(r*h,1),piF(r*l+r*r,1),piF(r*r*h,3),piF(2*r*l,1)]),explain:`Slant height ℓ = √(${r}² + ${h}²) = ${l}. Lateral area = πrℓ = ${ans}.`}}
+  const r=R(2,9),h=3*R(1,5);const ans=piF(r*r*h,3);const s=solidFig('cone')+T([160,149],'r = '+r)+T([136,82],'h = '+h,'start');
+  return{sec:SEC.MEA,topic:'Cones',q:'Find the volume of the cone in terms of π.',svg:W(s),ans,opts:strOpts(ans,[piF(r*r*h,1),piF(r*h,3),piF(2*r*h,3),piF(r*r*h,2)]),explain:`V = ⅓πr²h = ⅓π(${r*r})(${h}) = ${ans}.`};
+}
+function gSphere(){
+  const k=pick(['vol','sa','hemi','back']);const r=k==='back'?R(2,9):3*R(1,3);const s=solidFig('sph')+T([161,76],'r = '+r);
+  if(k==='vol'){const ans=piF(4*r**3,3);return{sec:SEC.MEA,topic:'Spheres',q:'Find the volume of the sphere in terms of π.',svg:W(s),ans,opts:strOpts(ans,[piF(4*r*r,1),piF(r**3,1),piF(4*r**3,1),piF(2*r**3,3)]),explain:`V = (4/3)πr³ = (4/3)π(${r**3}) = ${ans}.`}}
+  if(k==='hemi'){const ans=piF(2*r**3,3);return{sec:SEC.MEA,topic:'Spheres',q:`Find the volume of a hemisphere with radius ${r} in terms of π.`,ans,opts:strOpts(ans,[piF(4*r**3,3),piF(2*r*r,1),piF(r**3,3),piF(3*r*r,1)]),explain:`Half of (4/3)πr³: (2/3)π(${r**3}) = ${ans}.`}}
+  if(k==='back'){const ans=String(r);return{sec:SEC.MEA,topic:'Spheres',q:`A sphere has surface area ${4*r*r}π. Find its radius.`,ans,opts:strOpts(ans,[String(r*r),String(2*r),rad(1,4*r*r)==String(2*r)?String(r+1):rad(1,4*r*r),String(r*4),String(r+2)]),explain:`4πr² = ${4*r*r}π → r² = ${r*r} → r = ${r}.`}}
+  const ans=piF(4*r*r,1);return{sec:SEC.MEA,topic:'Spheres',q:'Find the surface area of the sphere in terms of π.',svg:W(s),ans,opts:strOpts(ans,[piF(4*r**3,3),piF(2*r*r,1),piF(r*r,1),piF(8*r,1)]),explain:`SA = 4πr² = 4π(${r*r}) = ${ans}.`};
+}
+function gCyl(){
+  const r=R(2,8),h=R(3,12);const k=pick(['vol','sa']);const s=solidFig('cyl')+T([160,147],'r = '+r)+T([198,86],'h = '+h,'start');
+  if(k==='vol'){const ans=piF(r*r*h,1);return{sec:SEC.MEA,topic:'Cylinders',q:'Find the volume of the cylinder in terms of π.',svg:W(s),ans,opts:strOpts(ans,[piF(2*r*h,1),piF(r*r*h,3),piF(2*r*r*h,1),piF(r*h,1)]),explain:`V = πr²h = π(${r*r})(${h}) = ${ans}.`}}
+  const ans=piF(2*r*r+2*r*h,1);return{sec:SEC.MEA,topic:'Cylinders',q:'Find the total surface area of the cylinder in terms of π.',svg:W(s),ans,opts:strOpts(ans,[piF(2*r*h,1),piF(r*r+2*r*h,1),piF(2*r*r+r*h,1),piF(r*r*h,1)]),explain:`SA = 2πr² + 2πrh = ${2*r*r}π + ${2*r*h}π = ${ans}.`};
+}
+function gPyr(){
+  const [half,h,sl]=pick([[3,4,5],[4,3,5],[6,8,10],[5,12,13],[8,6,10],[8,15,17],[9,12,15]]);const b=2*half;const k=pick(['vol','slant']);
+  const s=solidFig('pyr')+T([110,150],'base '+b+' × '+b)+T([136,72],k==='vol'?'h = '+h:'slant = '+sl,'start');
+  const ans=fI(b*b*h/3);return{sec:SEC.MEA,topic:'Pyramids',q:k==='vol'?'Find the volume of the square pyramid.':'The slant height of each face is shown. Find the volume of the square pyramid.',svg:W(s),ans,opts:numOpts(b*b*h/3,[b*b*h,b*b*sl/3,b*h/3*4,b*b*h/2],fI,{step:8}),
+    explain:`${k==='slant'?`Height: √(${sl}² − ${half}²) = ${h}. `:''}V = ⅓Bh = ⅓(${b*b})(${h}) = ${b*b*h/3}.`};
+}
+function gSolidRatio(){
+  const a=R(1,4);let b=R(2,6);while(b===a)b=R(2,6);const V=a**3*R(2,5);const ans=V*b**3/a**3;
+  return{sec:SEC.MEA,topic:'Similar solids',q:`Two similar cones have heights ${a} cm and ${b} cm. The smaller has volume ${V} cm³. Find the volume of the larger.`,ans:fI(ans)+' cm³',opts:numOpts(ans,[V*b*b/(a*a),V*b/a,V+b**3-a**3],u(fNice,' cm³'),{step:10}),
+    explain:`Volumes scale by the cube of the scale factor: ${V} × (${b}/${a})³ = ${ans} cm³.`};
+}
+
+/* registry */
+const GENS={gDef,gAlways,gLogic,gCongr,gProof,gVertAlg,gParAlg,gPolyExt,gTriExt,gIsoAlg,gTriIneq,gMidseg,gCentroid,gLargest,gSideSplit,gGeoMean,gSpecial,gRatio,gSimScale,gPerp,gEndpoint,gTransform,gPartition,gDistRad,gTrigSide,gTrigAngle,gElev,gExact,gIdentity,gCofunc,gRadian,gLawSines,gLawSinesAngle,gLawCosSide,gLawCosAngle,gAreaSAS,gInscribed,gChordAngle,gExtAngle,gChordProd,gTanSec,gArc,gCircleEq,gTanRad,gCone,gSphere,gCyl,gPyr,gSolidRatio,
+  gUnit:(l)=>gExact(l,true),gIdentQ:(l)=>gIdentity(l,true)};
+const SECTION_POOLS={
+  [SEC.DEF]:['gDef','gDef','gLogic','gAlways'],
+  [SEC.PRF]:['gProof','gProof','gCongr'],
+  [SEC.ANG]:['gVertAlg','gParAlg','gPolyExt','gTriExt','gIsoAlg','gTriIneq','gMidseg','gCentroid','gLargest'],
+  [SEC.SIM]:['gSideSplit','gGeoMean','gSpecial','gRatio','gSimScale'],
+  [SEC.CRD]:['gPerp','gEndpoint','gTransform','gPartition','gDistRad'],
+  [SEC.TRG]:['gTrigSide','gTrigAngle','gElev','gExact','gIdentity','gCofunc','gRadian','gLawSines','gLawSinesAngle','gLawCosSide','gLawCosAngle','gAreaSAS','gUnit','gIdentQ'],
+  [SEC.CIR]:['gInscribed','gChordAngle','gExtAngle','gChordProd','gTanSec','gArc','gCircleEq','gTanRad'],
+  [SEC.MEA]:['gCone','gSphere','gCyl','gPyr','gSolidRatio'],
+};
+const SEC_BLURB={[SEC.DEF]:'Vocabulary, conditionals, always / sometimes / never',[SEC.PRF]:'Two-column proofs and congruence shortcuts',[SEC.ANG]:'Angle algebra, polygons, triangle theorems',[SEC.SIM]:'Similarity, special right triangles, geometric mean',[SEC.CRD]:'Slope, midpoint, distance, transformations',[SEC.TRG]:'SOH CAH TOA, exact values, Laws of Sines and Cosines',[SEC.CIR]:'Arcs, chords, tangents, secants, equations',[SEC.MEA]:'Volume and surface area of solids'};
+
+const CHAPTERS=[
+ {name:'Reed Marsh',sub:'Foundations & Logic',color:'--ch1',topics:['Definitions','Conditionals','Angle algebra','Polygons'],pool:{0:['gDef','gDef','gAlways','gLogic','gVertAlg','gPolyExt'],1:['gDef','gLogic','gAlways','gVertAlg','gParAlg','gPolyExt','gTriExt'],2:['gLogic','gAlways','gParAlg','gTriExt','gPolyExt','gDef']},foes:['Tri-Crab','Square Boar','Penta-Heron'],mini:'Hexa-Toad',boss:'Rhombus Caiman'},
+ {name:'Proof Hollow',sub:'Congruence & Proof',color:'--ch2',topics:['Two-column proofs','SSS · SAS · ASA · AAS · HL','Triangle centers'],pool:{0:['gCongr','gProof','gIsoAlg','gTriIneq','gDef'],1:['gProof','gProof','gCongr','gMidseg','gCentroid','gIsoAlg','gLargest'],2:['gProof','gProof','gProof','gCongr','gCentroid','gMidseg','gAlways']},foes:['Kite Hawk','Trapezoid Turtle','Isosceles Ibis'],mini:'Median Mole',boss:'Congruence Cobra'},
+ {name:'Mirror Pond',sub:'Similarity & Coordinates',color:'--ch3',topics:['Side splitter','Special right triangles','Geometric mean','Transformations'],pool:{0:['gSideSplit','gSimScale','gSpecial','gPerp','gEndpoint'],1:['gSpecial','gGeoMean','gRatio','gTransform','gPartition','gSideSplit'],2:['gGeoMean','gSpecial','gRatio','gTransform','gDistRad','gPartition','gProof']},foes:['Scale Newt','Dilation Duck','Slope Snail'],mini:'Reflection Ray',boss:'Similarity Salamander'},
+ {name:'Sunpeak Ridge',sub:'Right-Triangle Trigonometry',color:'--ch4',topics:['SOH CAH TOA','Inverse trig','Elevation & depression','Exact values'],pool:{0:['gTrigSide','gTrigSide','gExact','gTrigAngle','gSpecial'],1:['gTrigSide','gTrigAngle','gElev','gElev','gExact','gIdentity','gCofunc'],2:['gElev','gTrigAngle','gIdentity','gCofunc','gTrigSide','gElev']},foes:['Sine Goat','Cosine Condor','Tangent Lynx'],mini:'Elevation Eagle',boss:'Hypotenuse Yak'},
+ {name:'Moon Lake',sub:'Circles',color:'--ch5',topics:['Inscribed angles','Chords & secants','Tangents','Arc length & sectors','Equations'],pool:{0:['gInscribed','gArc','gTanRad','gCircleEq'],1:['gInscribed','gChordAngle','gExtAngle','gChordProd','gArc','gTanRad','gCircleEq'],2:['gChordProd','gTanSec','gExtAngle','gChordAngle','gCircleEq','gArc','gTanSec']},foes:['Chord Carp','Secant Seal','Arc Otter'],mini:'Tangent Tern',boss:'Circumference Crane'},
+ {name:'Thunder Summit',sub:'Laws of Sines & Cosines · Solids',color:'--ch6',topics:['Law of Sines','Law of Cosines','Unit circle','Radians','Volume'],pool:{0:['gLawSines','gLawCosSide','gAreaSAS','gRadian','gCone','gCyl'],1:['gLawSines','gLawSinesAngle','gLawCosSide','gLawCosAngle','gUnit','gSphere','gPyr'],2:['gLawSinesAngle','gLawCosAngle','gAreaSAS','gUnit','gIdentQ','gSolidRatio','gCone','gPyr']},foes:['Radian Ram','Cosine Coyote','Sphere Sloth'],mini:'Unit Circle Owl',boss:'Dodeca Jaguar'},
+];
+const DAYS=10, MINI=5, BOSS=10;
+let lastGen=null;
+function genFrom(list,lvl){let g;let n=0;do{g=pick(list);n++}while(g===lastGen&&list.length>1&&n<10);lastGen=g;return GENS[g](lvl)}
+function lvlFor(day){return day>=BOSS?2:day<=3?0:day<=7?1:2}
+
+/* ================= save ================= */
+const SAVE_KEY='capytrail.v2';
+const DEF_SAVE=()=>({coins:80,gear:{blade:0,shell:0,helm:0,charm:0},tal:{},best:{},cleared:0,mastery:{},hints:3,scrolls:0,gift:'',runs:0,sel:0});
+function load(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s){const d=DEF_SAVE();return{...d,...s,gear:{...d.gear,...(s.gear||{})}}}}catch(e){}return DEF_SAVE()}
+let SV=load();
+function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(SV))}catch(e){}}
+
+const GEAR=[
+ {id:'blade',name:'Compass Blade',stat:'ATK',per:2.5,icon:'<path d="M12 3v13M8 16l4 5 4-5M7 8h10"/>'},
+ {id:'shell',name:'Protractor Shell',stat:'DEF',per:1,icon:'<path d="M3 17a9 9 0 0 1 18 0zM12 17V9M7.5 12.5l1.5 1.5M16.5 12.5l-1.5 1.5"/>'},
+ {id:'helm',name:'Yuzu Helm',stat:'HP',per:18,icon:'<circle cx="12" cy="13" r="7"/><path d="M12 6c1-2 3-3 5-3-1 2-2 3-5 3z"/>'},
+ {id:'charm',name:'Pi Pendant',stat:'Crit',per:1,icon:'<path d="M6 8h12M9 8v10M15 8v8c0 1.5 1 2 2 2"/>'},
+];
+const RAR=['Common','Fine','Rare','Epic','Legendary'];
+const rarity=l=>Math.min(4,Math.floor(l/6));
+const gearCost=l=>Math.round(25*Math.pow(1.17,l));
+const GEAR_MAX=30;
+const TALENTS=[
+ {id:'vit',name:'Vitality',desc:'+12 max HP',max:25,icon:'<path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/>'},
+ {id:'str',name:'Strength',desc:'+1.5 attack',max:25,icon:'<path d="M5 12h14M8 8v8M16 8v8M3 10v4M21 10v4"/>'},
+ {id:'tough',name:'Toughness',desc:'+1 defense',max:15,icon:'<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/>'},
+ {id:'focus',name:'Focus',desc:'Start each run with +1 insight',max:5,icon:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>'},
+ {id:'scholar',name:'Scholar',desc:'+8% coins from runs',max:10,icon:'<path d="M3 9l9-5 9 5-9 5z M7 11v5c3 2 7 2 10 0v-5"/>'},
+ {id:'steady',name:'Steady Paws',desc:'Wrong answers cost 1% less HP',max:5,icon:'<circle cx="12" cy="15" r="4"/><circle cx="6" cy="9" r="2"/><circle cx="10" cy="5.5" r="2"/><circle cx="14" cy="5.5" r="2"/><circle cx="18" cy="9" r="2"/>'},
+];
+const talCost=l=>Math.round(35*Math.pow(1.22,l));
+const tl=k=>SV.tal[k]||0;
+function baseStats(){const g=SV.gear;return{hp:120+18*g.helm+12*tl('vit'),atk:10+2.5*g.blade+1.5*tl('str'),def:g.shell+tl('tough'),crit:.01*g.charm}}
+function power(b=baseStats()){return Math.round(b.hp*.5+b.atk*6+b.def*8+b.crit*300)}
+
+/* ================= shell ================= */
+const ICONS={
+ shop:'<path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>',
+ gear:'<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/>',
+ adv:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+ tal:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',
+ lib:'<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5V5.5M8 7.5h8"/>',
+};
+const TABS=[['shop','Shop'],['gear','Gear'],['adv','Adventure'],['tal','Talents'],['lib','Library']];
+let UI={tab:'adv',libTab:'mastery'};
+function renderNav(){
+  $('#nav').innerHTML=TABS.map(([k,l])=>`<button class="${k==='adv'?'center':''}" data-tab="${k}" ${UI.tab===k?'aria-current="page"':''}><svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[k]}</svg>${l}</button>`).join('');
+  $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{UI.tab=b.dataset.tab;home()});
+}
+function renderTop(){
+  $('#topbar').innerHTML=`<div class="brand">Capy<span>Trail</span></div><div class="res"><span class="pill" title="Power">PWR ${power()}</span><span class="pill"><i class="coin"></i>${SV.coins}</span></div>`;
+}
+function home(){
+  S=null;ACTIVE=null;$('#nav').hidden=false;renderTop();renderNav();
+  const m=$('#main');m.scrollTop=0;
+  ({shop:shopTab,gear:gearTab,adv:advTab,tal:talTab,lib:libTab})[UI.tab](m);
+}
+
+/* scene */
+function sceneSVG(chColor){
+  let d='';for(let i=0;i<20;i++)d+=`<rect x="${i*24}" y="134" width="12" height="3" rx="1.5" fill="var(--trail)"/>`;
+  return `<svg viewBox="0 0 360 150" aria-hidden="true"><rect width="360" height="150" fill="var(--sky)"/><circle cx="310" cy="32" r="16" fill="var(--yuzu)" opacity=".35"/>
+    <path d="M0 100 Q60 55 130 92 T260 80 T360 90 V150 H0Z" fill="var(--hill)"/><path d="M0 112 Q90 82 180 108 T360 102 V150 H0Z" fill="var(${chColor})"/>
+    <rect y="122" width="360" height="28" fill="var(--ground)"/><g class="trail-dash">${d}</g>
+    <g transform="translate(84 99)"><g id="capy"><g class="capy-body">
+      <rect x="-28" y="12" width="9" height="15" rx="4" fill="var(--capy-dk)"/><rect x="16" y="12" width="9" height="15" rx="4" fill="var(--capy-dk)"/>
+      <ellipse cx="-4" cy="0" rx="36" ry="22" fill="var(--capy)"/><rect x="-18" y="13" width="9" height="14" rx="4" fill="var(--capy)"/><rect x="24" y="12" width="9" height="15" rx="4" fill="var(--capy)"/>
+      <rect x="16" y="-32" width="38" height="30" rx="13" fill="var(--capy)"/><rect x="42" y="-26" width="16" height="22" rx="8" fill="var(--capy-dk)"/>
+      <ellipse cx="22" cy="-31" rx="6" ry="4.5" fill="var(--capy-dk)"/><circle cx="38" cy="-21" r="2.6" fill="#1d150d"/>
+      <path d="M49 -12 q3 2 6 0" stroke="#1d150d" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      <circle cx="33" cy="-40" r="8.5" fill="var(--yuzu)"/><ellipse cx="38" cy="-49" rx="5" ry="2.6" fill="var(--leaf)" transform="rotate(-25 38 -49)"/>
+    </g></g></g>
+    <g transform="translate(272 96)"><g id="enemy"></g></g></svg>`;
+}
+
+/* adventure tab */
+function advTab(m){
+  const i=Math.min(SV.sel,SV.cleared,CHAPTERS.length-1);SV.sel=i;const ch=CHAPTERS[i];const best=SV.best[i]||0;const b=baseStats();
+  const cleared=i<SV.cleared;
+  m.innerHTML=`<div class="scene idle">${sceneSVG(ch.color)}</div>
+  <div class="card chapter">
+    <div class="chap-top"><button class="btn arrow" id="prev" aria-label="Previous chapter" ${i===0?'disabled':''}>‹</button>
+      <div class="grow"><div class="eyebrow">Chapter ${i+1} of ${CHAPTERS.length}</div><div class="chap-name">${ch.name}</div><div class="muted">${ch.sub}</div></div>
+      <button class="btn arrow" id="next" aria-label="Next chapter" ${i>=CHAPTERS.length-1?'disabled':''}>›</button></div>
+    <div class="topics">${ch.topics.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+    <div class="progress-line"><span class="muted">Best</span><div class="bar good"><i style="width:${Math.min(100,best/DAYS*100)}%"></i></div><span class="num">${cleared?'Cleared':`Day ${best} / ${DAYS}`}</span></div>
+    ${i+1<CHAPTERS.length&&i>=SV.cleared?`<p class="note" style="text-align:center">Beat the ${ch.boss} on day ${DAYS} to unlock ${CHAPTERS[i+1].name}.</p>`:''}
+    <button class="btn primary big" id="go">Start</button>
+  </div>
+  <div class="statgrid"><div class="st"><b>${b.hp}</b><span>HP</span></div><div class="st"><b>${fNice(b.atk)}</b><span>ATK</span></div><div class="st"><b>${b.def}</b><span>DEF</span></div><div class="st"><b>${Math.round(5+b.crit*100)}%</b><span>Crit</span></div></div>
+  <p class="note" style="text-align:center">${SV.hints} hint${SV.hints===1?'':'s'} · ${SV.scrolls} skill scroll${SV.scrolls===1?'':'s'} · ${SV.runs} run${SV.runs===1?'':'s'} so far</p>`;
+  $('#prev').onclick=()=>{SV.sel=Math.max(0,i-1);save();home()};
+  $('#next').onclick=()=>{if(i+1>SV.cleared){toastIn(m,`Clear ${ch.name} first.`);return}SV.sel=i+1;save();home()};
+  if(i+1>SV.cleared&&i<CHAPTERS.length-1)$('#next').classList.add('locked');
+  $('#go').onclick=()=>startRun(i);
+}
+function toastIn(m,msg){let t=m.querySelector('.toast');if(!t){t=document.createElement('p');t.className='note toast';t.style.textAlign='center';t.setAttribute('role','status');m.querySelector('.chapter').appendChild(t)}t.textContent=msg}
+
+/* gear tab */
+function gearTab(m){
+  const b=baseStats();
+  m.innerHTML=`<div class="sectitle">Gear</div><p class="muted" style="margin:0">Upgrades last across every run. Rarity climbs every 6 levels.</p>
+  <div class="list">${GEAR.map(g=>{const l=SV.gear[g.id],c=gearCost(l),r=rarity(l);const val=g.stat==='Crit'?`+${l}% crit`:`+${fNice(l*g.per)} ${g.stat}`;
+    return `<div class="item"><div class="ico">${svgI(g.icon)}</div><div><span class="rar r${r}">${RAR[r]} · Lv ${l}</span><h3>${g.name}</h3><p>${val} now · +${g.stat==='Crit'?'1%':fNice(g.per)} per level</p></div>
+    ${l>=GEAR_MAX?'<span class="note">Max</span>':`<button class="btn small" data-g="${g.id}" ${SV.coins<c?'disabled':''}><span class="cost"><i class="coin"></i>${c}</span></button>`}</div>`}).join('')}</div>
+  <div class="statgrid"><div class="st"><b>${b.hp}</b><span>HP</span></div><div class="st"><b>${fNice(b.atk)}</b><span>ATK</span></div><div class="st"><b>${b.def}</b><span>DEF</span></div><div class="st"><b>${Math.round(5+b.crit*100)}%</b><span>Crit</span></div></div>`;
+  m.querySelectorAll('[data-g]').forEach(bt=>bt.onclick=()=>{const id=bt.dataset.g,c=gearCost(SV.gear[id]);if(SV.coins<c)return;SV.coins-=c;SV.gear[id]++;save();home()});
+}
+const svgI=p=>`<svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
+function talTab(m){
+  m.innerHTML=`<div class="sectitle">Talents</div><p class="muted" style="margin:0">Permanent training for your capybara.</p>
+  <div class="list">${TALENTS.map(t=>{const l=tl(t.id),c=talCost(l);return `<div class="item"><div class="ico">${svgI(t.icon)}</div><div><span class="rar r${Math.min(4,Math.floor(l/5))}">Lv ${l} / ${t.max}</span><h3>${t.name}</h3><p>${t.desc} per level</p></div>
+    ${l>=t.max?'<span class="note">Max</span>':`<button class="btn small" data-t="${t.id}" ${SV.coins<c?'disabled':''}><span class="cost"><i class="coin"></i>${c}</span></button>`}</div>`}).join('')}</div>`;
+  m.querySelectorAll('[data-t]').forEach(bt=>bt.onclick=()=>{const id=bt.dataset.t,c=talCost(tl(id));if(SV.coins<c)return;SV.coins-=c;SV.tal[id]=tl(id)+1;save();home()});
+}
+function today(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
+function shopTab(m,msg=''){
+  const giftReady=SV.gift!==today();const crate=Math.round(60+12*Object.values(SV.gear).reduce((a,b)=>a+b,0));
+  const items=[
+    {id:'gift',name:'Daily gift',desc:giftReady?'Free coins and a hint, once a day':'Come back tomorrow',cost:0,ok:giftReady,icon:'<rect x="4" y="9" width="16" height="11" rx="1"/><path d="M3 9h18v-3H3zM12 6v14M12 6c-2-4-6-3-5 0M12 6c2-4 6-3 5 0"/>'},
+    {id:'hints',name:'Hint feathers ×3',desc:'Each removes two wrong answers on one problem',cost:60,icon:'<path d="M20 4C10 4 5 10 5 19l3-3h5c4 0 7-5 7-12zM5 19l9-9"/>'},
+    {id:'scroll',name:'Skill scroll',desc:'Your next run starts with a random skill (stacks to 3)',cost:90,ok:SV.scrolls<3,icon:'<path d="M7 4h11v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-1h10v1a2 2 0 0 0 2 2M7 4a2 2 0 0 0-2 2v11M10 8h5M10 12h5"/>'},
+    {id:'crate',name:'Gear crate',desc:'+1 level on a random piece of gear',cost:crate,ok:GEAR.some(g=>SV.gear[g.id]<GEAR_MAX),icon:'<path d="M3 8l9-4 9 4v9l-9 4-9-4zM3 8l9 4 9-4M12 12v9"/>'},
+  ];
+  m.innerHTML=`<div class="sectitle">Shop</div>${msg?`<p class="muted" style="margin:0" role="status">${msg}</p>`:''}
+  <div class="list">${items.map(it=>`<div class="item"><div class="ico">${svgI(it.icon)}</div><div><h3>${it.name}</h3><p>${it.desc}</p></div>
+    <button class="btn small" data-s="${it.id}" ${(it.ok===false||SV.coins<it.cost)?'disabled':''}>${it.cost?`<span class="cost"><i class="coin"></i>${it.cost}</span>`:'Claim'}</button></div>`).join('')}</div>
+  <p class="note">Hints in your pack: ${SV.hints}. Scrolls: ${SV.scrolls}.</p>`;
+  m.querySelectorAll('[data-s]').forEach(bt=>bt.onclick=()=>{const it=items.find(x=>x.id===bt.dataset.s);if(it.ok===false||SV.coins<it.cost)return;SV.coins-=it.cost;let out='';
+    if(it.id==='gift'){const c=40+20*SV.cleared;SV.coins+=c;SV.hints++;SV.gift=today();out=`Claimed ${c} coins and a hint feather.`}
+    else if(it.id==='hints'){SV.hints+=3;out='Three hint feathers added.'}
+    else if(it.id==='scroll'){SV.scrolls++;out='Scroll packed for your next run.'}
+    else{const g=pick(GEAR.filter(g=>SV.gear[g.id]<GEAR_MAX));SV.gear[g.id]++;out=`${g.name} rose to level ${SV.gear[g.id]}.`}
+    save();renderTop();shopTab(m,out)});
+}
+
+/* library */
+const THEOREMS=[
+ ['Triangle Sum Theorem','The interior angles of a triangle add to 180°.'],
+ ['Exterior Angle Theorem','An exterior angle equals the sum of the two remote interior angles.'],
+ ['Isosceles Triangle Theorem','If two sides of a triangle are congruent, the angles opposite them are congruent (and conversely).'],
+ ['Triangle Inequality','Any side is shorter than the sum, and longer than the difference, of the other two.'],
+ ['Midsegment Theorem','A midsegment is parallel to the third side and half as long.'],
+ ['Centroid Theorem','The centroid is 2/3 of the way from each vertex to the midpoint of the opposite side.'],
+ ['Polygon Angle Sum','Interior angles of an n-gon sum to (n − 2)·180°; exterior angles always sum to 360°.'],
+ ['Side-Splitter Theorem','A line parallel to one side of a triangle divides the other two sides proportionally.'],
+ ['Geometric Mean Theorems','Altitude to the hypotenuse: h² = (segment)(segment). Each leg² = (hypotenuse)(adjacent segment).'],
+ ['Pythagorean Theorem','In a right triangle, a² + b² = c².'],
+ ['45-45-90 Triangle','Sides are s, s, s√2.'],
+ ['30-60-90 Triangle','Sides are s, s√3, 2s (short leg opposite 30°).'],
+ ['Inscribed Angle Theorem','An inscribed angle is half its intercepted arc. An angle inscribed in a semicircle is 90°.'],
+ ['Inscribed Quadrilateral','Opposite angles of a quadrilateral inscribed in a circle are supplementary.'],
+ ['Chord–Chord Angle','Angle = ½(sum of the two intercepted arcs).'],
+ ['Secant/Tangent Exterior Angle','Angle = ½(far arc − near arc).'],
+ ['Intersecting Chords','The products of the segment lengths are equal: a·b = c·d.'],
+ ['Tangent–Secant','tangent² = outside segment × whole secant.'],
+ ['Tangent–Radius','A tangent is perpendicular to the radius drawn to the point of tangency.'],
+ ['Two Tangents','Tangent segments to a circle from the same outside point are congruent.'],
+];
+const TRIGREF=[
+ ['SOH CAH TOA','sin θ = opp/hyp · cos θ = adj/hyp · tan θ = opp/adj'],
+ ['Inverse trig','θ = sin⁻¹(opp/hyp), cos⁻¹(adj/hyp), tan⁻¹(opp/adj)'],
+ ['Pythagorean identity','sin²θ + cos²θ = 1'],
+ ['Cofunctions','sin θ = cos(90° − θ)'],
+ ['Exact values','sin 30 = 1/2 · sin 45 = √2/2 · sin 60 = √3/2 · tan 30 = √3/3 · tan 60 = √3'],
+ ['Signs by quadrant','I: all +, II: sin +, III: tan +, IV: cos +'],
+ ['Radians','radians = degrees · π/180'],
+ ['Law of Sines','a/sin A = b/sin B = c/sin C'],
+ ['Law of Cosines','c² = a² + b² − 2ab·cos C'],
+ ['Area with sine','Area = ½ab·sin C'],
+];
+const MEAREF=[
+ ['Arc length','(θ/360)·2πr'],['Sector area','(θ/360)·πr²'],['Circle equation','(x − h)² + (y − k)² = r²'],
+ ['Prism / cylinder','V = Bh · V = πr²h · SA = 2πr² + 2πrh'],['Pyramid / cone','V = ⅓Bh · V = ⅓πr²h · cone lateral area = πrℓ'],
+ ['Sphere','V = (4/3)πr³ · SA = 4πr²'],['Similar figures','scale k → perimeters k, areas k², volumes k³'],
+ ['Coordinates','midpoint ((x₁+x₂)/2, (y₁+y₂)/2) · distance √(Δx² + Δy²) · perpendicular slopes multiply to −1'],
+];
+const LIBTABS=[['mastery','Practice'],['defs','Definitions'],['thms','Theorems'],['reasons','Proof reasons'],['trig','Trig'],['formulas','Formulas']];
+function libTab(m){
+  const t=UI.libTab;let body='';
+  if(t==='mastery'){
+    body=`<div class="card"><h2>Practice by section</h2><p class="muted">Six problems, no battle. Each right answer pays 4 coins.</p><div class="mastery">${Object.values(SEC).map(s=>{const [c,n]=SV.mastery[s]||[0,0];const pct=n?Math.round(c/n*100):0;
+      return `<div class="mrow"><div class="lab">${s}<small>${n?`${c}/${n} right · ${pct}%`:SEC_BLURB[s]}</small></div><div class="bar good"><i style="width:${pct}%"></i></div><button class="btn small" data-p="${s}">Practice</button></div>`}).join('')}</div></div>`;
+  }else if(t==='defs'){
+    const groups={};TERMS.forEach(x=>{(groups[x[2]]=groups[x[2]]||[]).push(x)});
+    body=`<div class="card ref">${Object.keys(groups).map(g=>`<div class="grp">${GRP[g]}</div><dl>${groups[g].map(x=>`<div><dt>${x[0]}</dt><dd>${cap(x[1])}.</dd></div>`).join('')}</dl>`).join('')}</div>`;
+  }else if(t==='thms'){body=`<div class="card ref"><dl>${THEOREMS.map(x=>`<div><dt>${x[0]}</dt><dd>${x[1]}</dd></div>`).join('')}</dl></div>`}
+  else if(t==='reasons'){const cats={other:'Starting and finishing',prop:'Properties of equality and congruence',def:'Definitions',ang:'Angle postulates and theorems',tri:'Triangle congruence and similarity'};
+    body=`<div class="card ref">${Object.keys(cats).map(c=>`<div class="grp">${cats[c]}</div><dl>${Object.keys(REASONS).filter(r=>REASONS[r][0]===c).map(r=>`<div><dt>${r}</dt><dd>${REASONS[r][1]}</dd></div>`).join('')}</dl>`).join('')}</div>`}
+  else if(t==='trig'){body=`<div class="card ref"><dl>${TRIGREF.map(x=>`<div><dt>${x[0]}</dt><dd><span class="formula">${x[1]}</span></dd></div>`).join('')}</dl></div>`}
+  else{body=`<div class="card ref"><dl>${MEAREF.map(x=>`<div><dt>${x[0]}</dt><dd><span class="formula">${x[1]}</span></dd></div>`).join('')}</dl></div>`}
+  m.innerHTML=`<div class="sectitle">Library</div><div class="tabs" role="toolbar" aria-label="Library sections">${LIBTABS.map(([k,l])=>`<button data-l="${k}" aria-pressed="${t===k}">${l}</button>`).join('')}</div>${body}`;
+  m.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{UI.libTab=b.dataset.l;libTab(m)});
+  m.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>startPractice(b.dataset.p));
+}
+
+/* ================= problem card ================= */
+let ACTIVE=null;
+document.addEventListener('keydown',e=>{if(ACTIVE&&/^[1-4]$/.test(e.key))ACTIVE(+e.key-1)});
+function recordMastery(sec,ok){const m=SV.mastery[sec]||[0,0];m[1]++;if(ok)m[0]++;SV.mastery[sec]=m;save()}
+function askProblem(el,p,o){
+  const long=p.opts.some(x=>x.replace(/<[^>]+>/g,'').length>18);const mono=!long&&!p.keep&&p.sec!==SEC.PRF&&p.sec!==SEC.DEF;
+  el.innerHTML=`<div class="card">
+    <div class="chips"><span class="chip ${o.boss?'boss':''}">${o.label}</span><span class="chip ghost">${p.sec} · ${p.topic}</span></div>
+    ${p.svg||''}${p.proof||''}
+    <p class="qtext">${p.q}</p>
+    <div class="opts ${long?'one':''}">${p.opts.map((x,i)=>`<button class="btn opt ${mono?'mono':''}" data-i="${i}"><span class="k">${i+1}</span><span class="t">${x}</span></button>`).join('')}</div>
+    ${o.hints!==false?`<div class="row"><button class="btn small ghost" id="hint" ${SV.hints<1?'disabled':''}>Use a hint feather (${SV.hints} left)</button></div>`:''}
+    <div id="fb" hidden></div></div>`;
+  let done=false;
+  const answer=i=>{if(done)return;done=true;ACTIVE=null;const ok=p.opts[i]===p.ans;recordMastery(p.sec,ok);
+    el.querySelectorAll('.opt').forEach((b,j)=>{b.disabled=true;if(p.opts[j]===p.ans)b.classList.add('right');else if(j===i)b.classList.add('wrong')});
+    const h=el.querySelector('#hint');if(h)h.disabled=true;
+    const r=o.after(ok);const fb=el.querySelector('#fb');fb.hidden=false;fb.className='feedback '+(ok?'ok':'no');
+    fb.innerHTML=`<b class="v">${r.title}</b><p>${p.explain}${r.extra?' '+r.extra:''}</p><button class="btn primary" id="cont">${r.label}</button>`;
+    const c=fb.querySelector('#cont');c.onclick=r.action;c.focus({preventScroll:true});fb.scrollIntoView({block:'nearest',behavior:'smooth'});
+  };
+  el.querySelectorAll('.opt').forEach(b=>b.onclick=()=>answer(+b.dataset.i));
+  const hb=el.querySelector('#hint');if(hb)hb.onclick=()=>{if(SV.hints<1||done)return;SV.hints--;save();const wrong=shuffle(p.opts.map((x,j)=>j).filter(j=>p.opts[j]!==p.ans)).slice(0,p.opts.length>3?2:1);wrong.forEach(j=>el.querySelectorAll('.opt')[j].classList.add('gone'));hb.disabled=true;hb.textContent=`Hint used (${SV.hints} left)`;if(S&&S.mode==='run')renderHUD()};
+  ACTIVE=answer;
+}
+
+/* ================= run ================= */
+const SKILLS={
+  fury:{name:'Fury Nibble',desc:'+15% attack per level'},
+  shell:{name:'Bark Armor',desc:'+3 defense per level'},
+  spring:{name:'Hot Spring Soul',desc:'Heal 3% max HP every turn per level'},
+  zap:{name:'Yuzu Zap',desc:'20% chance per level to zap for 110% attack, ignoring defense'},
+  twin:{name:'Double Chomp',desc:'15% chance per level to bite twice'},
+  leech:{name:'Grass Snack',desc:'Heal 10% of damage dealt per level'},
+  thorn:{name:'Burr Fur',desc:'Reflect 20% of damage taken per level'},
+  hide:{name:'Thick Hide',desc:'+20% max HP per level, and heal that much now'},
+  compass:{name:'Compass Mind',desc:'Insight crits deal +30% more damage per level'},
+};
+let S=null;
+const lv=k=>S.skills[k]||0;
+const effAtk=()=>S.atk*(1+.15*lv('fury'));
+const effDef=()=>S.def+3*lv('shell');
+const critChance=()=>Math.min(.75,.05+S.crit+Math.min(.36,S.streak*.04));
+function startRun(ch){
+  const b=baseStats();
+  S={mode:'run',ch,day:1,hp:b.hp,maxHp:b.hp,atk:b.atk,def:b.def,crit:b.crit,yuzu:0,streak:tl('focus'),solved:0,missed:0,skills:{},kills:0,bosses:0,revived:false,need:1};
+  SV.runs++;
+  const sc=SV.scrolls;SV.scrolls=0;save();
+  $('#nav').hidden=true;
+  $('#topbar').innerHTML=`<div class="brand">Capy<span>Trail</span></div><div class="res"><button class="btn small ghost" id="retreat">Retreat</button></div>`;
+  $('#retreat').onclick=retreatAsk;
+  $('#main').innerHTML=`<section class="hud" id="hud"></section><div class="scene" id="scene">${sceneSVG(CHAPTERS[ch].color)}</div><div id="panel"></div>`;
+  for(let i=0;i<sc;i++){const k=pick(Object.keys(SKILLS));learn(k)}
+  if(sc)floatMsg(`Scroll${sc>1?'s':''} read: ${Object.keys(S.skills).map(k=>SKILLS[k].name).join(', ')}`);
+  walk();newGate();
+}
+function floatMsg(t){const p=document.createElement('p');p.className='note';p.textContent=t;p.setAttribute('role','status');$('#hud').after(p);setTimeout(()=>p.remove(),4000)}
+function learn(k){S.skills[k]=lv(k)+1;if(k==='hide'){const add=Math.round(S.maxHp*.2);S.maxHp+=add;S.hp+=add}}
+function renderHUD(){
+  if(!S||S.mode!=='run')return;const ch=CHAPTERS[S.ch];
+  let pips='';for(let d=1;d<=DAYS;d++)pips+=`<span class="pip${d===MINI||d===BOSS?' boss':''}${d<S.day?' done':d===S.day?' now':''}" title="Day ${d}"></span>`;
+  const sk=Object.entries(S.skills).map(([k,v])=>`<span class="sk">${SKILLS[k].name} ${'I'.repeat(v)}</span>`).join('');
+  $('#hud').innerHTML=`<div class="hud-top"><span class="hud-ch">${ch.name}</span><span class="daychip">Day <b>${Math.min(S.day,DAYS)}</b> / ${DAYS}</span></div>
+    <div class="pips" aria-hidden="true">${pips}</div>
+    <div class="hp"><div class="bar" role="meter" aria-label="Health" aria-valuenow="${Math.max(0,Math.round(S.hp))}" aria-valuemin="0" aria-valuemax="${S.maxHp}"><i style="width:${Math.max(0,S.hp/S.maxHp*100)}%"></i></div><span class="num">${Math.max(0,Math.round(S.hp))} / ${S.maxHp}</span></div>
+    <div class="stats"><span class="stat"><em>atk</em>${Math.round(effAtk())}</span><span class="stat"><em>def</em>${effDef()}</span><span class="stat insight"><em>insight</em>${S.streak} · ${Math.round(critChance()*100)}%</span><span class="stat"><em>yuzu</em>${S.yuzu}</span><span class="stat"><em>hints</em>${SV.hints}</span></div>
+    ${sk?`<div class="skillrow">${sk}</div>`:''}`;
+}
+function walk(ms=1100){const s=$('#scene');if(!s)return;s.classList.add('walking');setTimeout(()=>s.classList.remove('walking'),ms)}
+function enemySVG(e){
+  const n=e.n,r=e.boss?36:e.mini?31:27,pts=[];
+  for(let i=0;i<n;i++){const a=(90+180/n+i*360/n)*DEG;pts.push((r*Math.cos(a)).toFixed(1)+','+(r*Math.sin(a)+(e.boss?-6:0)).toFixed(1))}
+  const ey=e.boss?-10:-2;
+  return `<polygon points="${pts.join(' ')}" fill="${e.color}" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"/>
+    <circle cx="-9" cy="${ey}" r="5.5" fill="#fff"/><circle cx="9" cy="${ey}" r="5.5" fill="#fff"/><circle cx="-10.5" cy="${ey+1}" r="2.6" fill="#1a1a1a"/><circle cx="7.5" cy="${ey+1}" r="2.6" fill="#1a1a1a"/>
+    <path d="M-15 ${ey-9} L-4 ${ey-5} M15 ${ey-9} L4 ${ey-5}" stroke="#1a1a1a" stroke-width="2.2" stroke-linecap="round"/><path d="M-6 ${ey+12} q6 -4 12 0" stroke="#1a1a1a" stroke-width="2" fill="none" stroke-linecap="round"/>`;
+}
+function showEnemy(e){const el=$('#enemy');if(el)el.innerHTML=e?enemySVG(e):''}
+let battle=null;
+function floatAt(who,text,cls=''){
+  if(battle&&battle.skip)return;const sc=$('#scene');if(!sc)return;
+  const el=document.createElement('div');el.className='float '+cls;el.textContent=text;
+  el.style.left=(who==='capy'?24:75)+(Math.random()*8-4)+'%';el.style.top=(who==='capy'?30:28)+'%';sc.appendChild(el);setTimeout(()=>el.remove(),900);
+}
+function anim(sel,cls){const el=$(sel);if(!el)return;el.classList.remove(cls);void el.getBBox();el.classList.add(cls)}
+
+function newGate(){
+  S.phase='gate';showEnemy(null);renderHUD();
+  const boss=S.day===BOSS||S.day===MINI;if(S.need==null||S.need<1)S.need=boss?2:1;
+  const p=genFrom(CHAPTERS[S.ch].pool[lvlFor(S.day)],lvlFor(S.day));
+  askProblem($('#panel'),p,{label:`${boss?(S.day===BOSS?'Boss gate':'Guard gate'):'Trail gate'} · Day ${S.day}${boss?` · ${S.need} to go`:''}`,boss,after:gateResult});
+}
+function gateResult(ok){
+  if(ok){S.streak++;S.solved++;S.yuzu+=3;let extra='';if(S.solved%3===0){S.atk+=1;extra='Three more solved: +1 ATK.'}S.need--;renderHUD();
+    if(S.need>0)return{title:'One lock opens.',extra,label:'Next lock',action:newGate};
+    return{title:'Gate opens.',extra,label:'Walk on',action:()=>{walk(700);rollEvent()}}}
+  const dmg=Math.max(1,Math.round(S.maxHp*(.12-.01*tl('steady'))));S.hp-=dmg;S.streak=Math.max(0,S.streak-2);S.missed++;anim('#capy','recoil');floatAt('capy','-'+dmg,'hurt');renderHUD();
+  if(S.hp<=0)return{title:`The gate snaps shut. −${dmg} HP`,label:'Your capybara is down…',action:()=>reviveOffer(null)};
+  return{title:`The gate snaps shut. −${dmg} HP`,extra:'Insight −2.',label:'Try another problem',action:newGate};
+}
+function rollEvent(){
+  S.phase='event';S.need=null;
+  if(S.day===BOSS)return encounter(makeEnemy('boss'));
+  if(S.day===MINI)return encounter(makeEnemy('mini'));
+  const r=Math.random();
+  if(r<.45)encounter(makeEnemy('foe'));
+  else if(r<.65)skillChoice('A quiet bend in the river','You sit by the water and something clicks. Learn one:',afterEvent);
+  else if(r<.78)spring();
+  else if(r<.9&&S.day>2)trader();
+  else chest();
+}
+const COLORS=['#d8644a','#8f7d6b','#6c8fb3','#5f9d5b','#9a6bb5','#c7922e','#4c7a55','#b5577a'];
+function enemyStats(c,d,kind){const m=Math.pow(1.42,c),ma=Math.pow(1.33,c);let hp=(26+9*d)*m,atk=(4+.8*d)*ma,def=Math.floor(d/3)*(c+1);if(kind==='mini'){hp*=1.7;atk*=1.1}if(kind==='boss'){hp*=2.4;atk*=1.25;def+=c+1}return{hp:Math.round(hp),atk,def}}
+function makeEnemy(kind){const ch=CHAPTERS[S.ch];const st=enemyStats(S.ch,S.day,kind);const name=kind==='boss'?ch.boss:kind==='mini'?ch.mini:pick(ch.foes);
+  return{name,boss:kind==='boss',mini:kind==='mini',n:kind==='boss'?12:kind==='mini'?6:R(3,8),color:kind==='boss'?COLORS[(S.ch+6)%8]:pick(COLORS),...st,maxHp:st.hp}}
+function encounter(e){
+  showEnemy(e);renderHUD();
+  $('#panel').innerHTML=`<div class="card"><div class="chips"><span class="chip ${e.boss||e.mini?'boss':''}">${e.boss?'Boss':e.mini?'Guardian':'Encounter'}</span><span class="estats">HP ${e.hp} · ATK ${Math.round(e.atk)} · DEF ${e.def}</span></div>
+    <h2>${e.boss?`The ${e.name} rules this stretch of trail.`:e.mini?`The ${e.name} guards the midpoint.`:`A ${e.name} blocks the path.`}</h2>
+    <p class="muted">Your capybara fights on its own. Insight from right answers powers its crits.</p><button class="btn primary" id="fight">Fight</button></div>`;
+  $('#fight').onclick=()=>runBattle(e);$('#fight').focus({preventScroll:true});
+}
+function bwait(){return battle.skip?Promise.resolve():sleep(battle.fast?170:420)}
+function blog(t){if(battle.skip)return;battle.log.push(t);if(battle.log.length>4)battle.log.shift();const el=$('#blog');if(el)el.innerHTML=battle.log.map(x=>`<div>${x}</div>`).join('')}
+function bupdate(){const e=battle.e;const b=$('#ebar');if(b)b.style.width=Math.max(0,e.hp/e.maxHp*100)+'%';const n=$('#ehp');if(n)n.textContent=Math.max(0,Math.round(e.hp))+' / '+e.maxHp;renderHUD()}
+async function runBattle(e){
+  S.phase='battle';battle={e,fast:battle?battle.fast:false,skip:false,log:[]};const myRun=S;
+  $('#panel').innerHTML=`<div class="card"><div class="chips"><span class="chip ${e.boss||e.mini?'boss':''}">${e.name}</span><span class="num" id="ehp">${Math.round(e.hp)} / ${e.maxHp}</span></div>
+    <div class="bar enemy"><i id="ebar" style="width:${e.hp/e.maxHp*100}%"></i></div><div class="log" id="blog" aria-live="polite"></div>
+    <div class="row"><button class="btn small" id="spd">${battle.fast?'Speed 2×':'Speed 1×'}</button><span class="grow"></span><button class="btn small" id="skip">Skip to result</button></div></div>`;
+  $('#spd').onclick=()=>{battle.fast=!battle.fast;$('#spd').textContent=battle.fast?'Speed 2×':'Speed 1×'};
+  $('#skip').onclick=()=>{battle.skip=true};
+  let turn=0;
+  while(S===myRun&&S.hp>0&&e.hp>0&&turn<400){
+    turn++;const hits=chance(.15*lv('twin'))?2:1;
+    for(let h=0;h<hits&&e.hp>0;h++){let dmg=Math.max(1,Math.round(effAtk()*(.9+Math.random()*.2)-e.def));const crit=chance(critChance());if(crit)dmg=Math.round(dmg*(1.8+.3*lv('compass')));
+      e.hp-=dmg;if(!battle.skip)anim('#capy','lunge');floatAt('enemy',(crit?'CRIT ':'')+dmg,crit?'crit':'');blog(`${h?'Second bite':crit?'Insight crit':'Capybara bites'} for ${dmg}.`);
+      const heal=Math.round(dmg*.1*lv('leech'));if(heal>0)S.hp=Math.min(S.maxHp,S.hp+heal)}
+    if(e.hp>0&&chance(.2*lv('zap'))){const z=Math.round(effAtk()*1.1);e.hp-=z;floatAt('enemy','zap '+z,'zap');blog(`Yuzu zap for ${z}.`)}
+    bupdate();await bwait();if(S!==myRun)return;if(e.hp<=0)break;
+    const dmg=Math.max(1,Math.round(e.atk*(.9+Math.random()*.2)-effDef()));S.hp-=dmg;if(!battle.skip){anim('#enemy','enemy-lunge');anim('#capy','recoil')}floatAt('capy','-'+dmg,'hurt');blog(`${e.name} hits for ${dmg}.`);
+    const th=Math.round(dmg*.2*lv('thorn'));if(th>0){e.hp-=th;blog(`Burr fur reflects ${th}.`)}
+    const rg=Math.round(S.maxHp*.03*lv('spring'));if(rg>0&&S.hp>0){S.hp=Math.min(S.maxHp,S.hp+rg);floatAt('capy','+'+rg,'heal')}
+    bupdate();await bwait();if(S!==myRun)return;
+  }
+  if(S!==myRun)return;
+  S.hp=Math.round(S.hp);bupdate();
+  if(S.hp<=0)return reviveOffer(e);
+  showEnemy(null);S.kills++;if(e.boss||e.mini)S.bosses++;
+  if(e.boss)return endRun('win');
+  const y=(4+S.day)*(e.mini?3:1);S.yuzu+=y;S.atk+=1;S.maxHp+=6;S.hp=Math.min(S.maxHp,S.hp+6);renderHUD();
+  const learnIt=e.mini||chance(.4);
+  $('#panel').innerHTML=`<div class="card"><h2>${e.name} defeated.</h2><p>+${y} yuzu · +1 ATK · +6 max HP${learnIt?' · a new skill to learn':''}</p><button class="btn primary" id="cont">${learnIt?'Choose a skill':'Walk on'}</button></div>`;
+  $('#cont').onclick=()=>learnIt?skillChoice('Victory lesson','Pick one:',afterEvent):afterEvent();$('#cont').focus({preventScroll:true});
+}
+function reviveOffer(e){
+  if(S.revived)return endRun('lose',e);
+  S.phase='revive';
+  const p=genFrom(CHAPTERS[S.ch].pool[2],2);
+  $('#panel').innerHTML='';
+  const wrap=document.createElement('div');wrap.style.display='grid';wrap.style.gap='12px';wrap.innerHTML=`<div class="card"><h2>Second wind</h2><p class="muted">Your capybara is down. Solve one hard problem to get back up at half health. This works once per run.</p></div><div id="rv"></div>`;
+  $('#panel').appendChild(wrap);
+  askProblem($('#rv'),p,{label:'Second wind',boss:true,after:ok=>{S.revived=true;
+    if(ok){S.hp=Math.round(S.maxHp/2);renderHUD();return{title:'Back on its paws!',label:e?'Keep fighting':'Back to the trail',action:()=>e?runBattle(e):newGate()}}
+    return{title:'Not this time.',label:'See results',action:()=>endRun('lose',e)}}});
+}
+function skillChoice(title,lead,then){
+  const avail=Object.keys(SKILLS).filter(k=>lv(k)<3);
+  if(!avail.length){S.atk+=2;renderHUD();$('#panel').innerHTML=`<div class="card"><h2>${title}</h2><p>Every skill is maxed. +2 ATK instead.</p><button class="btn primary" id="c">Walk on</button></div>`;$('#c').onclick=then;return}
+  const opts=shuffle(avail).slice(0,3);
+  $('#panel').innerHTML=`<div class="card"><div class="chips"><span class="chip">Skill</span></div><h2>${title}</h2><p class="muted">${lead}</p>
+    <div class="choices">${opts.map(k=>`<button class="btn choice" data-k="${k}"><span class="lv">${lv(k)?'Level '+lv(k)+' → '+(lv(k)+1):'New'}</span><strong>${SKILLS[k].name}</strong><span>${SKILLS[k].desc}</span></button>`).join('')}</div></div>`;
+  $('#panel').querySelectorAll('.choice').forEach(b=>b.onclick=()=>{learn(b.dataset.k);renderHUD();then()});
+}
+function spring(){const heal=Math.round(S.maxHp*.35);S.hp=Math.min(S.maxHp,S.hp+heal);renderHUD();floatAt('capy','+'+heal,'heal');
+  $('#panel').innerHTML=`<div class="card"><div class="chips"><span class="chip">Rest</span></div><h2>A warm spring steams by the trail.</h2><p>Your capybara soaks until its whiskers droop. +${heal} HP.</p><button class="btn primary" id="c">Walk on</button></div>`;$('#c').onclick=afterEvent}
+function chest(){const r=R(0,3);let msg;
+  if(r===0){const g=R(10,20);S.yuzu+=g;msg=`${g} yuzu, slightly damp.`}else if(r===1){S.atk+=2+S.ch;msg=`A sharpening stone. +${2+S.ch} ATK.`}else if(r===2){S.def+=1+Math.floor(S.ch/2);msg=`A sturdy bark vest. +${1+Math.floor(S.ch/2)} DEF.`}else{const h=15+8*S.ch;S.maxHp+=h;S.hp+=h;msg=`A bundle of sweet grass. +${h} max HP.`}
+  renderHUD();$('#panel').innerHTML=`<div class="card"><div class="chips"><span class="chip">Find</span></div><h2>Something half-buried in the reeds.</h2><p>${msg}</p><button class="btn primary" id="c">Walk on</button></div>`;$('#c').onclick=afterEvent}
+function trader(msg=''){
+  const c=S.ch;const items=[
+    {id:'heal',name:'Herbal snack',desc:'Heal 40% HP',cost:12,buy:()=>{S.hp=Math.min(S.maxHp,S.hp+Math.round(S.maxHp*.4))}},
+    {id:'atk',name:'Whetstone',desc:`+${3+c} ATK`,cost:22,buy:()=>{S.atk+=3+c}},
+    {id:'def',name:'Bark vest',desc:`+${2+Math.floor(c/2)} DEF`,cost:20,buy:()=>{S.def+=2+Math.floor(c/2)}},
+    {id:'scroll',name:'Trail scroll',desc:'Learn a skill',cost:30}];
+  renderHUD();
+  $('#panel').innerHTML=`<div class="card"><div class="chips"><span class="chip">Trader</span><span class="estats">${S.yuzu} yuzu</span></div><h2>An old tortoise has set out a blanket of goods.</h2>${msg?`<p class="muted" role="status">${msg}</p>`:''}
+    <div class="choices">${items.map(it=>`<button class="btn choice" data-id="${it.id}" ${S.yuzu<it.cost?'disabled':''}><span class="lv">${it.cost} yuzu</span><strong>${it.name}</strong><span>${it.desc}</span></button>`).join('')}</div>
+    <button class="btn primary" id="leave">Leave and walk on</button></div>`;
+  $('#panel').querySelectorAll('.choice').forEach(b=>b.onclick=()=>{const it=items.find(x=>x.id===b.dataset.id);if(S.yuzu<it.cost)return;S.yuzu-=it.cost;
+    if(it.id==='scroll')return skillChoice('Trail scroll','Pick one:',()=>trader('Scroll read.'));it.buy();trader(`Bought ${it.name.toLowerCase()}.`)});
+  $('#leave').onclick=afterEvent;
+}
+function afterEvent(){S.day++;SV.best[S.ch]=Math.max(SV.best[S.ch]||0,S.day-1);save();if(S.day>DAYS)return endRun('win');S.need=null;walk();newGate()}
+function retreatAsk(){
+  if(!S||S.phase==='over')return;const p=$('#panel');if(p.querySelector('.confirm'))return;
+  const box=document.createElement('div');box.className='confirm';box.innerHTML=`<p><b>Leave the trail?</b> You keep the coins earned so far (about ${reward().total}).</p><div class="row"><button class="btn small" id="rk">Keep going</button><button class="btn small primary" id="ry">Retreat</button></div>`;
+  p.prepend(box);box.scrollIntoView({block:'nearest'});$('#rk').onclick=()=>box.remove();$('#ry').onclick=()=>endRun('retreat');
+}
+function reward(){const c=S.ch+1;const days=Math.max(0,S.day-1);const base=days*(5+5*c)+S.solved*2+S.kills*(2+c)+S.bosses*25*c;const mult=1+.08*tl('scholar');return{total:Math.round(base*mult),days}}
+function endRun(how,e){
+  if(!S)return;const r=reward();S.phase='over';ACTIVE=null;if(battle)battle.skip=true;
+  let unlocked='';
+  if(how==='win'){SV.best[S.ch]=DAYS;if(SV.cleared<=S.ch){SV.cleared=S.ch+1;if(S.ch+1<CHAPTERS.length){unlocked=`${CHAPTERS[S.ch+1].name} is now open.`;SV.sel=S.ch+1}}r.total+=50*(S.ch+1);r.days=DAYS}
+  SV.coins+=r.total;save();showEnemy(null);if(how==='win')walk(2000);
+  const acc=S.solved+S.missed?Math.round(S.solved/(S.solved+S.missed)*100):0;const ch=CHAPTERS[S.ch];
+  const title=how==='win'?`${ch.name} cleared.`:how==='retreat'?'You head home early.':'The capybara curls up for a long nap.';
+  const sub=how==='win'?`The ${ch.boss} is down. ${unlocked}`:how==='retreat'?`You left on day ${S.day}.`:`${e?`The ${e.name} won`:'The trail won'} on day ${S.day}.`;
+  renderHUD();
+  $('#panel').innerHTML=`<div class="card"><div class="chips"><span class="chip ${how==='win'?'':'ghost'}">${how==='win'?'Chapter complete':'Run over'}</span></div><h2>${title}</h2><p>${sub}</p>
+    <div class="tbl"><span>Days cleared</span><span>${r.days}</span><span>Problems solved</span><span>${S.solved}</span><span>Accuracy</span><span>${acc}%</span><span>Coins earned</span><span>${r.total}</span></div>
+    <p class="note">Spend coins on gear and talents to push further.</p><button class="btn primary" id="home">Back to camp</button></div>`;
+  $('#retreat')&&($('#retreat').hidden=true);
+  $('#home').onclick=()=>{UI.tab=how==='win'?'adv':'gear';home()};$('#home').focus({preventScroll:true});
+}
+
+/* ================= practice ================= */
+function startPractice(sec){
+  S={mode:'practice',sec,i:0,n:6,right:0,coins:0};$('#nav').hidden=true;
+  $('#topbar').innerHTML=`<div class="brand">Capy<span>Trail</span></div><div class="res"><button class="btn small ghost" id="quit">Back to library</button></div>`;
+  $('#quit').onclick=()=>{SV.coins+=S.coins;save();UI.tab='lib';home()};
+  $('#main').innerHTML=`<div class="card" style="gap:6px"><div class="row"><b class="grow">${sec}</b><span class="num" id="pp"></span></div><div class="bar good"><i id="pbar" style="width:0%"></i></div></div><div id="panel"></div>`;
+  practiceNext();
+}
+function practiceNext(){
+  $('#pp').textContent=`${S.i+1} / ${S.n}`;$('#pbar').style.width=(S.i/S.n*100)+'%';
+  const p=genFrom(SECTION_POOLS[S.sec],R(1,2));
+  askProblem($('#panel'),p,{label:'Practice',after:ok=>{if(ok){S.right++;S.coins+=4}S.i++;$('#pbar').style.width=(S.i/S.n*100)+'%';
+    return{title:ok?'Correct. +4 coins':'Not quite.',label:S.i<S.n?'Next problem':'Finish',action:S.i<S.n?practiceNext:practiceEnd}}});
+  $('#main').scrollTop=0;
+}
+function practiceEnd(){
+  SV.coins+=S.coins;save();const [c,n]=SV.mastery[S.sec]||[0,0];
+  $('#panel').innerHTML=`<div class="card"><h2>${S.right} of ${S.n} right.</h2><p>+${S.coins} coins. Lifetime ${S.sec}: ${c}/${n} (${n?Math.round(c/n*100):0}%).</p><div class="row"><button class="btn primary" id="again">Another set</button><button class="btn" id="back">Back to library</button></div></div>`;
+  const sec=S.sec;$('#again').onclick=()=>startPractice(sec);$('#back').onclick=()=>{UI.tab='lib';home()};S.coins=0;
+}
+
+home();
+</script>
+
+</body></html>
