@@ -1,0 +1,2316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Critter Quest: A Journey of Friends</title>
+<style>
+  :root{
+    --pink:#ff6fa5;
+    --purple:#8b5cf6;
+    --yellow:#ffd166;
+    --gold:#f5a623;
+    --green:#6ee7b7;
+    --blue:#5ec8ff;
+    --cream:#fff8ec;
+    --tan:#f1e2c4;
+    --ink:#3a2e22;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{
+    margin:0;padding:0;min-height:100%;
+    background:radial-gradient(circle at 50% 0%, #3f2d63 0%, #1c1533 75%);
+    font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;
+    color:var(--ink);
+  }
+  #stage{ min-height:100vh; display:flex;align-items:center;justify-content:center; padding:18px; }
+  #shell{
+    width:100%;max-width:500px;
+    background:linear-gradient(180deg,var(--cream),var(--tan));
+    border-radius:26px;
+    box-shadow:0 24px 60px rgba(0,0,0,0.5), 0 0 0 6px rgba(255,255,255,0.08);
+    overflow:hidden;position:relative;
+    min-height:680px;
+    display:flex;flex-direction:column;
+  }
+  header#topbar{
+    display:flex;align-items:center;justify-content:space-between;gap:6px;
+    padding:9px 12px;
+    background:linear-gradient(90deg,var(--purple),var(--pink));
+    color:#fff;font-weight:800;font-size:12px;flex-wrap:wrap;
+  }
+  header#topbar .stats{display:flex;gap:10px;flex-wrap:wrap;}
+  header#topbar .stat{display:flex;align-items:center;gap:4px;white-space:nowrap;}
+  header#topbar .btns{display:flex;gap:6px;}
+  header#topbar button{
+    background:rgba(255,255,255,0.22);border:none;color:#fff;font-weight:800;font-size:11px;
+    padding:6px 10px;border-radius:999px;cursor:pointer;
+  }
+  header#topbar button:active{transform:translateY(1px);}
+  #content{ flex:1; padding:20px 18px 24px; display:flex;flex-direction:column;gap:12px; overflow-y:auto; }
+  h1.gameTitle{
+    font-size:clamp(24px,7vw,32px);font-weight:900;text-align:center;margin:4px 0 0;
+    background:linear-gradient(90deg,var(--pink),var(--purple),var(--blue));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  h2.subTitle{ font-size:18px; font-weight:900; text-align:center; margin:2px 0 0; color:var(--purple); }
+  p.tagline{text-align:center;opacity:0.75;margin:0 0 4px;font-size:13px;}
+  .bigEmoji{font-size:66px;text-align:center;filter:drop-shadow(0 8px 10px rgba(0,0,0,0.25));animation:bob 1.6s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-9px);}}
+  .storyBox{
+    background:rgba(255,255,255,0.55);border-radius:16px;padding:14px 16px;
+    line-height:1.5;font-size:14px;box-shadow:inset 0 0 0 1px rgba(0,0,0,0.05);
+  }
+  .storyBox p{margin:0 0 9px;} .storyBox p:last-child{margin-bottom:0;}
+  .storyBox .reward{color:#a15a00;font-weight:800;}
+  .btnRow{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:auto;}
+  button.primary{
+    font-family:inherit;font-weight:800;font-size:15px;padding:12px 24px;border:none;border-radius:999px;
+    background:linear-gradient(90deg,var(--pink),var(--purple));color:#fff;cursor:pointer;
+    box-shadow:0 6px 0 rgba(0,0,0,0.2), 0 8px 16px rgba(139,92,246,0.35);
+  }
+  button.primary:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,0.2);}
+  button.primary:disabled{opacity:0.4;cursor:not-allowed;box-shadow:none;}
+  button.secondary{
+    font-family:inherit;font-weight:800;font-size:13px;padding:10px 18px;border:none;border-radius:999px;
+    background:#fff;color:var(--purple);cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,0.12);
+  }
+  button.secondary:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,0.12);}
+  button:disabled{opacity:0.45;cursor:not-allowed;}
+
+  .starterGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+  .starterCard{background:rgba(255,255,255,0.6);border-radius:14px;padding:11px 6px;text-align:center;cursor:pointer;border:3px solid transparent;transition:transform 0.1s ease;}
+  .starterCard:hover{transform:translateY(-3px);}
+  .starterCard.selected{border-color:var(--pink);background:rgba(255,111,165,0.18);}
+  .starterCard .nm{font-weight:800;font-size:11px;margin-top:3px;}
+  .artIcon{width:44px;height:44px;display:block;margin:0 auto;image-rendering:-webkit-optimize-contrast;}
+  .partyCard .artIcon{width:38px;height:38px;}
+
+  .howList{display:flex;flex-direction:column;gap:8px;}
+  .howItem{background:rgba(255,255,255,0.55);border-radius:12px;padding:10px 12px;font-size:13px;display:flex;gap:10px;align-items:flex-start;}
+  .howItem .ic{font-size:20px;}
+
+  /* chapter dots */
+  .chapterDots{display:flex;gap:8px;justify-content:center;margin:2px 0 4px;}
+  .cdot{width:12px;height:12px;border-radius:50%;background:#e2d5b6;cursor:pointer;}
+  .cdot.done{background:linear-gradient(135deg,var(--green),var(--blue));}
+  .cdot.current{background:linear-gradient(135deg,var(--pink),var(--yellow));box-shadow:0 0 0 4px rgba(255,111,165,0.25);}
+
+  /* objectives */
+  .questList{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;padding-right:2px;}
+  .questItem{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.5);border-radius:10px;padding:7px 10px;font-size:12.5px;}
+  .questItem.done{background:rgba(110,231,183,0.35);text-decoration:line-through;opacity:0.75;}
+  .questItem .chk{font-size:15px;width:18px;text-align:center;flex-shrink:0;}
+  .questProgress{font-weight:800;text-align:center;font-size:14px;color:var(--purple);}
+
+  /* shop */
+  .shopGrid{display:flex;flex-direction:column;gap:10px;}
+  .shopItem{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.55);border-radius:14px;padding:10px 12px;}
+  .shopItem .ic{font-size:28px;flex-shrink:0;}
+  .shopItem .info{flex:1;}
+  .shopItem .info .nm{font-weight:800;font-size:13px;}
+  .shopItem .info .ds{font-size:11px;opacity:0.7;margin-top:1px;}
+  .shopItem .buyBtn{
+    font-family:inherit;font-weight:800;font-size:12px;padding:8px 12px;border:none;border-radius:999px;
+    background:linear-gradient(90deg,var(--gold),var(--yellow));color:#5a3a00;cursor:pointer;white-space:nowrap;
+  }
+  .shopItem .buyBtn:disabled{opacity:0.4;cursor:not-allowed;}
+
+  /* battle */
+  .canvasBox{
+    border-radius:14px;
+    border:4px solid #fff;
+    box-shadow:inset 0 0 0 2px #e8c9a8, 0 6px 14px rgba(0,0,0,0.15);
+    overflow:hidden;
+    background:#bfe6a0;
+    line-height:0;
+  }
+  #battleCanvas{ display:block; width:100%; height:auto; }
+  .actionsBox{
+    background:#fff2e2;
+    border:2px solid #e8c9a8;
+    border-radius:14px;
+    padding:10px;
+  }
+  .petName{font-weight:900;font-size:16px;text-align:center;margin-top:2px;}
+  .petDesc{font-size:11px;opacity:0.7;text-align:center;}
+  .statRow{display:flex;justify-content:space-between;font-size:11px;font-weight:700;opacity:0.8;margin:8px 2px 2px;}
+  .staminaBar{height:12px;border-radius:999px;background:#e6ddc7;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(0,0,0,0.08);}
+  .staminaFill{height:100%;background:linear-gradient(90deg,#ff8a8a,var(--yellow));transition:width 0.35s ease;}
+  .catchRateLine{
+    text-align:center;font-weight:800;font-size:13px;margin-top:8px;color:var(--purple);
+    background:rgba(255,255,255,0.5);border-radius:10px;padding:6px;
+  }
+  .boostNote{color:#a15a00;font-size:11px;font-weight:700;}
+  .battleLog{background:rgba(255,255,255,0.55);border-radius:12px;padding:9px 11px;font-size:12.5px;min-height:40px;text-align:left;}
+  .battleLog div{margin-bottom:2px;}
+  .moveGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;}
+  .moveBtn{
+    font-family:inherit;font-weight:800;font-size:12.5px;padding:11px 6px;border:none;border-radius:12px;
+    background:#fff;color:var(--ink);cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,0.12);
+  }
+  .moveBtn:active:not(:disabled){transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,0.12);}
+  .moveBtn small{display:block;font-weight:500;opacity:0.6;font-size:9.5px;}
+  .moveBtn.cube{background:linear-gradient(90deg,var(--purple),var(--pink));color:#fff;grid-column:1 / span 2;}
+  .moveBtn.teamtrick{background:linear-gradient(90deg,var(--blue),var(--green));color:#134;}
+  .moveBtn.walk{grid-column:1 / span 2;background:#eee;color:#777;}
+  .staminaFill.playerFill{background:linear-gradient(90deg,#6ee7b7,var(--blue));}
+  .battleHint{text-align:center;font-size:11.5px;font-weight:800;opacity:0.75;margin:-4px 0 2px;color:var(--purple);}
+  .canvasBox.tappable{cursor:pointer;}
+
+  /* save slots */
+  .saveSlotList{display:flex;flex-direction:column;gap:8px;margin-top:4px;}
+  .saveSlot{background:rgba(255,255,255,0.6);border-radius:12px;padding:10px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;box-shadow:0 3px 0 rgba(0,0,0,0.1);}
+  .saveSlot:active{transform:translateY(2px);box-shadow:none;}
+  .saveSlot.empty{opacity:0.75;border:2px dashed #d8c8a0;background:rgba(255,255,255,0.35);box-shadow:none;}
+  .saveSlot .slotNum{font-weight:900;font-size:13px;color:var(--purple);}
+  .saveSlot .slotInfo{font-size:11px;opacity:0.75;font-weight:700;margin-top:1px;}
+  .saveNote{font-size:10.5px;opacity:0.55;text-align:center;margin:-4px 0 0;}
+
+  /* explore / walking */
+  .exploreBox{position:relative;border-radius:14px;border:4px solid #fff;box-shadow:inset 0 0 0 2px #e8c9a8, 0 6px 14px rgba(0,0,0,0.15);overflow:hidden;background:#bfe6a0;line-height:0;}
+  #exploreCanvas{display:block;width:100%;height:auto;}
+  .exploreHint{text-align:center;font-size:11.5px;font-weight:700;opacity:0.7;margin-top:-2px;}
+  .dpad{position:absolute;right:12px;bottom:12px;width:118px;height:118px;}
+  .dpadBtn{position:absolute;width:40px;height:40px;border-radius:12px;border:none;background:rgba(255,255,255,0.8);box-shadow:0 3px 0 rgba(0,0,0,0.25);font-size:15px;font-weight:900;color:var(--ink);display:flex;align-items:center;justify-content:center;user-select:none;touch-action:none;}
+  .dpadBtn:active{background:#fff;transform:translateY(2px);}
+  .dpadUp{left:39px;top:0;}
+  .dpadDown{left:39px;bottom:0;}
+  .dpadLeft{left:0;top:39px;}
+  .dpadRight{right:0;top:39px;}
+
+  .modalOverlay{ position:absolute;inset:0;background:rgba(20,15,35,0.55); display:flex;align-items:flex-end;justify-content:center; z-index:20; }
+  .modalCard{ width:100%;max-height:82%; background:var(--cream); border-radius:22px 22px 0 0; padding:16px 18px 20px; overflow-y:auto; }
+  .modalCard h2{margin:0 0 10px;font-size:17px;}
+  .partyGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+  .partyCard{background:rgba(255,255,255,0.7);border-radius:12px;padding:9px 4px;text-align:center;}
+  .partyCard .nm{font-size:10.5px;font-weight:700;margin-top:2px;}
+  .partyCard .tag{font-size:8.5px;color:var(--purple);font-weight:800;}
+  .partyCard.fainted{opacity:0.55;filter:grayscale(0.6);}
+  .partyCard.active{box-shadow:0 0 0 2px var(--pink), 0 4px 10px rgba(0,0,0,0.12);}
+  .closeModalBtn{display:block;margin:12px auto 0;}
+
+  .miniHpBar{height:6px;border-radius:999px;background:#e6ddc7;overflow:hidden;margin-top:4px;box-shadow:inset 0 0 0 1px rgba(0,0,0,0.06);}
+  .miniHpFill{height:100%;background:linear-gradient(90deg,#6ee7b7,var(--blue));}
+  .cardBtns{display:flex;flex-direction:column;gap:3px;margin-top:5px;}
+  .tinyBtn{
+    font-family:inherit;font-weight:800;font-size:9px;padding:4px 6px;border:none;border-radius:999px;
+    background:#fff;color:var(--purple);cursor:pointer;box-shadow:0 2px 0 rgba(0,0,0,0.12);
+  }
+  .tinyBtn.potion{background:linear-gradient(90deg,var(--green),var(--blue));color:#134;}
+  .tinyBtn:active{transform:translateY(1px);box-shadow:none;}
+
+  .typeBadge{display:inline-block;font-size:9.5px;font-weight:800;padding:1px 7px;border-radius:999px;text-transform:capitalize;}
+
+  .healWarning{background:rgba(255,138,138,0.28);border-radius:12px;padding:9px 12px;font-size:12px;font-weight:700;text-align:center;color:#8a2c2c;}
+
+  .shopArt{display:block;width:100%;max-width:300px;margin:0 auto;border-radius:14px;}
+
+  .dexGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .dexCard{background:rgba(255,255,255,0.7);border-radius:12px;padding:9px 4px;text-align:center;}
+  .dexCard.unseen{opacity:0.55;}
+  .dexCard .nm{font-size:10px;font-weight:700;margin-top:3px;}
+  .dexCard .tag{margin-top:2px;}
+  .dexCard .dexTag{font-size:8.5px;opacity:0.7;font-weight:700;margin-top:3px;}
+  .dexSilhouette{
+    width:44px;height:44px;border-radius:50%;background:#c9b896;margin:0 auto;
+    display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;color:#fff;
+  }
+  .dexGroup{margin-bottom:14px;}
+  .dexGroupHead{display:flex;align-items:center;justify-content:space-between;padding:0 2px 6px;}
+  .dexGroupHead .gnm{font-size:13px;font-weight:800;}
+  .dexGroupHead .gct{font-size:10px;opacity:0.65;font-weight:700;}
+
+  .worldSelectGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+  .worldSelectCard{background:rgba(255,255,255,0.7);border-radius:14px;padding:12px 8px;text-align:center;}
+  .worldSelectCard.current{background:rgba(255,224,102,0.35);box-shadow:0 0 0 2px #ffd76a inset;}
+  .worldSelectCard .wsIcon{font-size:28px;}
+  .worldSelectCard .nm{font-size:12px;font-weight:800;margin-top:2px;}
+  .worldSelectCard .tag{margin:4px 0;}
+  .worldSelectCard button{width:100%;font-size:11px;padding:6px 4px;}
+
+  footer.credit{text-align:center;font-size:9.5px;opacity:0.4;padding-bottom:6px;}
+</style>
+</head>
+<body>
+<div id="stage"><div id="shell"><div id="content"></div></div></div>
+
+<script>
+(function(){
+"use strict";
+
+// ---------------- Static Data ----------------
+// Type system: 12 elemental types in a cyclic advantage wheel, plus Normal (always neutral).
+const TYPE_WHEEL = ['grass','water','fire','ice','electric','ground','rock','flying','metal','toxic','dark','mystic'];
+const TYPE_COLORS = {
+  grass:'#4caf50', water:'#3aa0e0', fire:'#e0632f', ice:'#8fd8e8', electric:'#f0c419',
+  ground:'#a9793f', rock:'#8a7a63', flying:'#bcd9f0', metal:'#9aa5ad', toxic:'#8e5bc7',
+  dark:'#4a4358', mystic:'#b98ee8', normal:null,
+};
+const TYPE_EMOJI = {
+  grass:'\u{1F33F}', water:'\u{1F30A}', fire:'\u{1F525}', ice:'\u{2744}\u{FE0F}', electric:'\u{26A1}',
+  ground:'\u{26F0}\u{FE0F}', rock:'\u{1FAA8}', flying:'\u{1FAB6}', metal:'\u{2699}\u{FE0F}', toxic:'\u{2620}\u{FE0F}',
+  dark:'\u{1F311}', mystic:'\u{2728}', normal:'\u{26AA}',
+};
+function typeMultiplier(attackerType, defenderType){
+  if(!attackerType || !defenderType || attackerType==='normal' || defenderType==='normal') return 1;
+  const ai = TYPE_WHEEL.indexOf(attackerType), di = TYPE_WHEEL.indexOf(defenderType);
+  if(ai<0 || di<0) return 1;
+  const n = TYPE_WHEEL.length;
+  if((ai+1)%n === di) return 1.5;
+  if((di+1)%n === ai) return 0.67;
+  return 1;
+}
+
+const STARTERS = [
+  {key:'cat', name:'Cat', emoji:'🐱', type:'normal'},
+  {key:'dog', name:'Dog', emoji:'🐶', type:'normal'},
+  {key:'fox', name:'Fox', emoji:'🦊', type:'normal'},
+  {key:'wolf', name:'Wolf', emoji:'🐺', type:'normal'},
+  {key:'snake', name:'Snake', emoji:'🐍', type:'normal'},
+  {key:'cow', name:'Cow', emoji:'🐄', type:'normal'},
+  {key:'hamster', name:'Hamster', emoji:'🐹', type:'normal'},
+];
+
+// Each world owns its own roster of wild pets (`pets`) — kept together with that world's
+// theme, chapters and shop so the whole game's catchable roster stays organized as more
+// worlds are added, instead of one flat global list disconnected from where each pet lives.
+const WORLDS = [
+  {
+    id:'valley', name:'Green Valley', scene:'🌳', shopName:'Valley General Store',
+    typePool:['grass','ground','electric'], primaryType:'grass',
+    intro:[
+      "Your journey begins in Green Valley, a land of soft meadows and gentle creatures.",
+      "Battle, befriend, and catch the wild pets you meet — complete this world's 20 World Quests to earn passage onward."
+    ],
+    chapters:[
+      { title:'Whispering Meadow', scene:'🌾', text:[
+        "Tall grass sways gently as you and your companion step into a sun-dappled meadow.",
+        "Something is rustling in a bush nearby — you can't tell what it is yet." ]},
+      { title:'Old Barn Path', scene:'🏚️', text:[
+        "An old wooden barn creaks in the breeze at the edge of the meadow. Curious, you peek inside.",
+        "Something shuffles behind a bush near a stack of crates." ]},
+      { title:'Sunny Pond', scene:'🌊', text:[
+        "The path opens up to a glittering pond, its surface dotted with lily pads.",
+        "A bush by the reeds trembles — something's hiding in there." ]},
+      { title:"Guardian's Clearing", scene:'👑', encounter:'boss_valley', isBossChapter:true, text:[
+        "The path opens into a hidden clearing bathed in golden light.",
+        "A powerful presence watches from the shadows — the guardian of Green Valley has noticed you." ]},
+    ],
+    pets:{
+      rabbit:      {name:'Rabbit',  species:'rabbit', mult:1.30, desc:'A quick, twitchy-nosed hopper who loves fresh clover.'},
+      goat:        {name:'Goat',    species:'goat',   mult:1.10, desc:'Stubborn, curious, and always a little hungry.'},
+      duck:        {name:'Duck',    species:'duck',   mult:1.20, desc:'Paddles nervously, but secretly loves company.'},
+      boss_valley: {name:'Elder Rabbit', species:'rabbit', isBoss:true, mult:0.55, desc:'The ancient, wise guardian of Green Valley, said to be as old as the meadow itself.'},
+    },
+    wildPool:['rabbit','goat','duck'],
+    shopItems:[
+      {key:'cube', name:'Extra Pet Cube', icon:'📦', cost:20, effect:'cube', desc:'+1 Pet Cube for your bag.'},
+      {key:'potion1', name:'Potion', icon:'🧪', cost:16, effect:'potionbuy', desc:'+1 Potion for your bag. Heals a pet outside battle.'},
+      {key:'snack1', name:'Energy Snack', icon:'🥕', cost:25, effect:'snack', mult:1.3, desc:'+30% move damage for your next battle.'},
+      {key:'charm1', name:'Clover Charm', icon:'🍀', cost:15, effect:'charm', boost:5, desc:'+5% catch rate on your next cube throw (still capped at 60%).'},
+      {key:'map1', name:'Valley Map', icon:'🗺️', cost:10, effect:'cosmetic', desc:'A keepsake map of Green Valley.'},
+    ],
+  },
+  {
+    id:'frostwood', name:'Frostwood', scene:'🌲', shopName:'Frostwood Trading Post',
+    typePool:['ice','water','flying'], primaryType:'ice',
+    intro:[
+      "Beyond the valley lies Frostwood, where tall pines whisper and cool mist clings to the trail.",
+      "The creatures here are a little more cautious — but every bit as worth befriending. Complete 20 more World Quests to continue."
+    ],
+    chapters:[
+      { title:'Deep Forest', scene:'🌲', text:[
+        "Sunlight fades as towering trees close in around the path. The forest hums with quiet life.",
+        "A frosty bush shivers up ahead — something is watching from inside it." ]},
+      { title:'Rocky Hills', scene:'⛰️', text:[
+        "The trail climbs steeply into rocky hills, wind whistling between the stones.",
+        "A bush wedged between the boulders rustles — cautious eyes seem to peek out." ]},
+      { title:'Frosted Glade', scene:'❄️', text:[
+        "Frost glitters on the grass of a quiet clearing tucked between the pines.",
+        "Something shifts behind a snow-dusted bush, freezing mid-step when it notices you." ]},
+      { title:"Alpha's Ridge", scene:'👑', encounter:'boss_frostwood', isBossChapter:true, text:[
+        "The trail ends atop a windswept ridge overlooking all of Frostwood.",
+        "A powerful howl rolls across the hills — the pack's Alpha has come to test you." ]},
+    ],
+    pets:{
+      owl:         {name:'Owl',     species:'owl',    mult:0.70, desc:'Watches you with big, wise, unblinking eyes.'},
+      wolf_wild:   {name:'Wolf',    species:'wolf', variant:'wild', mult:0.55, desc:'Cautious and proud, but not unkind underneath it all.'},
+      deer:        {name:'Deer',    species:'deer',   mult:0.80, desc:'Graceful and alert, ready to bound away at any moment.'},
+      boss_frostwood: {name:'Frost Alpha', species:'wolf', variant:'wild', isBoss:true, mult:0.5, desc:"Leader of the Frostwood pack — its howl echoes across the frozen hills."},
+    },
+    wildPool:['owl','wolf_wild','deer'],
+    shopItems:[
+      {key:'cube', name:'Extra Pet Cube', icon:'📦', cost:25, effect:'cube', desc:'+1 Pet Cube for your bag.'},
+      {key:'potion2', name:'Potion', icon:'🧪', cost:20, effect:'potionbuy', desc:'+1 Potion for your bag. Heals a pet outside battle.'},
+      {key:'treat1', name:'Frost Treat', icon:'🍪', cost:20, effect:'treat', desc:'Permanently +1 Treat use per battle.'},
+      {key:'charm2', name:'Snow Charm', icon:'❄️', cost:18, effect:'charm', boost:5, desc:'+5% catch rate on your next cube throw (capped at 60%).'},
+      {key:'cloak1', name:'Warm Cloak', icon:'🧣', cost:12, effect:'cosmetic', desc:'A cozy keepsake cloak.'},
+    ],
+  },
+  {
+    id:'starlight', name:'Starlight Reach', scene:'✨', shopName:'Starlight Bazaar',
+    typePool:['mystic','dark','toxic'], primaryType:'mystic',
+    intro:[
+      "The final stretch of your journey leads to Starlight Reach, a land of lantern-lit villages and hidden groves.",
+      "Complete this world's 20 World Quests, and your journey will be complete."
+    ],
+    chapters:[
+      { title:'Riverside Village', scene:'🏘️', text:[
+        "Smoke curls from chimneys as you reach a small village by the river.",
+        "A bush by a market stall rustles — something clever is hiding inside." ]},
+      { title:'Lantern Market', scene:'🏮', text:[
+        "Paper lanterns glow warmly over rows of bustling market stalls.",
+        "A small bush beneath a fruit cart trembles just slightly." ]},
+      { title:'Starlight Grove', scene:'✨', text:[
+        "As the sun sets, the path leads to a hidden grove that seems to glow with a soft light.",
+        "A glowing bush stirs at the center of the grove — legends spoke of something rare." ]},
+      { title:'Starlight Sanctum', scene:'👑', encounter:'boss_starlight', isBossChapter:true, text:[
+        "The grove opens into a shimmering sanctum lit by starlight alone.",
+        "A legendary presence stirs at the heart of the sanctum, awakened by your journey." ]},
+    ],
+    pets:{
+      raccoon:     {name:'Raccoon', species:'raccoon', mult:1.00, desc:'Clever paws and an even cleverer sense of mischief.'},
+      hamster_wild:{name:'Hamster', species:'hamster', variant:'wild', mult:1.30, desc:'Round, fluffy, and surprisingly fast on its feet.'},
+      panda:       {name:'Panda',   species:'panda',  mult:0.55, desc:'A rare, gentle giant said to bring good fortune.'},
+      boss_starlight: {name:'Celestial Panda', species:'panda', isBoss:true, mult:0.45, desc:'A legendary creature said to visit only under a full starlit sky.'},
+    },
+    wildPool:['raccoon','hamster_wild','panda'],
+    shopItems:[
+      {key:'cube', name:'Extra Pet Cube', icon:'📦', cost:30, effect:'cube', desc:'+1 Pet Cube for your bag.'},
+      {key:'potion3', name:'Potion', icon:'🧪', cost:24, effect:'potionbuy', desc:'+1 Potion for your bag. Heals a pet outside battle.'},
+      {key:'charm3', name:'Starlight Charm', icon:'✨', cost:28, effect:'charm', boost:8, desc:'+8% catch rate on your next cube throw (capped at 60%).'},
+      {key:'snack2', name:'Moon Pastry', icon:'🥮', cost:22, effect:'snack', mult:1.3, desc:'+30% move damage for your next battle.'},
+      {key:'trinket1', name:'Stardust Trinket', icon:'🌟', cost:15, effect:'cosmetic', desc:'A shimmering memento of your journey.'},
+    ],
+  },
+  {
+    id:'ember', name:'Ember Wastes', scene:'🌋', shopName:'Wastes Outpost',
+    typePool:['fire','rock','metal'], primaryType:'fire',
+    intro:[
+      "Beyond Starlight Reach the trail descends into the Ember Wastes, a scorched land of cracked earth and drifting ash.",
+      "The heat here is fierce and the creatures fiercer still — complete this world's 20 World Quests to press onward."
+    ],
+    chapters:[
+      { title:'Scorched Flats', scene:'🏜️', text:[
+        "Heat shimmers over the cracked flats as you and your companion trudge through the ash.",
+        "A bush of dry brush rustles nearby — something is hiding from the sun inside it." ]},
+      { title:'Cinder Canyon', scene:'🌋', text:[
+        "Jagged canyon walls glow faintly with heat from below, smoke curling between the rocks.",
+        "Something shifts behind a scorched bush wedged into the canyon wall." ]},
+      { title:'Obsidian Dunes', scene:'⛰️', text:[
+        "Black glassy dunes stretch to the horizon, crunching underfoot with every step.",
+        "A lone bush clings to a dune's edge, trembling as you approach." ]},
+      { title:'Magma Throne', scene:'👑', encounter:'boss_ember', isBossChapter:true, text:[
+        "The canyon opens onto a throne of hardened magma overlooking the wastes.",
+        "A powerful presence stirs atop the throne — the ruler of the Ember Wastes has noticed you." ]},
+    ],
+    pets:{
+      sand_viper:  {name:'Sand Viper',  species:'snake', mult:1.15, desc:'A slender hunter that slides silently across the hot sand.'},
+      ember_goat:  {name:'Ember Goat',  species:'goat',  mult:1.05, desc:'Sure-footed and hot-tempered, right at home among the cinders.'},
+      dune_hamster:{name:'Dune Hamster', species:'hamster', variant:'wild', mult:1.35, desc:'Burrows deep to escape the midday heat, popping up when least expected.'},
+      boss_ember:  {name:'Cinder Prowler', species:'raccoon', isBoss:true, mult:0.5, desc:'A scarred, cunning survivor of the wastes, said to rule the ash by night.'},
+    },
+    wildPool:['sand_viper','ember_goat','dune_hamster'],
+    shopItems:[
+      {key:'cube', name:'Extra Pet Cube', icon:'📦', cost:35, effect:'cube', desc:'+1 Pet Cube for your bag.'},
+      {key:'potion4', name:'Potion', icon:'🧪', cost:28, effect:'potionbuy', desc:'+1 Potion for your bag. Heals a pet outside battle.'},
+      {key:'snack3', name:'Ash Pepper', icon:'🌶️', cost:32, effect:'snack', mult:1.3, desc:'+30% move damage for your next battle.'},
+      {key:'charm4', name:'Cinder Charm', icon:'🔥', cost:25, effect:'charm', boost:6, desc:'+6% catch rate on your next cube throw (capped at 60%).'},
+      {key:'flask1', name:'Ember Flask', icon:'🏺', cost:18, effect:'cosmetic', desc:'A keepsake flask of glowing embers.'},
+    ],
+  },
+  {
+    id:'coral', name:'Coral Shallows', scene:'🐚', shopName:'Shallows Trading Post',
+    typePool:['water','ice','toxic'], primaryType:'water',
+    intro:[
+      "Past the Ember Wastes the trail winds down to the Coral Shallows, where tidepools glitter beneath a pale, salt-misted sky.",
+      "The waters here hide clever, ancient things — complete this world's 20 World Quests to continue your journey."
+    ],
+    chapters:[
+      { title:'Tidepool Cove', scene:'🌊', text:[
+        "Cool waves lap gently at the cove as tiny fish dart between the rocks.",
+        "A bush of sea-grass sways at the waterline — something's tucked inside, out of sight." ]},
+      { title:'Kelp Forest', scene:'🌿', text:[
+        "Tall kelp fronds sway overhead, filtering the light into shifting green-blue ribbons.",
+        "Something rustles behind a bush of drifting kelp near the shallows." ]},
+      { title:'Sunken Grotto', scene:'🕳️', text:[
+        "A half-flooded grotto opens beneath the cliffs, echoing softly with dripping water.",
+        "A damp bush at the grotto's mouth trembles as you step closer." ]},
+      { title:'Abyss Trench', scene:'👑', encounter:'boss_coral', isBossChapter:true, text:[
+        "The shallows give way to a dark trench plunging into the deep.",
+        "Something vast and ancient stirs in the trench below — the guardian of the Shallows has noticed you." ]},
+    ],
+    pets:{
+      reef_duck:   {name:'Reef Duck',   species:'duck',  mult:1.20, desc:'Paddles fearlessly through the shallows, snapping up anything that glitters.'},
+      shoal_rabbit:{name:'Shoal Rabbit', species:'rabbit', mult:1.10, desc:'Skips lightly across wet sand, always one hop ahead of the tide.'},
+      current_deer:{name:'Current Deer', species:'deer', mult:0.85, desc:'Wades gracefully through the shallows, unbothered by the pull of the current.'},
+      boss_coral:  {name:'Abyssal Owl', species:'owl', isBoss:true, mult:0.5, desc:'A silent watcher from the trench depths, said to see in absolute dark.'},
+    },
+    wildPool:['reef_duck','shoal_rabbit','current_deer'],
+    shopItems:[
+      {key:'cube', name:'Extra Pet Cube', icon:'📦', cost:40, effect:'cube', desc:'+1 Pet Cube for your bag.'},
+      {key:'potion5', name:'Potion', icon:'🧪', cost:32, effect:'potionbuy', desc:'+1 Potion for your bag. Heals a pet outside battle.'},
+      {key:'treat2', name:'Tide Kelp', icon:'🌿', cost:30, effect:'treat', desc:'Permanently +1 Treat use per battle.'},
+      {key:'charm5', name:'Pearl Charm', icon:'🦪', cost:28, effect:'charm', boost:6, desc:'+6% catch rate on your next cube throw (capped at 60%).'},
+      {key:'anklet1', name:'Coral Anklet', icon:'🪸', cost:20, effect:'cosmetic', desc:'A keepsake anklet strung with tiny corals.'},
+    ],
+  },
+  {
+    id:'thundercrag', name:'Thundercrag Peaks', scene:'⛰️', shopName:'Crag Outfitters',
+    typePool:['electric','rock','flying'], primaryType:'electric',
+    intro:[
+      "The trail climbs sharply from the Shallows into Thundercrag Peaks, where storm clouds crash against jagged summits.",
+      "Lightning splits the sky here more often than not — complete this world's 20 World Quests to reach the next path."
+    ],
+    chapters:[
+      { title:'Windswept Ridge', scene:'🌬️', text:[
+        "Wind howls along the exposed ridge, threatening to knock you off balance.",
+        "A hardy bush clings to the rocks nearby, shaking in the gale." ]},
+      { title:'Storm Pass', scene:'⛈️', text:[
+        "Dark clouds roll low overhead as thunder rumbles between the peaks.",
+        "Something crouches behind a bush wedged into the pass, waiting out the storm." ]},
+      { title:'Lightning Col', scene:'⚡', text:[
+        "The air crackles with static as you cross a narrow col between two summits.",
+        "A bush at the col's edge trembles with more than just the wind." ]},
+      { title:"Thunder's Peak", scene:'👑', encounter:'boss_thundercrag', isBossChapter:true, text:[
+        "The path ends at last atop the highest peak, lightning arcing across the sky.",
+        "A powerful presence rides the storm above — the sky's own guardian has noticed you." ]},
+    ],
+    pets:{
+      wildcat:      {name:'Wildcat', species:'cat', variant:'wild', mult:1.15, desc:'A sharp-eyed climber, perfectly at home on narrow, windswept ledges.'},
+      crag_goat:    {name:'Crag Goat', species:'goat', mult:1.00, desc:"Bounds fearlessly between outcrops most creatures wouldn't dare approach."},
+      skyleap_deer: {name:'Skyleap Deer', species:'deer', mult:0.80, desc:'Leaps between ridgelines as if gravity were only a suggestion.'},
+      boss_thundercrag: {name:'Sky Alpha', species:'wolf', variant:'wild', isBoss:true, mult:0.45, desc:'Leader of a storm-touched pack said to run the ridgelines during lightning strikes.'},
+    },
+    wildPool:['wildcat','crag_goat','skyleap_deer'],
+    shopItems:[
+      {key:'cube', name:'Extra Pet Cube', icon:'📦', cost:45, effect:'cube', desc:'+1 Pet Cube for your bag.'},
+      {key:'potion6', name:'Potion', icon:'🧪', cost:36, effect:'potionbuy', desc:'+1 Potion for your bag. Heals a pet outside battle.'},
+      {key:'snack4', name:'Storm Berry', icon:'🫐', cost:38, effect:'snack', mult:1.3, desc:'+30% move damage for your next battle.'},
+      {key:'charm6', name:'Static Charm', icon:'⚡', cost:30, effect:'charm', boost:7, desc:'+7% catch rate on your next cube throw (capped at 60%).'},
+      {key:'pendant1', name:'Crag Pendant', icon:'🪨', cost:22, effect:'cosmetic', desc:'A keepsake pendant carved from mountain stone.'},
+    ],
+  },
+  {
+    id:'shadowmire', name:'Shadowmire Bog', scene:'🌫️', shopName:'Mire Apothecary',
+    typePool:['dark','toxic','ground'], primaryType:'dark',
+    intro:[
+      "Beyond the peaks the trail sinks into Shadowmire Bog, a hushed wetland tangled with twisted roots and drifting fog.",
+      "Little here is quite what it seems — complete this world's 20 World Quests to find your way through."
+    ],
+    chapters:[
+      { title:'Murk Hollow', scene:'🌲', text:[
+        "Fog clings low between gnarled trees as your footsteps sink softly into the mud.",
+        "A bush at the hollow's edge rustles — something is watching from the murk." ]},
+      { title:'Withered Thicket', scene:'🥀', text:[
+        "Pale, withered branches arch overhead, blotting out what little light remains.",
+        "Something shifts behind a bush of dead bramble nearby." ]},
+      { title:'Fen Path', scene:'🍄', text:[
+        "A narrow path winds between still, dark pools dotted with pale mushrooms.",
+        "A bush beside the path trembles faintly in the stagnant air." ]},
+      { title:'The Sunken Shrine', scene:'👑', encounter:'boss_shadowmire', isBossChapter:true, text:[
+        "The path leads at last to a moss-swallowed shrine half-sunk into the mire.",
+        "An old, patient presence stirs within the shrine — the bog's guardian has noticed you." ]},
+    ],
+    pets:{
+      bog_raccoon:  {name:'Bog Raccoon', species:'raccoon', mult:1.10, desc:'Wades through the murk with surprising grace, never far from a hidden meal.'},
+      mire_hamster: {name:'Mire Hamster', species:'hamster', variant:'wild', mult:1.30, desc:'Keeps its burrow just above the waterline, stuffed with dry moss and stolen trinkets.'},
+      swamp_viper:  {name:'Swamp Viper', species:'snake', mult:0.85, desc:'Moves without a sound between the reeds, patient as the fog itself.'},
+      boss_shadowmire: {name:'Shade Panda', species:'panda', isBoss:true, mult:0.45, desc:'An ancient, moss-covered guardian said to have slept in the shrine for a hundred years.'},
+    },
+    wildPool:['bog_raccoon','mire_hamster','swamp_viper'],
+    shopItems:[
+      {key:'cube', name:'Extra Pet Cube', icon:'📦', cost:50, effect:'cube', desc:'+1 Pet Cube for your bag.'},
+      {key:'potion7', name:'Potion', icon:'🧪', cost:40, effect:'potionbuy', desc:'+1 Potion for your bag. Heals a pet outside battle.'},
+      {key:'treat3', name:'Bog Tonic', icon:'🧉', cost:35, effect:'treat', desc:'Permanently +1 Treat use per battle.'},
+      {key:'charm7', name:'Will-o-Wisp Charm', icon:'🕯️', cost:32, effect:'charm', boost:7, desc:'+7% catch rate on your next cube throw (capped at 60%).'},
+      {key:'lantern1', name:'Mire Lantern', icon:'🏮', cost:24, effect:'cosmetic', desc:'A keepsake lantern that never quite goes out.'},
+    ],
+  },
+  {
+    id:'spire', name:'Crystal Spire', scene:'🔮', shopName:'Spire Atelier',
+    typePool:['metal','mystic','ice'], primaryType:'metal',
+    intro:[
+      "At last the trail rises to the Crystal Spire, a towering formation that hums faintly with a light of its own.",
+      "This is the final stretch of your journey — complete this world's 20 World Quests, and your journey will be complete."
+    ],
+    chapters:[
+      { title:'Glimmering Base', scene:'💎', text:[
+        "Shards of pale crystal jut from the ground, catching and scattering the light.",
+        "A bush growing improbably between the crystals rustles as you pass." ]},
+      { title:'Prism Terrace', scene:'🔷', text:[
+        "Terraces of smooth stone reflect the sky in a hundred fractured colors.",
+        "Something moves behind a bush at the terrace's edge, half-hidden in the glare." ]},
+      { title:'Frosted Summit', scene:'❄️', text:[
+        "The air turns crisp and thin as the path climbs toward the Spire's frozen upper reaches.",
+        "A frost-dusted bush trembles near the summit trail." ]},
+      { title:'The Radiant Peak', scene:'👑', encounter:'boss_spire', isBossChapter:true, text:[
+        "The path ends at the Spire's very peak, where light pools like water.",
+        "A final, radiant presence awaits at the summit — the journey's last guardian has noticed you." ]},
+    ],
+    pets:{
+      crystal_fox: {name:'Crystal Fox', species:'fox', mult:1.10, desc:'Its fur catches the light like faceted glass with every careful step.'},
+      prism_deer:  {name:'Prism Deer', species:'deer', mult:0.85, desc:'Antlers refract the light into shifting rainbows as it moves.'},
+      gem_cat:     {name:'Gem Cat', species:'cat', mult:1.05, desc:'Curls up among the crystal shards, nearly impossible to spot when still.'},
+      boss_spire:  {name:'Celestial Colossus', species:'cow', isBoss:true, mult:0.40, desc:'An immense, radiant guardian said to have watched over the Spire since it first rose from the earth.'},
+    },
+    wildPool:['crystal_fox','prism_deer','gem_cat'],
+    shopItems:[
+      {key:'cube', name:'Extra Pet Cube', icon:'📦', cost:55, effect:'cube', desc:'+1 Pet Cube for your bag.'},
+      {key:'potion8', name:'Potion', icon:'🧪', cost:45, effect:'potionbuy', desc:'+1 Potion for your bag. Heals a pet outside battle.'},
+      {key:'snack5', name:'Starshard Bite', icon:'🌟', cost:42, effect:'snack', mult:1.3, desc:'+30% move damage for your next battle.'},
+      {key:'charm8', name:'Prism Charm', icon:'🔷', cost:35, effect:'charm', boost:8, desc:'+8% catch rate on your next cube throw (capped at 60%).'},
+      {key:'shard1', name:'Spire Shard', icon:'💎', cost:28, effect:'cosmetic', desc:'A keepsake shard that glows faintly in the dark.'},
+    ],
+  },
+];
+
+// Flat lookup table derived from each world's own roster — every other function in the game
+// (battle, catching, the Pet-opedia, etc.) reads from this the same way it always has.
+const WILD_PETS = {};
+WORLDS.forEach(w=>{ Object.assign(WILD_PETS, w.pets); });
+
+// Each wild/boss pet gets a second, separately-tracked "shiny" dex entry (id suffixed
+// "_shiny") right after its normal one, so spotting the rare 0.1% shiny version of a
+// species shows up as its own discovery instead of silently reusing the normal entry.
+const POKEDEX_GROUPS = [
+  {group:'Starters', entries: STARTERS.map(s=>({id:'starter_'+s.key, name:s.name, species:s.key, variant:null, type:s.type, desc:'A loyal starting companion, ready for any journey.'}))},
+  ...WORLDS.map(w=>({
+    group: w.name,
+    entries: Object.keys(w.pets).flatMap(k=>{
+      const p = w.pets[k];
+      return [
+        {id:k, name:p.name, species:p.species, variant:p.variant, type:null, desc:p.desc, isBoss:p.isBoss},
+        {id:k+'_shiny', name:p.name, species:p.species, variant:p.variant, type:null, desc:p.desc+' A rare shiny form — noticeably stronger than the ordinary kind.', isBoss:p.isBoss, isShiny:true},
+      ];
+    }),
+  })),
+];
+const POKEDEX_ENTRIES = POKEDEX_GROUPS.flatMap(g=>g.entries);
+
+const OBJECTIVES = [
+  {label:'Win your first battle', check:c=>c.battlesWon>=1},
+  {label:'Win 2 battles', check:c=>c.battlesWon>=2},
+  {label:'Win 3 battles', check:c=>c.battlesWon>=3},
+  {label:'Catch your first wild pet', check:c=>c.petsCaught>=1},
+  {label:'Catch 2 wild pets', check:c=>c.petsCaught>=2},
+  {label:'Throw a Pet Cube', check:c=>c.cubesThrown>=1},
+  {label:'Throw 3 Pet Cubes', check:c=>c.cubesThrown>=3},
+  {label:'Use 5 battle moves', check:c=>c.movesUsed>=5},
+  {label:'Use 10 battle moves', check:c=>c.movesUsed>=10},
+  {label:'Try all 3 battle moves', check:c=>Object.keys(c.movesTried).length>=3},
+  {label:"Wear a pet's stamina down to zero", check:c=>c.staminaZeroCount>=1},
+  {label:'Reach the 60% catch-rate cap', check:c=>c.catchRate60Hit>=1},
+  {label:'Earn 30 Paw Coins', check:c=>c.coinsEarned>=30},
+  {label:'Earn 80 Paw Coins', check:c=>c.coinsEarned>=80},
+  {label:'Visit the World Shop', check:c=>c.shopVisited>=1},
+  {label:'Buy an item from the Shop', check:c=>c.itemsBought>=1},
+  {label:'Buy 2 items from the Shop', check:c=>c.itemsBought>=2},
+  {label:'Spend 20 Paw Coins', check:c=>c.coinsSpent>=20},
+  {label:'Complete every chapter in this world', check:c=>Object.keys(c.areaBeaten||{}).length>=4},
+  {label:'Check in on your Party', check:c=>c.partyViewed>=1},
+];
+
+const APPROACH_MSGS = ["You creep a little closer.","You crouch down and speak softly.","You move nearer, careful not to startle {pet}.","You hold your ground and wait patiently."];
+const TREAT_MSGS = ["You toss a tasty treat.","You offer a little snack.","{pet} sniffs curiously at your offering."];
+const TEAMTRICK_MSGS = ["You and your companion try a clever team trick!","Your companion helps distract {pet} while you move in!","Working together, you and your companion close the gap!"];
+const GAIN_MSGS = ["{pet} looks a little more tired.","{pet} is starting to wear down.","{pet} hesitates for a moment.","You sense {pet} slowing down."];
+const REGEN_MSGS = ["{pet} catches its breath and perks back up a little!","{pet} gets a sudden burst of energy!"];
+const CUBE_FAIL_MSGS = ["The Pet Cube wobbles… but {pet} breaks free!","So close! {pet} slips out of the cube.","Not quite — {pet} wriggled right out!"];
+const CUBE_SUCCESS_MSGS = ["The cube clicks shut — you caught {pet}!","Gotcha! {pet} is now part of your journey!","{pet} settles into the cube, calm and happy. Caught!"];
+
+// ---------------- Creature Art (procedural canvas, no emoji) ----------------
+function shadowArt(ctx,r){
+  ctx.save();
+  ctx.translate(0, r*0.82);
+  ctx.scale(1, 0.22);
+  ctx.beginPath(); ctx.arc(0,0,r*0.5,0,Math.PI*2);
+  ctx.fillStyle = 'rgba(0,0,0,0.18)';
+  ctx.fill();
+  ctx.restore();
+}
+function eyesArt(ctx,r,spread,eyeY,eyeR){
+  ctx.fillStyle = '#20201c';
+  ctx.beginPath(); ctx.ellipse(-spread,eyeY,eyeR,eyeR*1.2,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(spread,eyeY,eyeR,eyeR*1.2,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.beginPath(); ctx.ellipse(-spread+eyeR*0.3,eyeY-eyeR*0.3,eyeR*0.28,eyeR*0.28,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(spread+eyeR*0.3,eyeY-eyeR*0.3,eyeR*0.28,eyeR*0.28,0,0,Math.PI*2); ctx.fill();
+}
+function pawsArt(ctx,r,color){
+  ctx.fillStyle = color;
+  ctx.beginPath(); ctx.ellipse(-r*0.22,r*0.7,r*0.14,r*0.1,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(r*0.22,r*0.7,r*0.14,r*0.1,0,0,Math.PI*2); ctx.fill();
+}
+
+function drawFoxArt(ctx,r){
+  const base='#ef8a3d', white='#fff6e9', dark='#3a2318';
+  shadowArt(ctx,r);
+  ctx.strokeStyle=base; ctx.lineWidth=r*0.34; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(r*0.5,r*0.2); ctx.quadraticCurveTo(r*1.15,r*0.05,r*0.98,-r*0.5); ctx.stroke();
+  ctx.strokeStyle=white; ctx.lineWidth=r*0.15;
+  ctx.beginPath(); ctx.moveTo(r*1.02,-r*0.28); ctx.lineTo(r*0.98,-r*0.5); ctx.stroke();
+  ctx.fillStyle=base; ctx.beginPath(); ctx.ellipse(0,r*0.28,r*0.48,r*0.4,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=white; ctx.beginPath(); ctx.ellipse(0,r*0.42,r*0.22,r*0.22,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=base; ctx.beginPath(); ctx.arc(0,-r*0.32,r*0.4,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(-r*0.34,-r*0.55); ctx.lineTo(-r*0.46,-r*1.02); ctx.lineTo(-r*0.06,-r*0.68); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(r*0.34,-r*0.55); ctx.lineTo(r*0.46,-r*1.02); ctx.lineTo(r*0.06,-r*0.68); ctx.closePath(); ctx.fill();
+  ctx.fillStyle=dark;
+  ctx.beginPath(); ctx.moveTo(-r*0.36,-r*0.85); ctx.lineTo(-r*0.44,-r*1.0); ctx.lineTo(-r*0.24,-r*0.83); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(r*0.36,-r*0.85); ctx.lineTo(r*0.44,-r*1.0); ctx.lineTo(r*0.24,-r*0.83); ctx.closePath(); ctx.fill();
+  ctx.fillStyle=white;
+  ctx.beginPath(); ctx.moveTo(-r*0.16,-r*0.18); ctx.lineTo(r*0.16,-r*0.18); ctx.lineTo(0,r*0.04); ctx.closePath(); ctx.fill();
+  eyesArt(ctx,r,r*0.16,-r*0.36,r*0.055);
+  ctx.fillStyle=dark; ctx.beginPath(); ctx.ellipse(0,-r*0.08,r*0.045,r*0.03,0,0,Math.PI*2); ctx.fill();
+  pawsArt(ctx,r,dark);
+}
+
+function drawCatArt(ctx,r){
+  const base='#b9906a', white='#fff', dark='#2b211b', pink='#e8879a';
+  shadowArt(ctx,r);
+  ctx.strokeStyle=base; ctx.lineWidth=r*0.22; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(r*0.42,r*0.22); ctx.quadraticCurveTo(r*1.0,r*0.05,r*0.86,-r*0.42); ctx.stroke();
+  ctx.fillStyle=base; ctx.beginPath(); ctx.ellipse(0,r*0.3,r*0.46,r*0.38,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(0,-r*0.3,r*0.4,0,Math.PI*2); ctx.fill();
+  [-1,1].forEach(s=>{
+    ctx.fillStyle=base;
+    ctx.beginPath(); ctx.moveTo(s*r*0.36,-r*0.5); ctx.lineTo(s*r*0.48,-r*0.92); ctx.lineTo(s*r*0.1,-r*0.62); ctx.closePath(); ctx.fill();
+    ctx.fillStyle=pink;
+    ctx.beginPath(); ctx.moveTo(s*r*0.32,-r*0.58); ctx.lineTo(s*r*0.38,-r*0.8); ctx.lineTo(s*r*0.2,-r*0.63); ctx.closePath(); ctx.fill();
+  });
+  eyesArt(ctx,r,r*0.15,-r*0.32,r*0.055);
+  ctx.fillStyle=pink; ctx.beginPath(); ctx.moveTo(-r*0.05,-r*0.18); ctx.lineTo(r*0.05,-r*0.18); ctx.lineTo(0,-r*0.1); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle='rgba(60,40,30,0.5)'; ctx.lineWidth=1;
+  [-1,1].forEach(s=>{ for(let i=-1;i<=1;i++){ ctx.beginPath(); ctx.moveTo(s*r*0.18,-r*0.16+i*r*0.05); ctx.lineTo(s*r*0.5,-r*0.2+i*r*0.08); ctx.stroke(); } });
+  pawsArt(ctx,r,base);
+}
+
+function drawDogArt(ctx,r){
+  const base='#d9a463', white='#fff8ec', dark='#3a2418';
+  shadowArt(ctx,r);
+  [-1,1].forEach(s=>{ ctx.fillStyle='#b9814a'; ctx.save(); ctx.translate(s*r*0.4,-r*0.28); ctx.rotate(s*0.3); ctx.beginPath(); ctx.ellipse(0,0,r*0.14,r*0.32,0,0,Math.PI*2); ctx.fill(); ctx.restore(); });
+  ctx.strokeStyle=base; ctx.lineWidth=r*0.18; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(r*0.4,r*0.2); ctx.quadraticCurveTo(r*0.72,-r*0.05,r*0.62,-r*0.35); ctx.stroke();
+  ctx.fillStyle=base; ctx.beginPath(); ctx.ellipse(0,r*0.3,r*0.46,r*0.38,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(0,-r*0.28,r*0.42,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=white; ctx.beginPath(); ctx.ellipse(0,-r*0.06,r*0.2,r*0.16,0,0,Math.PI*2); ctx.fill();
+  eyesArt(ctx,r,r*0.16,-r*0.3,r*0.055);
+  ctx.fillStyle=dark; ctx.beginPath(); ctx.ellipse(0,-r*0.1,r*0.06,r*0.045,0,0,Math.PI*2); ctx.fill();
+  pawsArt(ctx,r,base);
+}
+
+function drawWolfArt(ctx,r,opts){
+  const wild = opts && opts.variant==='wild';
+  const base = wild ? '#585c63' : '#9aa0a8', white='#eef1f3', dark='#1c1c1e';
+  shadowArt(ctx,r);
+  ctx.strokeStyle=base; ctx.lineWidth=r*0.26; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(r*0.42,r*0.28); ctx.quadraticCurveTo(r*0.95,r*0.3,r*0.85,-r*0.05); ctx.stroke();
+  ctx.fillStyle=base; ctx.beginPath(); ctx.ellipse(0,r*0.28,r*0.46,r*0.4,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=white; ctx.beginPath(); ctx.ellipse(0,r*0.42,r*0.2,r*0.2,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=base; ctx.beginPath(); ctx.arc(0,-r*0.32,r*0.38,0,Math.PI*2); ctx.fill();
+  [-1,1].forEach(s=>{ ctx.beginPath(); ctx.moveTo(s*r*0.3,-r*0.56); ctx.lineTo(s*r*0.42,-r*1.05); ctx.lineTo(s*r*0.06,-r*0.68); ctx.closePath(); ctx.fill(); });
+  ctx.beginPath(); ctx.moveTo(-r*0.16,-r*0.22); ctx.lineTo(r*0.16,-r*0.22); ctx.lineTo(0,r*0.06); ctx.closePath(); ctx.fill();
+  eyesArt(ctx,r,r*0.15,-r*0.36,r*0.05);
+  ctx.fillStyle=dark; ctx.beginPath(); ctx.ellipse(0,-r*0.02,r*0.04,r*0.03,0,0,Math.PI*2); ctx.fill();
+  pawsArt(ctx,r,dark);
+}
+
+function drawSnakeArt(ctx,r){
+  const base='#5fb46a', belly='#dff0d8', dark='#1c1c1c';
+  shadowArt(ctx,r);
+  ctx.strokeStyle=base; ctx.lineWidth=r*0.34; ctx.lineCap='round'; ctx.lineJoin='round';
+  ctx.beginPath();
+  ctx.moveTo(-r*0.55,r*0.5);
+  ctx.bezierCurveTo(-r*0.2,r*0.1, r*0.5,r*0.15, r*0.35,-r*0.25);
+  ctx.bezierCurveTo(r*0.2,-r*0.55, -r*0.15,-r*0.5, -r*0.05,-r*0.75);
+  ctx.stroke();
+  ctx.strokeStyle=belly; ctx.lineWidth=r*0.1;
+  ctx.beginPath();
+  ctx.moveTo(-r*0.55,r*0.5);
+  ctx.bezierCurveTo(-r*0.2,r*0.1, r*0.5,r*0.15, r*0.35,-r*0.25);
+  ctx.stroke();
+  ctx.fillStyle=base; ctx.beginPath(); ctx.ellipse(-r*0.02,-r*0.82,r*0.2,r*0.16,0.3,0,Math.PI*2); ctx.fill();
+  eyesArt(ctx,r,r*0.09,-r*0.86,r*0.035);
+  ctx.strokeStyle=dark; ctx.lineWidth=1.2;
+  ctx.beginPath(); ctx.moveTo(r*0.12,-r*0.9); ctx.lineTo(r*0.26,-r*0.98); ctx.moveTo(r*0.2,-r*0.94); ctx.lineTo(r*0.28,-r*0.9); ctx.stroke();
+}
+
+function drawCowArt(ctx,r){
+  const base='#fbf8f0', patch='#2b2622', pink='#e8a3ac';
+  shadowArt(ctx,r);
+  ctx.strokeStyle=base; ctx.lineWidth=r*0.12; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(r*0.4,r*0.2); ctx.quadraticCurveTo(r*0.7,r*0.35,r*0.62,r*0.65); ctx.stroke();
+  ctx.fillStyle=patch; ctx.beginPath(); ctx.ellipse(r*0.62,r*0.68,r*0.07,r*0.09,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=base; ctx.beginPath(); ctx.ellipse(0,r*0.3,r*0.48,r*0.4,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=patch;
+  ctx.beginPath(); ctx.ellipse(-r*0.18,r*0.18,r*0.16,r*0.13,0.3,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(r*0.2,r*0.42,r*0.14,r*0.12,-0.2,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=base; ctx.beginPath(); ctx.arc(0,-r*0.3,r*0.4,0,Math.PI*2); ctx.fill();
+  [-1,1].forEach(s=>{ ctx.fillStyle=base; ctx.beginPath(); ctx.ellipse(s*r*0.42,-r*0.28,r*0.16,r*0.1,s*0.4,0,Math.PI*2); ctx.fill(); });
+  ctx.strokeStyle='#d8cdb8'; ctx.lineWidth=r*0.05; ctx.lineCap='round';
+  [-1,1].forEach(s=>{ ctx.beginPath(); ctx.moveTo(s*r*0.16,-r*0.58); ctx.quadraticCurveTo(s*r*0.28,-r*0.78,s*r*0.14,-r*0.86); ctx.stroke(); });
+  eyesArt(ctx,r,r*0.16,-r*0.32,r*0.05);
+  ctx.fillStyle=pink; ctx.beginPath(); ctx.ellipse(0,-r*0.08,r*0.14,r*0.1,0,0,Math.PI*2); ctx.fill();
+  pawsArt(ctx,r,patch);
+}
+
+function drawHamsterArt(ctx,r,opts){
+  const wild = opts && opts.variant==='wild';
+  const base = wild ? '#a97a4b' : '#eab26e', dark='#3a2418';
+  shadowArt(ctx,r);
+  ctx.fillStyle=base; ctx.beginPath(); ctx.ellipse(0,r*0.12,r*0.5,r*0.46,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(-r*0.36,r*0.05,r*0.18,r*0.15,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(r*0.36,r*0.05,r*0.18,r*0.15,0,0,Math.PI*2); ctx.fill();
+  [-1,1].forEach(s=>{ ctx.beginPath(); ctx.arc(s*r*0.32,-r*0.42,r*0.13,0,Math.PI*2); ctx.fill(); });
+  eyesArt(ctx,r,r*0.16,-r*0.14,r*0.05);
+  ctx.fillStyle=dark; ctx.beginPath(); ctx.ellipse(0,r*0.02,r*0.04,r*0.03,0,0,Math.PI*2); ctx.fill();
+  pawsArt(ctx,r,base);
+}
+
+function drawRabbitArt(ctx,r){
+  const base='#f3ede0', dark='#2b211b', pink='#e8879a';
+  shadowArt(ctx,r);
+  [-1,1].forEach(s=>{
+    ctx.fillStyle=base; ctx.save(); ctx.translate(s*r*0.18,-r*0.55); ctx.rotate(s*0.12);
+    ctx.beginPath(); ctx.ellipse(0,-r*0.35,r*0.13,r*0.42,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle=pink; ctx.beginPath(); ctx.ellipse(0,-r*0.35,r*0.06,r*0.28,0,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  });
+  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.ellipse(r*0.42,r*0.32,r*0.13,r*0.13,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=base; ctx.beginPath(); ctx.ellipse(0,r*0.3,r*0.44,r*0.36,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(0,-r*0.28,r*0.38,0,Math.PI*2); ctx.fill();
+  eyesArt(ctx,r,r*0.15,-r*0.3,r*0.05);
+  ctx.fillStyle=pink; ctx.beginPath(); ctx.moveTo(-r*0.05,-r*0.16); ctx.lineTo(r*0.05,-r*0.16); ctx.lineTo(0,-r*0.08); ctx.closePath(); ctx.fill();
+  pawsArt(ctx,r,base);
+}
+
+function drawGoatArt(ctx,r){
+  const base='#dcd0b2', dark='#3a352a';
+  shadowArt(ctx,r);
+  ctx.strokeStyle=base; ctx.lineWidth=r*0.14; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(r*0.42,r*0.2); ctx.quadraticCurveTo(r*0.62,r*0.05,r*0.55,-r*0.15); ctx.stroke();
+  ctx.fillStyle=base; ctx.beginPath(); ctx.ellipse(0,r*0.3,r*0.46,r*0.38,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(0,-r*0.3,r*0.38,0,Math.PI*2); ctx.fill();
+  [-1,1].forEach(s=>{ ctx.save(); ctx.translate(s*r*0.4,-r*0.28); ctx.rotate(s*0.5); ctx.beginPath(); ctx.ellipse(0,0,r*0.11,r*0.24,0,0,Math.PI*2); ctx.fill(); ctx.restore(); });
+  ctx.strokeStyle='#b0a684'; ctx.lineWidth=r*0.06; ctx.lineCap='round';
+  [-1,1].forEach(s=>{ ctx.beginPath(); ctx.moveTo(s*r*0.14,-r*0.56); ctx.quadraticCurveTo(s*r*0.05,-r*0.82,s*r*0.22,-r*0.92); ctx.stroke(); });
+  ctx.fillStyle=dark; ctx.beginPath(); ctx.moveTo(-r*0.08,-r*0.02); ctx.lineTo(r*0.08,-r*0.02); ctx.lineTo(0,r*0.16); ctx.closePath(); ctx.fill();
+  eyesArt(ctx,r,r*0.15,-r*0.32,r*0.045);
+  pawsArt(ctx,r,dark);
+}
+
+function drawDuckArt(ctx,r){
+  const base='#f2cf4f', bill='#e8872f';
+  shadowArt(ctx,r);
+  ctx.strokeStyle='#d9b23e'; ctx.lineWidth=r*0.05;
+  ctx.beginPath(); ctx.arc(-r*0.05,r*0.22,r*0.28,0.2,2.3); ctx.stroke();
+  ctx.fillStyle=base; ctx.beginPath(); ctx.ellipse(0,r*0.28,r*0.44,r*0.36,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(0,-r*0.24,r*0.32,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=bill; ctx.beginPath(); ctx.moveTo(-r*0.1,-r*0.14); ctx.lineTo(r*0.34,-r*0.1); ctx.lineTo(-r*0.06,r*0.0); ctx.closePath(); ctx.fill();
+  eyesArt(ctx,r,r*0.12,-r*0.3,r*0.045);
+  ctx.strokeStyle=bill; ctx.lineWidth=r*0.05;
+  ctx.beginPath(); ctx.moveTo(-r*0.14,r*0.62); ctx.lineTo(-r*0.14,r*0.74); ctx.moveTo(r*0.14,r*0.62); ctx.lineTo(r*0.14,r*0.74); ctx.stroke();
+}
+
+function drawOwlArt(ctx,r){
+  const base='#a5805f', belly='#e9d7bd', dark='#2b211b';
+  shadowArt(ctx,r);
+  ctx.fillStyle=base; ctx.beginPath(); ctx.ellipse(0,r*0.15,r*0.46,r*0.5,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=belly; ctx.beginPath(); ctx.ellipse(0,r*0.28,r*0.24,r*0.28,0,0,Math.PI*2); ctx.fill();
+  [-1,1].forEach(s=>{ ctx.fillStyle=base; ctx.beginPath(); ctx.moveTo(s*r*0.2,-r*0.5); ctx.lineTo(s*r*0.3,-r*0.72); ctx.lineTo(s*r*0.08,-r*0.56); ctx.closePath(); ctx.fill(); });
+  ctx.fillStyle='rgba(0,0,0,0.12)';
+  ctx.beginPath(); ctx.ellipse(-r*0.32,r*0.2,r*0.14,r*0.32,0.2,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(r*0.32,r*0.2,r*0.14,r*0.32,-0.2,0,Math.PI*2); ctx.fill();
+  [-1,1].forEach(s=>{
+    ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(s*r*0.18,-r*0.14,r*0.16,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle=dark; ctx.beginPath(); ctx.arc(s*r*0.18,-r*0.14,r*0.09,0,Math.PI*2); ctx.fill();
+  });
+  ctx.fillStyle='#e8872f'; ctx.beginPath(); ctx.moveTo(-r*0.06,-r*0.02); ctx.lineTo(r*0.06,-r*0.02); ctx.lineTo(0,r*0.1); ctx.closePath(); ctx.fill();
+  pawsArt(ctx,r,'#e8872f');
+}
+
+function drawDeerArt(ctx,r){
+  const base='#c8935f', white='#fbf4e8', dark='#2b211b';
+  shadowArt(ctx,r);
+  ctx.fillStyle=white; ctx.beginPath(); ctx.ellipse(r*0.4,r*0.35,r*0.1,r*0.14,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=base; ctx.beginPath(); ctx.ellipse(0,r*0.26,r*0.42,r*0.36,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=white; ctx.beginPath(); ctx.ellipse(0,r*0.4,r*0.18,r*0.18,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=base; ctx.beginPath(); ctx.arc(0,-r*0.34,r*0.34,0,Math.PI*2); ctx.fill();
+  [-1,1].forEach(s=>{ ctx.save(); ctx.translate(s*r*0.32,-r*0.5); ctx.rotate(s*0.5); ctx.beginPath(); ctx.ellipse(0,0,r*0.12,r*0.2,0,0,Math.PI*2); ctx.fill(); ctx.restore(); });
+  ctx.strokeStyle='#8a6a45'; ctx.lineWidth=r*0.045; ctx.lineCap='round';
+  [-1,1].forEach(s=>{
+    ctx.beginPath(); ctx.moveTo(s*r*0.14,-r*0.6); ctx.lineTo(s*r*0.1,-r*0.9); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(s*r*0.11,-r*0.76); ctx.lineTo(s*r*0.24,-r*0.86); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(s*r*0.1,-r*0.86); ctx.lineTo(s*r*0.02,-r*0.98); ctx.stroke();
+  });
+  eyesArt(ctx,r,r*0.13,-r*0.36,r*0.045);
+  ctx.fillStyle=dark;
+  ctx.beginPath(); ctx.ellipse(-r*0.2,r*0.78,r*0.08,r*0.14,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(r*0.2,r*0.78,r*0.08,r*0.14,0,0,Math.PI*2); ctx.fill();
+}
+
+function drawRaccoonArt(ctx,r){
+  const base='#726d64', light='#c9c2b4', dark='#232019';
+  shadowArt(ctx,r);
+  ctx.strokeStyle=base; ctx.lineWidth=r*0.24; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(r*0.4,r*0.24); ctx.quadraticCurveTo(r*0.85,r*0.15,r*0.75,-r*0.35); ctx.stroke();
+  ctx.strokeStyle=light; ctx.lineWidth=r*0.24; ctx.setLineDash([r*0.1,r*0.1]);
+  ctx.beginPath(); ctx.moveTo(r*0.4,r*0.24); ctx.quadraticCurveTo(r*0.85,r*0.15,r*0.75,-r*0.35); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle=base; ctx.beginPath(); ctx.ellipse(0,r*0.3,r*0.44,r*0.36,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(0,-r*0.3,r*0.38,0,Math.PI*2); ctx.fill();
+  [-1,1].forEach(s=>{ ctx.beginPath(); ctx.moveTo(s*r*0.3,-r*0.52); ctx.lineTo(s*r*0.4,-r*0.86); ctx.lineTo(s*r*0.08,-r*0.62); ctx.closePath(); ctx.fill(); });
+  ctx.fillStyle=light; ctx.beginPath(); ctx.ellipse(0,-r*0.14,r*0.24,r*0.18,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=dark; ctx.beginPath(); ctx.ellipse(0,-r*0.28,r*0.3,r*0.11,0,0,Math.PI*2); ctx.fill();
+  eyesArt(ctx,r,r*0.15,-r*0.28,r*0.05);
+  ctx.fillStyle=dark; ctx.beginPath(); ctx.ellipse(0,-r*0.06,r*0.045,r*0.03,0,0,Math.PI*2); ctx.fill();
+  pawsArt(ctx,r,dark);
+}
+
+function drawPandaArt(ctx,r){
+  const base='#f7f7f5', dark='#232019';
+  shadowArt(ctx,r);
+  ctx.fillStyle=base; ctx.beginPath(); ctx.ellipse(0,r*0.28,r*0.48,r*0.4,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(0,-r*0.3,r*0.4,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=dark;
+  [-1,1].forEach(s=>{ ctx.beginPath(); ctx.arc(s*r*0.34,-r*0.58,r*0.15,0,Math.PI*2); ctx.fill(); });
+  [-1,1].forEach(s=>{ ctx.save(); ctx.translate(s*r*0.17,-r*0.32); ctx.rotate(s*0.3); ctx.beginPath(); ctx.ellipse(0,0,r*0.11,r*0.15,0,0,Math.PI*2); ctx.fill(); ctx.restore(); });
+  ctx.fillStyle='#fff'; [-1,1].forEach(s=>{ ctx.beginPath(); ctx.arc(s*r*0.17,-r*0.3,r*0.045,0,Math.PI*2); ctx.fill(); });
+  ctx.fillStyle=dark; [-1,1].forEach(s=>{ ctx.beginPath(); ctx.arc(s*r*0.17,-r*0.3,r*0.025,0,Math.PI*2); ctx.fill(); });
+  ctx.beginPath(); ctx.ellipse(0,-r*0.08,r*0.05,r*0.035,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(-r*0.34,r*0.14,r*0.13,r*0.16,0.3,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(r*0.34,r*0.14,r*0.13,r*0.16,-0.3,0,Math.PI*2); ctx.fill();
+  pawsArt(ctx,r,dark);
+}
+
+const SPECIES_ART = {
+  fox:drawFoxArt, cat:drawCatArt, dog:drawDogArt, wolf:drawWolfArt, snake:drawSnakeArt,
+  cow:drawCowArt, hamster:drawHamsterArt, rabbit:drawRabbitArt, goat:drawGoatArt,
+  duck:drawDuckArt, owl:drawOwlArt, deer:drawDeerArt, raccoon:drawRaccoonArt, panda:drawPandaArt,
+};
+
+function drawSparkle(ctx,x,y,s){
+  ctx.save(); ctx.translate(x,y);
+  ctx.beginPath();
+  ctx.moveTo(0,-s); ctx.lineTo(s*0.25,-s*0.25); ctx.lineTo(s,0); ctx.lineTo(s*0.25,s*0.25);
+  ctx.lineTo(0,s); ctx.lineTo(-s*0.25,s*0.25); ctx.lineTo(-s,0); ctx.lineTo(-s*0.25,-s*0.25);
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+
+function drawCreatureRaw(ctx, r, speciesKey, opts, tier){
+  if(opts.shiny){
+    ctx.save();
+    ctx.globalAlpha = 0.42;
+    ctx.fillStyle = '#ffe066';
+    ctx.beginPath(); ctx.arc(0, r*0.15, r*(tier===3?1.55:(tier===2?1.32:1.28)), 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+  if(tier>=2){
+    // Ring of light: a glowing halo that appears once a pet has evolved (Great/Elder tier),
+    // separate from the shiny aura above so the two effects both read clearly when combined.
+    // Drawn as a soft colored outer glow plus a crisp bright core line, so it reads as a
+    // distinct ring rather than a blurred filled disc.
+    ctx.save();
+    const ringR = r*(tier===3?1.5:1.3);
+    const ringColor = opts.typeColor || '#ffd76a';
+    ctx.globalAlpha = 0.35;
+    ctx.strokeStyle = ringColor;
+    ctx.lineWidth = r*0.22;
+    ctx.shadowColor = ringColor;
+    ctx.shadowBlur = r*0.35;
+    ctx.beginPath(); ctx.arc(0, r*0.15, ringR, 0, Math.PI*2); ctx.stroke();
+    ctx.globalAlpha = 0.95;
+    ctx.shadowBlur = r*0.12;
+    ctx.lineWidth = r*0.05;
+    ctx.strokeStyle = '#fff8dd';
+    ctx.beginPath(); ctx.arc(0, r*0.15, ringR, 0, Math.PI*2); ctx.stroke();
+    ctx.restore();
+  }
+  ctx.save();
+  const scale = tier===3 ? 1.16 : (tier===2 ? 1.08 : 1);
+  ctx.scale(scale, scale);
+  const fn = SPECIES_ART[speciesKey] || drawCatArt;
+  fn(ctx, r, opts);
+  if(tier===3 || opts.shiny){
+    ctx.fillStyle = opts.shiny ? '#fff4c2' : 'rgba(255,255,255,0.9)';
+    [[-r*0.95,-r*0.6],[r*0.9,-r*0.35],[r*0.05,-r*1.15]].forEach(p=>{ drawSparkle(ctx,p[0],p[1],r*0.12); });
+  }
+  ctx.restore();
+}
+
+// Tinting uses an isolated (transparent-background) offscreen buffer per species/variant/tier/type
+// combo, cached and reused — applying the 'color' blend mode directly on a shared canvas would
+// recolor whatever background is already painted there, not just the creature's own pixels.
+const _tintedCanvasCache = {};
+const TINT_REF_R = 60;
+function getTintedCanvas(speciesKey, variant, tier, typeColor, shiny){
+  const key = speciesKey + '_' + (variant||'') + '_' + (tier||1) + '_' + typeColor + '_' + (shiny?'s':'');
+  if(_tintedCanvasCache[key]) return _tintedCanvasCache[key];
+  const size = Math.ceil(TINT_REF_R*3.4);
+  const off = document.createElement('canvas');
+  off.width = size; off.height = size;
+  const octx = off.getContext('2d');
+  octx.translate(size/2, size/2);
+  drawCreatureRaw(octx, TINT_REF_R, speciesKey, {variant, tier, shiny}, tier||1);
+  // 'color' blend recolors hue while keeping luminance, but canvas compositing still follows
+  // Porter-Duff "over" alpha math — an opaque fillRect paints full alpha everywhere, bleeding
+  // outside the original silhouette. Bake the original art to a bitmap first (its alpha is the
+  // union of every shape drawn), then mask the tinted result with ONE drawImage of that bitmap —
+  // masking shape-by-shape instead would re-clip after every fill (shadow, body, ears, eyes...)
+  // and the sequential intersection of non-overlapping shapes collapses to nothing.
+  const tinted = document.createElement('canvas');
+  tinted.width = size; tinted.height = size;
+  const tctx = tinted.getContext('2d');
+  tctx.drawImage(off, 0, 0);
+  tctx.globalCompositeOperation = 'color';
+  tctx.fillStyle = typeColor;
+  tctx.fillRect(0, 0, size, size);
+  tctx.globalCompositeOperation = 'destination-in';
+  tctx.drawImage(off, 0, 0);
+  _tintedCanvasCache[key] = tinted;
+  return tinted;
+}
+
+function drawCreature(ctx, cx, cy, r, speciesKey, opts){
+  opts = opts || {};
+  const tier = opts.tier || 1;
+  ctx.save();
+  ctx.translate(cx, cy);
+  if(opts.typeColor){
+    const off = getTintedCanvas(speciesKey, opts.variant, tier, opts.typeColor, opts.shiny);
+    const scale = r / TINT_REF_R;
+    ctx.scale(scale, scale);
+    ctx.drawImage(off, -off.width/2, -off.height/2);
+  } else {
+    drawCreatureRaw(ctx, r, speciesKey, opts, tier);
+  }
+  ctx.restore();
+}
+
+const _creatureImgCache = {};
+function getCreatureImage(speciesKey, px, variant, tier, typeColor, shiny){
+  const cacheKey = speciesKey + '_' + px + '_' + (variant || '') + '_' + (tier||1) + '_' + (typeColor || '') + '_' + (shiny?'s':'');
+  if(_creatureImgCache[cacheKey]) return _creatureImgCache[cacheKey];
+  const c = document.createElement('canvas');
+  c.width = px; c.height = px;
+  const ctx = c.getContext('2d');
+  drawCreature(ctx, px/2, px*0.58, px*0.4, speciesKey, {variant, tier, typeColor, shiny});
+  const url = c.toDataURL('image/png');
+  _creatureImgCache[cacheKey] = url;
+  return url;
+}
+
+// ---------------- Levels / XP / Evolution ----------------
+function maxHpForLevel(level){ return Math.round(40 + level*4); }
+function xpToNext(level){ return level*12; }
+function tierForLevel(level){ return level>=40 ? 3 : (level>=20 ? 2 : 1); }
+function tierPrefix(tier){ return tier===3 ? 'Elder ' : (tier===2 ? 'Great ' : ''); }
+function displayName(pet){ return (pet.isShiny?'✨ Shiny ':'') + tierPrefix(pet.tier) + pet.name; }
+function worldBasicLevel(worldIndex){ return 5 + worldIndex*10; }
+function worldBossLevel(worldIndex){ return worldBasicLevel(worldIndex) + 15; }
+function petTypeColor(pet){ return pet.type && pet.type!=='normal' ? TYPE_COLORS[pet.type] : null; }
+
+// ---------------- Shop art: tent between two trees ----------------
+const _shopArtCache = {};
+function drawShopTree(ctx, x, y, scale){
+  ctx.save();
+  ctx.translate(x,y); ctx.scale(scale,scale);
+  ctx.fillStyle = '#7c5a38'; ctx.fillRect(-6,-10,12,42);
+  ctx.fillStyle = '#4f9a4a';
+  ctx.beginPath(); ctx.arc(0,-40,28,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#5cae57';
+  ctx.beginPath(); ctx.arc(-14,-22,18,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(15,-24,18,0,Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+function getShopArt(world){
+  const key = world.id;
+  if(_shopArtCache[key]) return _shopArtCache[key];
+  const W=300, H=150;
+  const c = document.createElement('canvas'); c.width=W; c.height=H;
+  const ctx = c.getContext('2d');
+  const accent = world.primaryType ? (TYPE_COLORS[world.primaryType] || '#c9915a') : '#c9915a';
+  const g = ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#cdeeff'); g.addColorStop(1,'#eafbe0');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#bfe6a0'; ctx.fillRect(0,H*0.78,W,H*0.22);
+  drawShopTree(ctx, 44, H*0.86, 1.05);
+  drawShopTree(ctx, W-44, H*0.86, 0.95);
+  // tent
+  const cx = W/2, baseY = H*0.9, tw = 84, th = 62;
+  ctx.save();
+  ctx.fillStyle = '#8a5a30'; ctx.fillRect(cx-tw*0.55,baseY-8,10,8); ctx.fillRect(cx+tw*0.55-10,baseY-8,10,8);
+  // roof stripes
+  const stripes = 6;
+  for(let i=0;i<stripes;i++){
+    ctx.beginPath();
+    ctx.moveTo(cx - tw/2 + (tw/stripes)*i, baseY-th*0.55);
+    ctx.lineTo(cx - tw/2 + (tw/stripes)*(i+1), baseY-th*0.55);
+    ctx.lineTo(cx + (tw/stripes)*(i+1-stripes/2)*0.25, baseY-th);
+    ctx.lineTo(cx + (tw/stripes)*(i-stripes/2)*0.25, baseY-th);
+    ctx.closePath();
+    ctx.fillStyle = i%2===0 ? accent : '#fff8ec';
+    ctx.fill();
+  }
+  // front counter
+  ctx.fillStyle = '#e8c9a8';
+  ctx.fillRect(cx-tw*0.5, baseY-th*0.55, tw, th*0.4);
+  ctx.strokeStyle = '#a1734a'; ctx.lineWidth=3;
+  ctx.strokeRect(cx-tw*0.5, baseY-th*0.55, tw, th*0.4);
+  // pole + flag
+  ctx.strokeStyle = '#6b4423'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(cx, baseY-th); ctx.lineTo(cx, baseY-th-16); ctx.stroke();
+  ctx.fillStyle = accent;
+  ctx.beginPath(); ctx.moveTo(cx,baseY-th-16); ctx.lineTo(cx+16,baseY-th-10); ctx.lineTo(cx,baseY-th-4); ctx.closePath(); ctx.fill();
+  ctx.restore();
+  const url = c.toDataURL('image/png');
+  _shopArtCache[key] = url;
+  return url;
+}
+
+// ---------------- Battle canvas animation ----------------
+let battleAnimToken = 0;
+let tickTokenCounter = 0;
+const heldKeys = {};
+function stopBattleAnim(){ battleAnimToken++; }
+function startBattleAnim(){
+  const myToken = ++battleAnimToken;
+  function frame(now){
+    if(myToken !== battleAnimToken) return;
+    if(state.screen !== 'battle' || !state.battle) return;
+    const canvas = document.getElementById('battleCanvas');
+    if(!canvas){ requestAnimationFrame(frame); return; }
+    drawBattleFrame(canvas.getContext('2d'), canvas.width, canvas.height, now);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+function drawBattleFrame(ctx, W, H, now){
+  const b = state.battle;
+  if(!b) return;
+  const def = WILD_PETS[b.petKey];
+  ctx.clearRect(0,0,W,H);
+  const g = ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#bfe8ff'); g.addColorStop(1,'#e9fbe0');
+  ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle = '#bfe6a0';
+  ctx.fillRect(0,H*0.72,W,H*0.28);
+
+  const t = b.lastActionAt ? now - b.lastActionAt : 9999;
+  const dur = 500;
+  let playerDX=0, petShake=0, petScaleY=1, petAlpha=1, flying=null;
+  if(t < dur){
+    const p = t/dur;
+    const ease = Math.sin(Math.min(p,1)*Math.PI);
+    if(b.lastAction==='approach' || b.lastAction==='treat'){ playerDX = ease*22; petShake = ease*7; }
+    else if(b.lastAction==='teamtrick'){ playerDX = ease*34; petShake = ease*11; }
+    else if(b.lastAction==='cube-fail'){ petShake = ease*14; }
+    else if(b.lastAction==='cube-success'){ petScaleY = 1-ease*0.5; petAlpha = 1-ease*0.6; }
+    else if(b.lastAction==='pet-attack'){ petShake = ease*10; playerDX = -ease*10; }
+    if(b.lastAction==='treat' || b.lastAction==='cube-fail' || b.lastAction==='cube-success'){
+      flying = {kind: b.lastAction==='treat' ? 'treat' : 'cube', p};
+    }
+  }
+  const idleP = Math.sin(now/420)*3;
+  const idlePet = Math.sin(now/470+1)*3;
+  const petJitter = petShake ? Math.sin(now/30)*petShake : 0;
+
+  const playerX = W*0.26 + playerDX, playerY = H*0.72 + idleP;
+  const petX = W*0.74, petY = H*0.72 + idlePet;
+
+  const myPet = state.party[b.activeIndex];
+  drawCreature(ctx, playerX, playerY, 46, myPet ? myPet.species : 'cat',
+    {variant: myPet ? myPet.variant : null, tier: myPet ? myPet.tier : 1, typeColor: myPet ? petTypeColor(myPet) : null, shiny: myPet ? myPet.isShiny : false});
+
+  ctx.save();
+  ctx.translate(petX + petJitter, petY);
+  ctx.globalAlpha = petAlpha;
+  ctx.scale(1, petScaleY);
+  drawCreature(ctx, 0, 0, 46, def.species, {variant: def.variant, tier: def.isBoss?2:1, typeColor: b.wildType && b.wildType!=='normal' ? TYPE_COLORS[b.wildType] : null, shiny: b.isShiny});
+  ctx.restore();
+
+  if(flying){
+    const fx = playerX + (petX-playerX)*flying.p;
+    const fy = Math.min(playerY,petY) - 40 - Math.sin(flying.p*Math.PI)*30;
+    ctx.save();
+    ctx.translate(fx,fy);
+    if(flying.kind==='cube'){
+      ctx.rotate(flying.p*8);
+      ctx.fillStyle='#c9915a'; ctx.fillRect(-9,-9,18,18);
+      ctx.strokeStyle='#7a5530'; ctx.lineWidth=2; ctx.strokeRect(-9,-9,18,18);
+    } else {
+      ctx.fillStyle='#c9915a'; ctx.beginPath(); ctx.arc(0,0,7,0,Math.PI*2); ctx.fill();
+    }
+    ctx.restore();
+  }
+}
+
+// ---------------- Explore (4-way walking) ----------------
+let exploreAnimToken = 0;
+function stopExploreAnim(){ exploreAnimToken++; }
+const EXPLORE_SPEED = 0.16;
+function makeDecor(){
+  const items = [];
+  const count = 6 + Math.floor(rand(0,4));
+  for(let i=0;i<count;i++){
+    items.push({ kind: pick(['tree','tree','rock','bush']), x: rand(25,415), y: rand(25,395), seed: rand(0,1000), s: rand(0.85,1.2) });
+  }
+  return items;
+}
+function makePouches(){
+  const roll = Math.random();
+  const n = roll<0.15 ? 0 : (roll<0.75 ? 1 : 2);
+  const arr = [];
+  for(let i=0;i<n;i++) arr.push({x:rand(55,385), y:rand(55,365), taken:false});
+  return arr;
+}
+function drawDecor(ctx, d, now){
+  const sway = Math.sin(now/650 + d.seed) * (d.kind==='rock' ? 0 : 2.5);
+  ctx.save();
+  ctx.translate(d.x, d.y);
+  ctx.scale(d.s, d.s);
+  if(d.kind==='tree'){
+    ctx.save(); ctx.translate(0, 18); ctx.scale(1,0.25); ctx.beginPath(); ctx.arc(0,0,16,0,Math.PI*2); ctx.fillStyle='rgba(0,0,0,0.15)'; ctx.fill(); ctx.restore();
+    ctx.fillStyle = '#8a6440'; ctx.fillRect(-4,-6,8,26);
+    ctx.save(); ctx.translate(sway*0.4,0);
+    ctx.fillStyle = '#4f9a4a';
+    ctx.beginPath(); ctx.arc(0,-26,20,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#5cae57';
+    ctx.beginPath(); ctx.arc(-10,-14,14,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(11,-16,14,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  } else if(d.kind==='rock'){
+    ctx.save(); ctx.translate(0, 10); ctx.scale(1,0.3); ctx.beginPath(); ctx.arc(0,0,13,0,Math.PI*2); ctx.fillStyle='rgba(0,0,0,0.15)'; ctx.fill(); ctx.restore();
+    ctx.fillStyle = '#9a9186';
+    ctx.beginPath(); ctx.ellipse(0,0,15,11,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#b0a89b';
+    ctx.beginPath(); ctx.ellipse(-4,-3,7,5,0,0,Math.PI*2); ctx.fill();
+  } else {
+    ctx.save(); ctx.translate(0, 12); ctx.scale(1,0.3); ctx.beginPath(); ctx.arc(0,0,15,0,Math.PI*2); ctx.fillStyle='rgba(0,0,0,0.13)'; ctx.fill(); ctx.restore();
+    ctx.save(); ctx.translate(sway,0);
+    ctx.fillStyle = '#4a9a4f';
+    ctx.beginPath(); ctx.arc(-8,2,11,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(8,2,11,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(0,-6,12,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+  ctx.restore();
+}
+function drawBush(ctx, x, y, now, shake, s){
+  s = s || 1;
+  ctx.save();
+  ctx.translate(x + shake, y);
+  ctx.scale(s,s);
+  ctx.save(); ctx.translate(0, 14); ctx.scale(1,0.28); ctx.beginPath(); ctx.arc(0,0,18,0,Math.PI*2); ctx.fillStyle='rgba(0,0,0,0.16)'; ctx.fill(); ctx.restore();
+  const bob = Math.sin(now/500)*1.5;
+  ctx.fillStyle = '#3f8f47';
+  ctx.beginPath(); ctx.arc(-10,4+bob,13,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(10,4+bob,13,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#4fa855';
+  ctx.beginPath(); ctx.arc(0,-6+bob,15,0,Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+function drawPouch(ctx, x, y, now){
+  ctx.save();
+  ctx.translate(x, y + Math.sin(now/300)*3);
+  ctx.save(); ctx.translate(0,10); ctx.scale(1,0.3); ctx.beginPath(); ctx.arc(0,0,11,0,Math.PI*2); ctx.fillStyle='rgba(0,0,0,0.16)'; ctx.fill(); ctx.restore();
+  ctx.fillStyle = '#9a6b3a';
+  ctx.beginPath(); ctx.ellipse(0,2,11,9,0,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#6b4423'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(-6,-5); ctx.quadraticCurveTo(0,-12,6,-5); ctx.stroke();
+  ctx.fillStyle = '#c9a15a';
+  ctx.beginPath(); ctx.arc(0,-4,3,0,Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+function drawTentIcon(ctx, x, y, accent){
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.save(); ctx.translate(0, 17); ctx.scale(1,0.28); ctx.beginPath(); ctx.arc(0,0,26,0,Math.PI*2); ctx.fillStyle='rgba(0,0,0,0.18)'; ctx.fill(); ctx.restore();
+  drawShopTree(ctx, -26, 8, 0.5);
+  drawShopTree(ctx, 26, 6, 0.44);
+  const tw = 32, th = 28;
+  const stripes = 4;
+  for(let i=0;i<stripes;i++){
+    ctx.beginPath();
+    ctx.moveTo(-tw/2 + (tw/stripes)*i, 6);
+    ctx.lineTo(-tw/2 + (tw/stripes)*(i+1), 6);
+    ctx.lineTo((tw/stripes)*(i+1-stripes/2)*0.25, 6-th);
+    ctx.lineTo((tw/stripes)*(i-stripes/2)*0.25, 6-th);
+    ctx.closePath();
+    ctx.fillStyle = i%2===0 ? accent : '#fff8ec';
+    ctx.fill();
+  }
+  ctx.fillStyle = '#e8c9a8';
+  ctx.fillRect(-tw*0.5, 6-th*0.42, tw, th*0.42);
+  ctx.strokeStyle = '#a1734a'; ctx.lineWidth = 2;
+  ctx.strokeRect(-tw*0.5, 6-th*0.42, tw, th*0.42);
+  ctx.strokeStyle = '#6b4423'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(0, 6-th); ctx.lineTo(0, 6-th-11); ctx.stroke();
+  ctx.fillStyle = accent;
+  ctx.beginPath(); ctx.moveTo(0,6-th-11); ctx.lineTo(11,6-th-7); ctx.lineTo(0,6-th-3); ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+function placeAwayFrom(positions, minDist, tries, xRange, yRange){
+  xRange = xRange || [50,400]; yRange = yRange || [50,380];
+  for(let t=0;t<(tries||40);t++){
+    const x = rand(xRange[0], xRange[1]);
+    const y = rand(yRange[0], yRange[1]);
+    if(positions.every(p=>Math.hypot(p.x-x,p.y-y) >= minDist)) return {x,y};
+  }
+  return {x: rand(xRange[0],xRange[1]), y: rand(yRange[0],yRange[1])};
+}
+function shuffleArr(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    const tmp=a[i]; a[i]=a[j]; a[j]=tmp;
+  }
+  return a;
+}
+const SHINY_CHANCE = 0.001;
+const SHINY_STRENGTH_MULT = 1.3;
+function rollShiny(){ return Math.random() < SHINY_CHANCE; }
+function makeBushFor(worldIndex, petKey, level, isBoss){
+  const w = WORLDS[worldIndex];
+  return { petKey, level, isBoss: !!isBoss, type: pick(w.typePool), isShiny: rollShiny(), x:220, y:200 };
+}
+// Each world is split into 4 distinct, navigable screens ("areas") that share one persistent
+// map — walking off the left/right edge of one area steps into the next, and the dots at the
+// top double as quick-jump tabs. Area i's location flavor comes from chapters[i]; which animal
+// lives there is randomized fresh each time the world's map is (re)generated.
+function makeWorldMapContent(worldIndex){
+  const w = WORLDS[worldIndex];
+  const regularSpecies = shuffleArr(w.wildPool);
+  let regIdx = 0;
+  return w.chapters.map(c=>{
+    const spawn = {x:90, y:340};
+    const positions = [spawn];
+    let shopPos = null;
+    let bush = null;
+    if(c.isBossChapter){
+      bush = makeBushFor(worldIndex, c.encounter, worldBossLevel(worldIndex), true);
+    } else {
+      bush = makeBushFor(worldIndex, regularSpecies[regIdx], worldBasicLevel(worldIndex), false);
+      regIdx++;
+      if(regIdx === 1){
+        shopPos = placeAwayFrom(positions, 100, 40);
+        positions.push(shopPos);
+      }
+    }
+    const bpos = placeAwayFrom(positions, 80, 40);
+    bush.x = bpos.x; bush.y = bpos.y;
+    return { decor: makeDecor(), pouches: makePouches(), shopPos, bush };
+  });
+}
+function bossUnlocked(){
+  // Once the whole journey has been completed, every world's guardian stays permanently
+  // challengeable — no need to re-clear that world's regular areas again first.
+  if(state.journeyComplete) return true;
+  const w = curWorld();
+  for(let i=0;i<w.chapters.length;i++){
+    if(!w.chapters[i].isBossChapter && !state.counters.areaBeaten[i]) return false;
+  }
+  return true;
+}
+function ensureWorldMap(){
+  if(!state.explore || state.explore.worldIndex !== state.worldIndex){
+    const areas = makeWorldMapContent(state.worldIndex);
+    state.explore = {
+      worldIndex: state.worldIndex,
+      areaIndex: 0,
+      areas,
+      playerX: 90, playerY: 340,
+      padUp:false, padDown:false, padLeft:false, padRight:false,
+      toastMsg:null, toastUntil:0,
+      introShown:{}, pendingBossToast:false,
+      reentryCooldownUntil: 0,
+    };
+  }
+}
+function returnToMap(){
+  ensureWorldMap();
+  const ex = state.explore;
+  ex.reentryCooldownUntil = performance.now() + 700;
+  if(ex.pendingBossToast){
+    ex.toastMsg = 'The guardian stirs... it is ready to face you!';
+    ex.toastUntil = performance.now() + 2600;
+    ex.pendingBossToast = false;
+  }
+  state.screen = 'explore';
+}
+function goToArea(areaIndex){
+  ensureWorldMap();
+  const ex = state.explore;
+  ex.areaIndex = clamp(areaIndex, 0, ex.areas.length-1);
+  ex.playerX = 90; ex.playerY = 340;
+  ex.reentryCooldownUntil = performance.now() + 500;
+  state.screen = 'explore';
+}
+function switchArea(newIndex, enterSide){
+  const ex = state.explore;
+  if(newIndex < 0 || newIndex >= ex.areas.length) return;
+  ex.areaIndex = newIndex;
+  ex.playerX = enterSide === 'left' ? 34 : 406;
+  ex.playerY = clamp(ex.playerY, 30, 390);
+  ex.reentryCooldownUntil = performance.now() + 400;
+}
+function stepExplore(dt){
+  const ex = state.explore;
+  if(!ex) return;
+  let dx=0, dy=0;
+  if(heldKeys.ArrowUp || heldKeys.KeyW || ex.padUp) dy -= 1;
+  if(heldKeys.ArrowDown || heldKeys.KeyS || ex.padDown) dy += 1;
+  if(heldKeys.ArrowLeft || heldKeys.KeyA || ex.padLeft) dx -= 1;
+  if(heldKeys.ArrowRight || heldKeys.KeyD || ex.padRight) dx += 1;
+  if(dx!==0 && dy!==0){ dx*=0.7071; dy*=0.7071; }
+  const nx = ex.playerX + dx*EXPLORE_SPEED*dt;
+  const ny = ex.playerY + dy*EXPLORE_SPEED*dt;
+  if(nx > 410 && dx > 0 && ex.areaIndex < ex.areas.length-1){ switchArea(ex.areaIndex+1, 'left'); return; }
+  if(nx < 30 && dx < 0 && ex.areaIndex > 0){ switchArea(ex.areaIndex-1, 'right'); return; }
+  ex.playerX = clamp(nx, 30, 410);
+  ex.playerY = clamp(ny, 30, 390);
+  const area = ex.areas[ex.areaIndex];
+  (area.pouches||[]).forEach(p=>{
+    if(p.taken) return;
+    const d = Math.hypot(ex.playerX-p.x, ex.playerY-p.y);
+    if(d < 36){
+      p.taken = true;
+      const isPotion = Math.random()<0.5;
+      const amt = 1 + Math.floor(Math.random()*3);
+      if(isPotion) state.potions += amt; else state.cubes += amt;
+      ex.toastMsg = `+${amt} ${isPotion?'Potion'+(amt>1?'s':''):'Pet Cube'+(amt>1?'s':'')}!`;
+      ex.toastUntil = performance.now() + 1700;
+    }
+  });
+}
+function checkExploreInteractions(now){
+  const ex = state.explore;
+  if(!ex) return null;
+  if(ex.reentryCooldownUntil && now < ex.reentryCooldownUntil) return null;
+  const area = ex.areas[ex.areaIndex];
+  if(area.shopPos){
+    const dShop = Math.hypot(ex.playerX-area.shopPos.x, ex.playerY-area.shopPos.y);
+    if(dShop < 38) return {type:'shop'};
+  }
+  if(area.bush){
+    const bush = area.bush;
+    if(!(bush.isBoss && !bossUnlocked())){
+      const d = Math.hypot(ex.playerX-bush.x, ex.playerY-bush.y);
+      if(d < 40) return {type:'battle', bush, areaIndex: ex.areaIndex};
+    }
+  }
+  return null;
+}
+function drawExploreFrame(ctx,W,H,now){
+  const ex = state.explore;
+  if(!ex) return;
+  const area = ex.areas[ex.areaIndex];
+  ctx.clearRect(0,0,W,H);
+  const g = ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#bfe6a0'); g.addColorStop(1,'#8fce78');
+  ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=2;
+  for(let i=0;i<W;i+=40){ ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,H); ctx.stroke(); }
+  for(let j=0;j<H;j+=40){ ctx.beginPath(); ctx.moveTo(0,j); ctx.lineTo(W,j); ctx.stroke(); }
+
+  (area.decor||[]).forEach(d=>drawDecor(ctx,d,now));
+  (area.pouches||[]).forEach(p=>{ if(!p.taken) drawPouch(ctx,p.x,p.y,now); });
+
+  const w = curWorld();
+  if(area.shopPos){
+    drawTentIcon(ctx, area.shopPos.x, area.shopPos.y, TYPE_COLORS[w.primaryType] || '#c9915a');
+  }
+
+  if(area.bush){
+    const bush = area.bush;
+    const locked = bush.isBoss && !bossUnlocked();
+    const dist = Math.hypot(ex.playerX-bush.x, ex.playerY-bush.y);
+    const near = locked ? 0 : clamp(1 - (dist-40)/160, 0, 1);
+    const shake = near>0.02 ? Math.sin(now/ (90-near*55)) * (2+near*7) : 0;
+    drawBush(ctx, bush.x, bush.y, now, shake, bush.isBoss?1.3:1.15);
+    if(bush.isShiny && !locked){
+      ctx.save();
+      ctx.globalAlpha = 0.65 + Math.sin(now/220)*0.25;
+      ctx.fillStyle = '#ffe066';
+      ctx.beginPath(); ctx.arc(bush.x-4, bush.y-14, 3.5, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(bush.x+13, bush.y-20, 2.5, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+    }
+    if(locked){
+      ctx.save();
+      ctx.globalAlpha = 0.5; ctx.fillStyle = '#20201f';
+      ctx.beginPath(); ctx.arc(bush.x, bush.y-16, 15, 0, Math.PI*2); ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.font = 'bold 15px sans-serif'; ctx.textAlign='center'; ctx.fillStyle='#fff';
+      ctx.fillText('\u{1F512}', bush.x, bush.y-11);
+      ctx.restore();
+    }
+  }
+
+  ctx.save();
+  ctx.font = 'bold 18px sans-serif'; ctx.textAlign='center'; ctx.globalAlpha=0.5; ctx.fillStyle='#22321f';
+  if(ex.areaIndex < ex.areas.length-1) ctx.fillText('\u{25B6}', W-14, H/2);
+  if(ex.areaIndex > 0) ctx.fillText('\u{25C0}', 14, H/2);
+  ctx.restore();
+
+  const ap = activePet();
+  const idlePlayer = Math.sin(now/380+1)*3;
+  drawCreature(ctx, ex.playerX, ex.playerY+idlePlayer, 34, ap?ap.species:'cat', {variant:ap?ap.variant:null, tier:ap?ap.tier:1, typeColor:ap?petTypeColor(ap):null, shiny:ap?ap.isShiny:false});
+
+  if(ex.toastUntil && now < ex.toastUntil){
+    ctx.save();
+    ctx.font = 'bold 15px sans-serif';
+    ctx.textAlign = 'center';
+    const a = clamp((ex.toastUntil-now)/300, 0, 1);
+    ctx.globalAlpha = Math.min(1, a+0.4);
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    const tw2 = ctx.measureText(ex.toastMsg).width;
+    ctx.fillRect(W/2-tw2/2-10, 14, tw2+20, 26);
+    ctx.fillStyle = '#fff';
+    ctx.fillText(ex.toastMsg, W/2, 32);
+    ctx.restore();
+  }
+}
+function startExploreAnim(){
+  const myToken = ++exploreAnimToken;
+  let lastT = null;
+  function frame(now){
+    if(myToken !== exploreAnimToken) return;
+    if(state.screen !== 'explore' || !state.explore){ return; }
+    const canvas = document.getElementById('exploreCanvas');
+    if(!canvas){ requestAnimationFrame(frame); return; }
+    const dt = lastT ? Math.min(now-lastT,50) : 16;
+    lastT = now;
+    stepExplore(dt);
+    drawExploreFrame(canvas.getContext('2d'), canvas.width, canvas.height, now);
+    const interaction = checkExploreInteractions(now);
+    if(interaction && interaction.type === 'shop'){
+      state.counters.shopVisited++;
+      state.screen = 'shop';
+      render();
+      return;
+    }
+    if(interaction && interaction.type === 'battle' && healthyPartyCount() > 0){
+      startBattle(interaction.bush.petKey, interaction.bush.level, {isShiny: interaction.bush.isShiny, type: interaction.bush.type, areaIndex: interaction.areaIndex});
+      render();
+      return;
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+function wireExploreControls(){
+  if(!state.explore) return;
+  const map = {dpadUp:'padUp', dpadDown:'padDown', dpadLeft:'padLeft', dpadRight:'padRight'};
+  Object.keys(map).forEach(id=>{
+    const btn = document.getElementById(id);
+    if(!btn) return;
+    const flag = map[id];
+    const press = (e)=>{ e.preventDefault(); if(state.explore) state.explore[flag]=true; };
+    const release = ()=>{ if(state.explore) state.explore[flag]=false; };
+    btn.addEventListener('pointerdown', press);
+    btn.addEventListener('pointerup', release);
+    btn.addEventListener('pointerleave', release);
+    btn.addEventListener('pointercancel', release);
+  });
+}
+
+// ---------------- State ----------------
+function freshCounters(){
+  return { battlesWon:0, petsCaught:0, cubesThrown:0, movesUsed:0, movesTried:{}, staminaZeroCount:0,
+           catchRate60Hit:0, coinsEarned:0, coinsSpent:0, itemsBought:0, areaBeaten:{}, walkAways:0,
+           partyViewed:0, shopVisited:0 };
+}
+function freshState(){
+  return {
+    screen:'title', starter:null, coins:10, cubes:5, potions:2, baseTreats:2,
+    catchBoostNext:0, dmgMultNext:1,
+    party:[], activePetIndex:0, collectibles:[],
+    worldIndex:0,
+    counters: freshCounters(),
+    battle:null, lastBattleResult:null, explore:null,
+    showParty:false,
+    activeSlot:null,
+    dexSeen:{}, dexCaught:{}, dexTypes:{},
+    journeyComplete:false,
+  };
+}
+let state = freshState();
+const AUTOSAVE_KEY = 'critterQuestSaves_v1';
+function loadSavesFromStorage(){
+  try {
+    const raw = localStorage.getItem(AUTOSAVE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      if(Array.isArray(parsed) && parsed.length === 3) return parsed;
+    }
+  } catch(e) {}
+  return [null, null, null];
+}
+function persistSaves(){
+  try { localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(saveSlots)); } catch(e) {}
+}
+let saveSlots = loadSavesFromStorage();
+function autoSaveActiveSlot(){
+  if(state.activeSlot===null || state.activeSlot===undefined) return;
+  if(!state.party || state.party.length===0) return;
+  saveSlots[state.activeSlot] = JSON.parse(JSON.stringify(state));
+  persistSaves();
+}
+
+function rand(a,b){ return a + Math.random()*(b-a); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function fill(msg, name){ return msg.replace(/\{pet\}/g, name); }
+function clamp(v,a,b){ return Math.max(a, Math.min(b,v)); }
+function curWorld(){ return WORLDS[state.worldIndex]; }
+const KEEPSAKE_BONUS_DMG = 15;
+function allKeepsakeNames(){ return WORLDS.flatMap(w=>w.shopItems.filter(it=>it.effect==='cosmetic').map(it=>it.name)); }
+function hasAllKeepsakes(){ return allKeepsakeNames().every(n=>state.collectibles.includes(n)); }
+function objDone(){ return OBJECTIVES.filter(o=>o.check(state.counters)).length; }
+function allObjDone(){ return objDone() >= OBJECTIVES.length; }
+function healthyPartyCount(){ return state.party.filter(p=>p.hp>0).length; }
+function ensureHealthyActive(){
+  if(state.party[state.activePetIndex] && state.party[state.activePetIndex].hp>0) return true;
+  const idx = state.party.findIndex(p=>p.hp>0);
+  if(idx<0) return false;
+  state.activePetIndex = idx;
+  return true;
+}
+function activePet(){ return state.party[state.activePetIndex]; }
+function grantXp(pet, amount){
+  const msgs = [];
+  pet.xp += amount;
+  while(pet.xp >= xpToNext(pet.level)){
+    pet.xp -= xpToNext(pet.level);
+    pet.level++;
+    const oldTier = pet.tier;
+    pet.maxHp = maxHpForLevel(pet.level);
+    pet.hp = pet.maxHp;
+    pet.tier = tierForLevel(pet.level);
+    msgs.push(`${displayName(pet)} grew to Level ${pet.level}!`);
+    if(pet.tier !== oldTier){
+      msgs.push(`\u{2728} ${pet.name} evolved into a ${displayName(pet)}!`);
+    }
+  }
+  return msgs;
+}
+
+// ---------------- Rendering ----------------
+const content = document.getElementById('content');
+
+function render(){
+  let html = '';
+  const showTopbar = !['title','select'].includes(state.screen);
+  if(showTopbar) html += renderTopbar();
+  html += '<div id="content-inner" style="display:flex;flex-direction:column;gap:12px;flex:1;">';
+  switch(state.screen){
+    case 'title': html += renderTitle(); break;
+    case 'howto': html += renderHowTo(); break;
+    case 'select': html += renderSelect(); break;
+    case 'worldIntro': html += renderWorldIntro(); break;
+    case 'explore': html += renderExplore(); break;
+    case 'battle': html += renderBattle(); break;
+    case 'battleResult': html += renderBattleResult(); break;
+    case 'hub': html += renderHub(); break;
+    case 'shop': html += renderShop(); break;
+    case 'pokedex': html += renderPokedex(); break;
+    case 'gameEnd': html += renderGameEnd(); break;
+    case 'worldSelect': html += renderWorldSelect(); break;
+  }
+  html += '</div>';
+  html += '<footer class="credit">Critter Quest · a gentle journey of new friends</footer>';
+  if(state.showParty) html += renderPartyModal();
+  content.innerHTML = html;
+  if(state.screen === 'battle') startBattleAnim(); else stopBattleAnim();
+  if(state.screen === 'explore'){ startExploreAnim(); wireExploreControls(); } else stopExploreAnim();
+  autoSaveActiveSlot();
+}
+
+function renderTopbar(){
+  const inBattle = state.screen === 'battle';
+  return `
+  <header id="topbar">
+    <div class="stats">
+      <div class="stat">\u{1FA99} ${state.coins}</div>
+      <div class="stat">\u{1F4E6} ${state.cubes}</div>
+      <div class="stat">\u{1F9EA} ${state.potions}</div>
+      <div class="stat">\u{1F43E} ${state.party.length}</div>
+    </div>
+    <div class="btns">
+      ${!inBattle ? `<button data-action="toggle-party">Party</button><button data-action="goto-hub">Hub</button>` : ''}
+    </div>
+  </header>`;
+}
+
+function renderTitle(){
+  const slotsHtml = saveSlots.map((s,i)=>{
+    if(s){
+      const w = WORLDS[s.worldIndex] || WORLDS[0];
+      return `<div class="saveSlot" data-action="load-slot" data-arg="${i}">
+        <div><div class="slotNum">Save ${i+1}</div><div class="slotInfo">${w.name} \u{00B7} \u{1F43E} ${s.party.length} \u{00B7} \u{1FA99} ${s.coins}</div></div>
+        <span>\u{25B6}\u{FE0F}</span>
+      </div>`;
+    }
+    return `<div class="saveSlot empty" data-action="new-slot" data-arg="${i}">
+      <div><div class="slotNum">Save ${i+1}</div><div class="slotInfo">Empty \u{2014} Start a New Journey</div></div>
+      <span>+</span>
+    </div>`;
+  }).join('');
+  return `
+    <div class="bigEmoji">\u{1F43E}</div>
+    <h1 class="gameTitle">Critter Quest</h1>
+    <p class="tagline">A Journey of Friends</p>
+    <div class="storyBox">
+      <p>Travel across eight worlds, battle wild animals to wear them down, then throw Pet Cubes to catch them — catch rate always capped at a fair <b>60%</b>.</p>
+      <p>Earn Paw Coins, shop at each world's unique store, and complete 20 World Quests per world to journey onward.</p>
+    </div>
+    <div class="saveSlotList">${slotsHtml}</div>
+    <p class="saveNote">Your progress auto-saves to this device as you play — just close the tab and pick a save to continue anytime.</p>
+    <div class="btnRow"><button class="secondary" data-action="goto-howto">How to Play</button></div>
+  `;
+}
+
+function renderHowTo(){
+  return `
+    <h1 class="gameTitle" style="font-size:22px;">How to Play</h1>
+    <div class="howList">
+      <div class="howItem"><span class="ic">\u{2694}\u{FE0F}</span><span>Wild pets are found on your journey. <b>Battle</b> them using Approach, Treat, or Team Trick moves to wear down their Stamina.</span></div>
+      <div class="howItem"><span class="ic">\u{1F3AF}</span><span>Lower Stamina raises your <b>Catch Rate</b> — but it's always capped at <b>60%</b>, so throwing a Pet Cube is never a sure thing.</span></div>
+      <div class="howItem"><span class="ic">\u{1F4E6}</span><span>Throwing a <b>Pet Cube</b> costs one from your bag. Success catches the pet; failure means the battle continues.</span></div>
+      <div class="howItem"><span class="ic">\u{1FA99}</span><span>Battles earn <b>Paw Coins</b>. Spend them at each world's unique <b>Shop</b> for cubes, charms, and treats.</span></div>
+      <div class="howItem"><span class="ic">\u{1F5FA}\u{FE0F}</span><span>Each world has <b>20 World Quests</b> to complete before you can travel onward — check your progress any time in the <b>Hub</b>.</span></div>
+      <div class="howItem"><span class="ic">\u{1F4BE}</span><span>Your game <b>auto-saves</b> to this device as you play — pick your save from the title screen to pick up right where you left off.</span></div>
+      <div class="howItem"><span class="ic">\u{2728}</span><span>Each world's shop sells one <b>Keepsake</b> — collect all three and your active pet permanently deals <b>+15 bonus damage</b> in battle.</span></div>
+    </div>
+    <div class="btnRow"><button class="primary" data-action="goto-title">Got It — Back to Title</button></div>
+  `;
+}
+
+function renderSelect(){
+  const cards = STARTERS.map(s => `
+    <div class="starterCard ${state.starter===s.key?'selected':''}" data-action="pick-starter" data-arg="${s.key}">
+      <img class="artIcon" src="${getCreatureImage(s.key,72)}" alt="${s.name}"><div class="nm">${s.name}</div>
+    </div>`).join('');
+  return `
+    <h1 class="gameTitle" style="font-size:22px;">Choose Your Companion</h1>
+    <p class="tagline">Who will join you at the start of your journey?</p>
+    <div class="starterGrid">${cards}</div>
+    <div class="btnRow"><button class="primary" ${state.starter?'':'disabled'} data-action="confirm-starter">Set Off Together</button></div>
+  `;
+}
+
+function renderWorldIntro(){
+  const w = curWorld();
+  const paras = w.intro.map(t=>`<p>${t}</p>`).join('');
+  return `
+    <div class="bigEmoji">${w.scene}</div>
+    <h1 class="gameTitle" style="font-size:24px;">${w.name}</h1>
+    <div class="storyBox">${paras}<p><b>Goal:</b> Complete all 20 World Quests to unlock the next world.</p></div>
+    <div class="btnRow"><button class="primary" data-action="enter-world">Enter ${w.name}</button></div>
+  `;
+}
+
+function chapterDots(){
+  const w = curWorld();
+  return `<div class="chapterDots">${w.chapters.map((c,i)=>{
+    const beaten = !!state.counters.areaBeaten[i];
+    let cls = 'locked';
+    if(beaten) cls = 'done';
+    else if(!c.isBossChapter || bossUnlocked()) cls = 'current';
+    return `<div class="cdot ${cls}" data-action="goto-area" data-arg="${i}" title="Area ${i+1}: ${c.title}"></div>`;
+  }).join('')}</div>`;
+}
+
+function healWarningHtml(){
+  if(healthyPartyCount() > 0) return '';
+  return `<div class="healWarning">\u{1F915} Every pet in your party is fainted! Open your Party and use a Potion (or buy some at the Shop) before you can battle again.</div>`;
+}
+
+function renderExplore(){
+  return `
+    ${chapterDots()}
+    <div class="exploreBox">
+      <canvas id="exploreCanvas" width="440" height="420"></canvas>
+      <div class="dpad">
+        <button class="dpadBtn dpadUp" id="dpadUp">\u{2B06}\u{FE0F}</button>
+        <button class="dpadBtn dpadDown" id="dpadDown">\u{2B07}\u{FE0F}</button>
+        <button class="dpadBtn dpadLeft" id="dpadLeft">\u{2B05}\u{FE0F}</button>
+        <button class="dpadBtn dpadRight" id="dpadRight">\u{27A1}\u{FE0F}</button>
+      </div>
+    </div>
+    <div class="exploreHint">This world has 4 areas — walk off the left/right edge to move between them, or tap a dot above to jump straight there. Visit the shop tent and walk up to a bush to see what's hiding inside!</div>
+    ${healWarningHtml()}
+  `;
+}
+
+function typeBadge(type){
+  if(!type) return '';
+  const bg = TYPE_COLORS[type] || '#8b7d68';
+  return `<span class="typeBadge" style="background:${bg}22;color:${bg};box-shadow:inset 0 0 0 1px ${bg}55;">${TYPE_EMOJI[type]||''} ${type}</span>`;
+}
+
+function renderBattle(){
+  const b = state.battle;
+  const def = WILD_PETS[b.petKey];
+  const myPet = state.party[b.activeIndex];
+  const wildPct = Math.round(b.wildHp/b.wildMaxHp*100);
+  const myPct = Math.round(myPet.hp/myPet.maxHp*100);
+  const baseRate = clamp(60 * (1 - b.wildHp/b.wildMaxHp), 5, 60);
+  const boostNote = state.catchBoostNext>0 ? `<div class="boostNote">+${state.catchBoostNext}% charm ready for your next throw!</div>` : '';
+  const logHtml = b.log.slice(-3).map(l=>`<div>${l}</div>`).join('');
+  const teamTrickLeft = b.teamTrickUsed ? 0 : 1;
+  return `
+    ${chapterDots()}
+    <div class="canvasBox tappable" data-action="battle-attack"><canvas id="battleCanvas" width="440" height="200"></canvas></div>
+    <div class="battleHint">\u{1F446} Tap the arena or press SPACE to attack!</div>
+    <div class="petName">Wild ${def.isBoss?'\u{1F451} ':''}${b.isShiny?'✨ Shiny ':''}${def.name} \u{00B7} Lv.${b.wildLevel} ${typeBadge(b.wildType)}</div>
+    <div class="petDesc">${def.desc}${b.isShiny?' This one shimmers with an unusual, striking color — and hits noticeably harder than most.':''}</div>
+    <div class="statRow"><span>${displayName(myPet)} \u{00B7} Lv.${myPet.level} ${typeBadge(myPet.type)}</span><span>${myPct}%</span></div>
+    <div class="staminaBar"><div class="staminaFill playerFill" style="width:${myPct}%;"></div></div>
+    <div class="statRow"><span>${def.name}'s Health</span><span>${wildPct}%</span></div>
+    <div class="staminaBar"><div class="staminaFill" style="width:${wildPct}%;"></div></div>
+    <div class="catchRateLine">Catch Rate: ${Math.round(baseRate)}% (cap 60%)</div>
+    ${boostNote}
+    <div class="battleLog">${logHtml || 'Attack to wear down Health, then throw a Pet Cube!'}</div>
+    <div class="actionsBox">
+      <div class="moveGrid">
+        <button class="moveBtn" data-action="battle-treat" ${b.treatsLeft<=0?'disabled':''}>\u{1F36A} Treat<small>${b.treatsLeft} left</small></button>
+        <button class="moveBtn teamtrick" data-action="battle-teamtrick" ${teamTrickLeft<=0?'disabled':''}>\u{1F91D} Team Trick<small>${teamTrickLeft} left, strong</small></button>
+        <button class="moveBtn cube" data-action="battle-cube" ${state.cubes<=0?'disabled':''}>\u{1F4E6} Throw Cube<small>${state.cubes} in bag</small></button>
+        <button class="moveBtn walk" data-action="battle-walk">Walk Away</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderBattleResult(){
+  const r = state.lastBattleResult;
+  const icon = r.success ? '\u{1F389}' : (r.outcome==='fainted' ? '\u{1F915}' : '\u{1F343}');
+  const title = r.success ? 'New Friend!' : (r.outcome==='fainted' ? 'Your Pet Fainted...' : 'Off It Goes...');
+  return `
+    ${chapterDots()}
+    <div class="bigEmoji">${icon}</div>
+    <h1 class="gameTitle" style="font-size:20px;">${title}</h1>
+    <div class="storyBox">
+      <p>${r.message}</p>
+      ${r.coins>0 ? `<p><b>+${r.coins} Paw Coins</b> earned from this battle.</p>` : ''}
+    </div>
+    <div class="btnRow"><button class="primary" data-action="result-continue">Continue Journey</button></div>
+  `;
+}
+
+function renderHub(){
+  const w = curWorld();
+  const done = objDone();
+  const total = OBJECTIVES.length;
+  const items = OBJECTIVES.map(o=>{
+    const isDone = o.check(state.counters);
+    return `<div class="questItem ${isDone?'done':''}"><span class="chk">${isDone?'\u{2705}':'\u{2B1C}'}</span><span>${o.label}</span></div>`;
+  }).join('');
+  const isLastWorld = state.worldIndex >= WORLDS.length - 1;
+  const canTravel = done >= total;
+  return `
+    <div class="bigEmoji">${w.scene}</div>
+    <h1 class="gameTitle" style="font-size:20px;">${w.name} Hub</h1>
+    ${chapterDots()}
+    <div class="questProgress">${done} / ${total} World Quests Complete</div>
+    <div class="questList">${items}</div>
+    ${healWarningHtml()}
+    <div class="btnRow">
+      <button class="secondary" data-action="goto-map" ${healthyPartyCount()?'':'disabled'}>\u{1F5FA}\u{FE0F} Explore World</button>
+      <button class="secondary" data-action="goto-shop">Open ${w.shopName}</button>
+      <button class="secondary" data-action="goto-dex">\u{1F4D6} Pet-opedia</button>
+      <button class="primary" data-action="travel-next" ${canTravel?'':'disabled'}>${isLastWorld ? 'Finish Your Journey' : 'Travel to Next World'}</button>
+    </div>
+    ${state.journeyComplete ? `<div class="btnRow"><button class="secondary" data-action="goto-world-select">\u{1F5FA}\u{FE0F} Free Roam the Worlds</button></div>` : ''}
+    <div class="btnRow"><button class="secondary" data-action="goto-title" style="font-size:11px;opacity:0.7;">\u{1F3E0} Title Screen</button></div>
+  `;
+}
+
+function renderShop(){
+  const w = curWorld();
+  const items = w.shopItems.map(it=>{
+    const boughtCosmetic = it.effect==='cosmetic' && state.collectibles.includes(it.name);
+    const treatMaxed = it.effect==='treat' && state.baseTreats>=5;
+    const disabled = state.coins < it.cost || boughtCosmetic || treatMaxed;
+    return `
+      <div class="shopItem">
+        <div class="ic">${it.icon}</div>
+        <div class="info"><div class="nm">${it.name}</div><div class="ds">${it.desc}</div></div>
+        <button class="buyBtn" data-action="buy-item" data-arg="${it.key}" ${disabled?'disabled':''}>${boughtCosmetic?'Owned':(treatMaxed?'Maxed':('\u{1FA99} '+it.cost))}</button>
+      </div>`;
+  }).join('');
+  return `
+    <img class="shopArt" src="${getShopArt(w)}" alt="${w.shopName}">
+    <h1 class="gameTitle" style="font-size:20px;">${w.shopName}</h1>
+    <p class="tagline">You have \u{1FA99} ${state.coins} Paw Coins</p>
+    <div class="shopGrid">${items}</div>
+    <div class="btnRow"><button class="secondary" data-action="goto-map">Back to Map</button><button class="secondary" data-action="goto-hub">Hub</button></div>
+  `;
+}
+
+function renderPokedexCard(e){
+  const seen = state.dexSeen[e.id];
+  const caught = state.dexCaught[e.id];
+  if(!seen){
+    return `<div class="dexCard unseen"><div class="dexSilhouette">?</div><div class="nm">???</div></div>`;
+  }
+  const seenType = e.type || state.dexTypes[e.id];
+  const icon = getCreatureImage(e.species, 56, e.variant, 1, seenType && seenType!=='normal' ? TYPE_COLORS[seenType] : null, !!e.isShiny);
+  return `<div class="dexCard">
+    <img class="artIcon" src="${icon}" alt="${e.name}">
+    <div class="nm">${e.isBoss?'\u{1F451} ':''}${e.isShiny?'\u{2728} Shiny ':''}${e.name}</div>
+    <div class="tag">${typeBadge(seenType)}</div>
+    <div class="dexTag">${caught?'\u{2705} Caught':'\u{1F441}\u{FE0F} Seen'}</div>
+  </div>`;
+}
+function renderPokedex(){
+  const groups = POKEDEX_GROUPS.map(g=>{
+    const groupSeen = g.entries.filter(e=>state.dexSeen[e.id]).length;
+    const cards = g.entries.map(renderPokedexCard).join('');
+    return `<div class="dexGroup">
+      <div class="dexGroupHead"><span class="gnm">${g.group}</span><span class="gct">${groupSeen} / ${g.entries.length}</span></div>
+      <div class="dexGrid">${cards}</div>
+    </div>`;
+  }).join('');
+  const seenCount = Object.keys(state.dexSeen).length;
+  return `
+    <h1 class="gameTitle" style="font-size:20px;">Pet-opedia</h1>
+    <p class="tagline">${seenCount} / ${POKEDEX_ENTRIES.length} discovered</p>
+    <div class="storyBox" style="font-size:11.5px;">
+      <p><b>Type Wheel:</b> each type deals bonus damage to the next in the cycle, and takes less from the one before it. Normal types are always neutral.</p>
+      <p style="opacity:0.85;">${TYPE_WHEEL.map(t=>`${TYPE_EMOJI[t]} ${t}`).join(' \u{2192} ')} \u{2192} (back to ${TYPE_WHEEL[0]})</p>
+    </div>
+    ${groups}
+    <div class="btnRow"><button class="secondary" data-action="goto-hub">Back to Hub</button></div>
+  `;
+}
+
+function renderGameEnd(){
+  const cards = state.party.map(p=>`
+    <div class="partyCard"><img class="artIcon" src="${getCreatureImage(p.species,56,p.variant,p.tier,petTypeColor(p),p.isShiny)}" alt="${p.name}"><div class="nm">${displayName(p)}</div><div class="tag">Lv.${p.level} ${typeBadge(p.type)}</div></div>`).join('');
+  const caughtCount = state.party.filter(p=>!p.isStarter).length;
+  return `
+    <div class="bigEmoji">\u{2728}</div>
+    <h1 class="gameTitle" style="font-size:22px;">Journey's End</h1>
+    <div class="storyBox">
+      <p>Under the glow of the Crystal Spire, you look back on the road behind you — eight worlds, countless battles, and all the friends you made along the way.</p>
+      <p>You befriended <b>${caughtCount}</b> wild critters and finished with <b>\u{1FA99} ${state.coins}</b> Paw Coins and <b>\u{1F4E6} ${state.cubes}</b> Pet Cubes left in your bag.</p>
+    </div>
+    <div class="partyGrid">${cards}</div>
+    <div class="btnRow">
+      <button class="secondary" data-action="goto-world-select">\u{1F5FA}\u{FE0F} Free Roam the Worlds</button>
+      <button class="primary" data-action="restart-game">Play Again</button>
+    </div>
+  `;
+}
+
+function renderWorldSelect(){
+  const cards = WORLDS.map((w,i)=>`
+    <div class="worldSelectCard ${i===state.worldIndex?'current':''}">
+      <div class="wsIcon">${w.scene}</div>
+      <div class="nm">${w.name}</div>
+      <div class="tag">${typeBadge(w.primaryType)}</div>
+      <button class="secondary" data-action="goto-world" data-arg="${i}">${i===state.worldIndex?'Current':'Visit'}</button>
+    </div>`).join('');
+  return `
+    <h1 class="gameTitle" style="font-size:20px;">Free Roam</h1>
+    <p class="tagline">Every guardian stays ready to battle — visit any world, any time.</p>
+    <div class="worldSelectGrid">${cards}</div>
+    <div class="btnRow"><button class="secondary" data-action="goto-hub">Back to Hub</button></div>
+  `;
+}
+
+function renderPartyModal(){
+  const cards = state.party.map((p,i)=>{
+    const hpPct = Math.round(p.hp/p.maxHp*100);
+    const fainted = p.hp<=0;
+    const isActive = i===state.activePetIndex;
+    const icon = getCreatureImage(p.species, 56, p.variant, p.tier, petTypeColor(p), p.isShiny);
+    return `<div class="partyCard ${fainted?'fainted':''} ${isActive?'active':''}">
+      <img class="artIcon" src="${icon}" alt="${p.name}">
+      <div class="nm">${displayName(p)}${isActive?' \u{2B50}':''}</div>
+      <div class="tag">Lv.${p.level} ${typeBadge(p.type)}</div>
+      <div class="miniHpBar"><div class="miniHpFill" style="width:${hpPct}%;"></div></div>
+      <div class="cardBtns">
+        ${(!isActive && !fainted) ? `<button class="tinyBtn" data-action="set-active" data-arg="${i}">Set Active</button>` : ''}
+        ${(p.hp<p.maxHp && state.potions>0) ? `<button class="tinyBtn potion" data-action="use-potion" data-arg="${i}">\u{1F9EA} Potion</button>` : ''}
+      </div>
+    </div>`;
+  }).join('')
+    || '<p style="grid-column:1/-1;text-align:center;opacity:0.6;">No friends caught yet — keep exploring!</p>';
+  const totalKeepsakes = allKeepsakeNames().length;
+  const gotKeepsakes = hasAllKeepsakes();
+  const collect = state.collectibles.length
+    ? `<h2 style="margin-top:14px;">Keepsakes \u{00B7} ${state.collectibles.length}/${totalKeepsakes}</h2>
+       <p style="font-size:12px;opacity:0.75;">${state.collectibles.join(', ')}</p>
+       ${gotKeepsakes ? `<p style="font-size:12px;font-weight:800;color:#a15a00;">\u{2728} All keepsakes collected — your active pet deals +${KEEPSAKE_BONUS_DMG} bonus damage in battle!</p>` : `<p style="font-size:11px;opacity:0.6;">Collect every world's keepsake for a permanent +${KEEPSAKE_BONUS_DMG} damage bonus.</p>`}`
+    : '';
+  return `
+    <div class="modalOverlay">
+      <div class="modalCard">
+        <h2>Your Party \u{00B7} \u{1F9EA} ${state.potions} Potions</h2>
+        <div class="partyGrid">${cards}</div>
+        ${collect}
+        <button class="secondary closeModalBtn" data-action="toggle-party">Close</button>
+      </div>
+    </div>`;
+}
+
+// ---------------- Battle logic ----------------
+const BATTLE_TIME_LIMIT = 60000;
+const PET_ATTACK_MSGS = ["{pet} wriggles and bumps back at you!","{pet} gives a startled kick!","{pet} flinches and swipes past you!","{pet} darts forward, catching you off guard!"];
+function levelFactor(atkLevel, defLevel){ return clamp(atkLevel/defLevel, 0.5, 2.2); }
+function petDamagePct(kind){
+  if(kind==='approach') return rand(7,11);
+  if(kind==='treat') return rand(13,18);
+  if(kind==='teamtrick') return rand(20,28);
+  return 0;
+}
+
+function startBattle(petKey, level, opts){
+  opts = opts || {};
+  if(!ensureHealthyActive()) return;
+  const def = WILD_PETS[petKey];
+  const dmgMult = state.dmgMultNext || 1;
+  state.dmgMultNext = 1;
+  const myTick = ++tickTokenCounter;
+  const wildMaxHp = maxHpForLevel(level);
+  const wildType = opts.type || 'normal';
+  const isShiny = !!opts.isShiny;
+  const areaIndex = opts.areaIndex != null ? opts.areaIndex : (state.explore ? state.explore.areaIndex : null);
+  const dexId = isShiny ? petKey + '_shiny' : petKey;
+  state.dexSeen[dexId] = true;
+  state.dexTypes[dexId] = wildType;
+  state.battle = {
+    petKey, wildLevel: level, wildMaxHp, wildHp: wildMaxHp, wildType, isShiny, areaIndex,
+    activeIndex: state.activePetIndex, dmgMult, turns:0,
+    treatsLeft: state.baseTreats, teamTrickUsed:false,
+    won:false, log:[], lastAction:null, lastActionAt:null, lastTapAt:0,
+    battleStartAt: performance.now(), tickToken: myTick,
+  };
+  if(state.explore && !state.explore.introShown[petKey] && areaIndex != null){
+    const w = curWorld();
+    const ch = w.chapters[areaIndex];
+    if(ch && ch.text) ch.text.forEach(t=>state.battle.log.push(t));
+    state.explore.introShown[petKey] = true;
+  }
+  if(isShiny){ state.battle.log.push('✨ A shiny ' + def.name + ' appeared! It looks noticeably stronger than usual...'); }
+  state.screen = 'battle';
+  scheduleRetaliation(myTick);
+}
+
+function scheduleRetaliation(token){
+  const delay = rand(1500,2300);
+  setTimeout(function(){
+    if(token !== tickTokenCounter) return;
+    if(state.screen !== 'battle' || !state.battle) return;
+    const b = state.battle;
+    const def = WILD_PETS[b.petKey];
+    const myPet = state.party[b.activeIndex];
+    if(!myPet){ return; }
+    const typeMult = typeMultiplier(b.wildType, myPet.type);
+    const lvlMult = levelFactor(b.wildLevel, myPet.level);
+    const dmg = myPet.maxHp * (rand(5,9)/100) * typeMult * lvlMult * (b.isShiny ? SHINY_STRENGTH_MULT : 1);
+    myPet.hp = clamp(myPet.hp - dmg, 0, myPet.maxHp);
+    b.lastAction = 'pet-attack';
+    b.lastActionAt = performance.now();
+    b.log.push(fill(pick(PET_ATTACK_MSGS), def.name));
+    if(myPet.hp <= 0){
+      const coins = b.won ? computeCoins(b, false) : 0;
+      if(coins>0){ state.counters.coinsEarned += coins; state.coins += coins; }
+      finishBattle('fainted', `${displayName(myPet)} can't continue! You scoop your tired companion up and retreat. Use a Potion to heal it before your next battle.`, coins);
+      return;
+    }
+    if(performance.now() - b.battleStartAt > BATTLE_TIME_LIMIT){
+      const coins2 = b.won ? computeCoins(b, false) : 0;
+      if(coins2>0){ state.counters.coinsEarned += coins2; state.coins += coins2; }
+      finishBattle('fled', `After a long chase, the ${def.name} slips away into the wild.`, coins2);
+      return;
+    }
+    render();
+    scheduleRetaliation(token);
+  }, delay);
+}
+
+function battleAttack(){
+  if(state.screen !== 'battle' || !state.battle) return;
+  const b = state.battle;
+  const now = performance.now();
+  if(b.lastTapAt && now - b.lastTapAt < 140) return;
+  b.lastTapAt = now;
+  useMove('approach');
+}
+
+function useMove(kind){
+  const b = state.battle;
+  const def = WILD_PETS[b.petKey];
+  const myPet = state.party[b.activeIndex];
+  if(!myPet || myPet.hp<=0) return;
+  let pct = 0, msgPool = null;
+  if(kind === 'approach'){ pct = petDamagePct('approach'); msgPool = APPROACH_MSGS; }
+  else if(kind === 'treat'){ if(b.treatsLeft<=0) return; b.treatsLeft--; pct = petDamagePct('treat'); msgPool = TREAT_MSGS; }
+  else if(kind === 'teamtrick'){ if(b.teamTrickUsed) return; b.teamTrickUsed = true; pct = petDamagePct('teamtrick'); msgPool = TEAMTRICK_MSGS; }
+
+  const typeMult = typeMultiplier(myPet.type, b.wildType);
+  const lvlMult = levelFactor(myPet.level, b.wildLevel);
+  const keepsakeBonus = hasAllKeepsakes();
+  const dmg = b.wildMaxHp * (pct/100) * def.mult * typeMult * lvlMult * b.dmgMult * (myPet.isShiny ? SHINY_STRENGTH_MULT : 1) + (keepsakeBonus ? KEEPSAKE_BONUS_DMG : 0);
+  b.wildHp = clamp(b.wildHp - dmg, 0, b.wildMaxHp);
+  b.turns++;
+  state.counters.movesUsed++;
+  state.counters.movesTried[kind] = true;
+  b.lastAction = kind;
+  b.lastActionAt = performance.now();
+  b.log.push(fill(pick(msgPool), def.name) + (keepsakeBonus ? ` ✨ (+${KEEPSAKE_BONUS_DMG} keepsake bonus!)` : ''));
+  if(typeMult > 1) b.log.push('\u{1F4A5} Super effective!');
+  else if(typeMult < 1) b.log.push('Not very effective...');
+  else b.log.push(fill(pick(GAIN_MSGS), def.name));
+
+  if(b.wildHp <= 0 && !b.won){
+    b.won = true;
+    state.counters.battlesWon++;
+    state.counters.staminaZeroCount++;
+    const xpGain = Math.round(b.wildLevel * 3 * (def.isBoss ? 1.8 : 1));
+    grantXp(myPet, xpGain).forEach(m=>b.log.push(m));
+  } else if(!b.won && Math.random() < 0.15){
+    const regen = b.wildMaxHp * (rand(3,8)/100);
+    b.wildHp = clamp(b.wildHp + regen, 0, b.wildMaxHp);
+    b.log.push(fill(pick(REGEN_MSGS), def.name));
+  }
+
+  render();
+}
+
+function throwCube(){
+  const b = state.battle;
+  const def = WILD_PETS[b.petKey];
+  if(state.cubes <= 0) return;
+  state.cubes--;
+  state.counters.cubesThrown++;
+  const baseRate = clamp(60 * (1 - b.wildHp/b.wildMaxHp), 5, 60);
+  const boost = state.catchBoostNext || 0;
+  const effectiveRate = clamp(baseRate + boost, 5, 60);
+  state.catchBoostNext = 0;
+  if(effectiveRate >= 60) state.counters.catchRate60Hit = 1;
+
+  const success = Math.random()*100 < effectiveRate;
+  if(success){
+    b.lastAction = 'cube-success';
+    b.lastActionAt = performance.now();
+    if(!b.won){ b.won = true; state.counters.battlesWon++; }
+    const coins = computeCoins(b, true);
+    state.counters.coinsEarned += coins;
+    state.coins += coins;
+    state.counters.petsCaught++;
+    const level = b.wildLevel;
+    const maxHp = maxHpForLevel(level);
+    state.party.push({key: b.petKey + '_' + state.party.length + '_' + state.worldIndex, name: def.name,
+      species: def.species, variant: def.variant, type: b.wildType, isShiny: b.isShiny, isStarter:false,
+      level, xp:0, maxHp, hp:maxHp, tier:tierForLevel(level)});
+    state.dexCaught[b.isShiny ? b.petKey + '_shiny' : b.petKey] = true;
+    finishBattle('caught', fill(pick(CUBE_SUCCESS_MSGS), def.name), coins);
+    return;
+  } else {
+    b.lastAction = 'cube-fail';
+    b.lastActionAt = performance.now();
+    b.log.push(fill(pick(CUBE_FAIL_MSGS), def.name));
+    render();
+  }
+}
+
+function computeCoins(b, caught){
+  const pctWorn = 1 - b.wildHp/b.wildMaxHp;
+  let coins = 5 + Math.round(pctWorn*10) * 2 + Math.round(b.wildLevel/3);
+  if(caught) coins += 15;
+  return coins;
+}
+
+function walkAway(){
+  const b = state.battle;
+  const def = WILD_PETS[b.petKey];
+  state.counters.walkAways++;
+  const coins = b.won ? computeCoins(b, false) : 0;
+  if(coins>0){ state.counters.coinsEarned += coins; state.coins += coins; }
+  finishBattle('walked', `You decide to let the ${def.name} be, and continue on your way. Maybe you'll cross paths again.`, coins);
+}
+
+function finishBattle(outcome, message, coins){
+  if(state.battle && (state.battle.won || outcome==='caught') && state.battle.areaIndex != null){
+    const wasUnlocked = bossUnlocked();
+    state.counters.areaBeaten[state.battle.areaIndex] = true;
+    if(!wasUnlocked && bossUnlocked() && state.explore){
+      state.explore.pendingBossToast = true;
+    }
+  }
+  state.lastBattleResult = { success: outcome==='caught', outcome, message, coins };
+  state.battle = null;
+  state.screen = 'battleResult';
+  render();
+}
+
+// ---------------- Actions ----------------
+document.getElementById('shell').addEventListener('click', function(e){
+  const el = e.target.closest('[data-action]');
+  if(!el) return;
+  const action = el.getAttribute('data-action');
+  const arg = el.getAttribute('data-arg');
+
+  switch(action){
+    case 'goto-howto': state.screen='howto'; render(); break;
+    case 'goto-select': state.screen='select'; render(); break;
+    case 'pick-starter': state.starter = arg; render(); break;
+    case 'confirm-starter': {
+      if(!state.starter) return;
+      const s = STARTERS.find(x=>x.key===state.starter);
+      const lvl = 5;
+      const maxHp = maxHpForLevel(lvl);
+      state.party = [{key:'starter_'+s.key, name:s.name, species:s.key, type:s.type, isStarter:true,
+        level:lvl, xp:0, maxHp, hp:maxHp, tier:1}];
+      state.activePetIndex = 0;
+      state.dexSeen['starter_'+s.key] = true;
+      state.dexCaught['starter_'+s.key] = true;
+      state.worldIndex = 0; state.counters = freshCounters();
+      state.screen = 'worldIntro';
+      render();
+      break;
+    }
+    case 'enter-world': {
+      returnToMap();
+      render();
+      break;
+    }
+    case 'goto-map': {
+      returnToMap();
+      render();
+      break;
+    }
+    case 'goto-area': {
+      goToArea(Number(arg));
+      render();
+      break;
+    }
+    case 'battle-attack': battleAttack(); break;
+    case 'battle-treat': useMove('treat'); break;
+    case 'battle-teamtrick': useMove('teamtrick'); break;
+    case 'battle-cube': throwCube(); break;
+    case 'battle-walk': walkAway(); break;
+    case 'result-continue': {
+      returnToMap();
+      render();
+      break;
+    }
+    case 'goto-hub': state.screen='hub'; render(); break;
+    case 'goto-shop': ensureWorldMap(); state.counters.shopVisited++; state.screen='shop'; render(); break;
+    case 'buy-item': {
+      const w = curWorld();
+      const it = w.shopItems.find(x=>x.key===arg);
+      if(!it) return;
+      const boughtCosmetic = it.effect==='cosmetic' && state.collectibles.includes(it.name);
+      const treatMaxed = it.effect==='treat' && state.baseTreats>=5;
+      if(state.coins < it.cost || boughtCosmetic || treatMaxed) return;
+      state.coins -= it.cost;
+      state.counters.coinsSpent += it.cost;
+      state.counters.itemsBought++;
+      if(it.effect==='cube') state.cubes += 1;
+      else if(it.effect==='potionbuy') state.potions += 1;
+      else if(it.effect==='snack') state.dmgMultNext = it.mult;
+      else if(it.effect==='charm') state.catchBoostNext = (state.catchBoostNext||0) + it.boost;
+      else if(it.effect==='treat') state.baseTreats = Math.min(5, state.baseTreats+1);
+      else if(it.effect==='cosmetic') state.collectibles.push(it.name);
+      render();
+      break;
+    }
+    case 'set-active': {
+      const i = Number(arg);
+      if(state.party[i] && state.party[i].hp>0) state.activePetIndex = i;
+      render();
+      break;
+    }
+    case 'use-potion': {
+      const i = Number(arg);
+      const p = state.party[i];
+      if(!p || state.potions<=0 || p.hp>=p.maxHp) return;
+      state.potions--;
+      p.hp = Math.min(p.maxHp, p.hp + Math.round(p.maxHp*0.5));
+      render();
+      break;
+    }
+    case 'goto-dex': state.screen='pokedex'; render(); break;
+    case 'travel-next': {
+      if(objDone() < OBJECTIVES.length) return;
+      if(state.worldIndex >= WORLDS.length - 1){
+        state.journeyComplete = true;
+        state.screen = 'gameEnd';
+      } else {
+        state.worldIndex++;
+        state.counters = freshCounters();
+        state.screen = 'worldIntro';
+      }
+      render();
+      break;
+    }
+    case 'goto-world-select': state.screen = 'worldSelect'; render(); break;
+    case 'goto-world': {
+      const idx = clamp(Number(arg), 0, WORLDS.length-1);
+      state.worldIndex = idx;
+      state.counters = freshCounters();
+      state.screen = 'hub';
+      render();
+      break;
+    }
+    case 'restart-game': state = freshState(); render(); break;
+    case 'toggle-party': {
+      state.showParty = !state.showParty;
+      if(state.showParty) state.counters.partyViewed++;
+      render();
+      break;
+    }
+    case 'goto-title': state.screen = 'title'; render(); break;
+    case 'new-slot': {
+      state = freshState();
+      state.activeSlot = Number(arg);
+      state.screen = 'select';
+      render();
+      break;
+    }
+    case 'load-slot': {
+      const idx = Number(arg);
+      const s = saveSlots[idx];
+      if(!s) return;
+      state = JSON.parse(JSON.stringify(s));
+      state.activeSlot = idx;
+      state.screen = 'hub';
+      state.showParty = false;
+      state.explore = null;
+      state.battle = null;
+      render();
+      break;
+    }
+  }
+});
+
+document.addEventListener('keydown', function(e){
+  if(state.screen === 'explore'){
+    if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','KeyW','KeyA','KeyS','KeyD'].includes(e.code)){
+      heldKeys[e.code] = true;
+      e.preventDefault();
+    }
+  } else if(state.screen === 'battle'){
+    if(e.code === 'Space' && !e.repeat){
+      e.preventDefault();
+      battleAttack();
+    }
+  }
+});
+document.addEventListener('keyup', function(e){
+  heldKeys[e.code] = false;
+});
+
+render();
+})();
+</script>
+</body>
+</html>
